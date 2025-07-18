@@ -1,6 +1,8 @@
 package auth
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/auth/login", Login)
@@ -8,4 +10,3 @@ func Routes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/auth/check-auth", CheckAuth)
 	mux.HandleFunc("/api/auth/logout", Logout)
 }
-
