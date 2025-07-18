@@ -21,8 +21,14 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user.Password, err = utils.Hash_password(user.Password)
+	if err != nil {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	if err = Insert_user_info(user); err != nil {
-		utils.SendResponseStatus(w, http.StatusBadRequest, err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 
