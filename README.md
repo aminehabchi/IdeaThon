@@ -4,6 +4,8 @@
 - npx shadcn@latest add button
 
 ##### in the front i did something like this tree :
+
+```
 .
 ├── app/                     # Route-based pages and layouts
 │   ├── (public)/            # Public routes (e.g., homepage, about)
@@ -46,3 +48,4 @@
 ├── tailwind.config.js       # Tailwind setup
 ├── jsconfig.json            # Path alias config
 └── next.config.js
+```
