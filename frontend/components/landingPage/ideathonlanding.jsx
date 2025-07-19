@@ -1,5 +1,4 @@
 "use client";
-
 import { Navbar } from "../navbar"
 import {Users, Lightbulb, Trophy } from "lucide-react"
 import { useState, useEffect } from "react";
@@ -9,7 +8,6 @@ export default  function IdeaThonsLanding() {
       <div className="min-h-screen bg-white">
         {/* Use the separated Navbar component */}
         <Navbar />
-  
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
