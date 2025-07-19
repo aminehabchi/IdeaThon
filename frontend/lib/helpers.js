@@ -1,6 +1,3 @@
-// fetcher function to fetch data from a given URL
-// Example usage:
-// fetcher({ url: '/api/data', method: 'GET' })
 export async function fetcher({
   url,
   method = "GET",
@@ -10,6 +7,7 @@ export async function fetcher({
 }) {
   const headers = {
     "Content-Type": "application/json",
+    Accept: "application/json",
   };
 
   if (token) {
@@ -19,7 +17,7 @@ export async function fetcher({
   const config = {
     method,
     headers,
-    credentials: "include",
+    credentials: "include", // important for sending cookies
   };
 
   if (data) {
@@ -29,13 +27,13 @@ export async function fetcher({
   try {
     const res = await fetch(url, config);
 
-    if (res.ok != returned_status) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Something went wrong");
+    if (res.status !== returned_status) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || `Unexpected status: ${res.status}`);
     }
 
-    if (returned_status != res.ok) {
-      return;
+    if (returned_status !== 200) {
+      return; // no body expected
     }
 
     return await res.json();
