@@ -12,11 +12,11 @@ export default function Ideathon(ideathon_data) {
     } = ideathon_data;
 
     return (
-        <div className="w-full max-w-[700px] flex flex-col md:flex-row justify-between items-start p-4 rounded-xl shadow-md bg-white gap-4">
+        <div className="w-full max-w-[700px] flex flex-col md:flex-row justify-between items-start p-4 rounded-xl shadow-md bg-white gap-4 cursor-pointer">
             {/* Left Section */}
             <div className="flex gap-4 flex-1">
                 <img
-                    src={image}
+                    src="/belmaayo_avatar.png" 
                     alt="cover"
                     className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover flex-shrink-0"
                 />
