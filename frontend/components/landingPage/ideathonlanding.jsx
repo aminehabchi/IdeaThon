@@ -1,5 +1,8 @@
+"use client";
+
 import { Navbar } from "../navbar"
 import {Users, Lightbulb, Trophy } from "lucide-react"
+import { useState, useEffect } from "react";
 
 export default  function IdeaThonsLanding() {
     return (
@@ -11,7 +14,7 @@ export default  function IdeaThonsLanding() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
-              <h2 className="text-5xl lg:text-6xl font-bold text-black leading-tight">
+              <h2 className="text-5xl lg:text-5xl font-bold text-black leading-tight">
                 Brilliant Minds Think Differently — Together.
               </h2>
               <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
