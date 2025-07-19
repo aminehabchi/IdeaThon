@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -8,6 +10,8 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+
+  const navItems = ["Home", "Blog", "Updates", "Contact"];
 
   return (
     <header className="border-b border-gray-200 bg-white z-50 relative">
@@ -20,14 +24,14 @@ export function Navbar() {
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex space-x-8">
-              {["IdeaThons", "Blog", "Updates"].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-gray-600 hover:text-black transition-colors"
-                >
-                  {item}
-                </a>
+              {navItems.map((item) => (
+               <Link
+               key={item}
+               href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
+               className="text-gray-600 hover:text-black transition-colors"
+             >
+               {item}
+             </Link>             
               ))}
             </nav>
           </div>
@@ -69,14 +73,15 @@ export function Navbar() {
             >
               <div className="flex flex-col mt-4 space-y-3 pb-4">
                 <nav className="flex flex-col space-y-2">
-                  {["IdeaThons", "Blog", "Updates"].map((item) => (
-                    <a
-                      key={item}
-                      href="#"
-                      className="text-gray-700 hover:text-black px-1"
-                    >
-                      {item}
-                    </a>
+                  {navItems.map((item) => (
+                    <Link
+                        key={item}
+                        href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
+                        className="text-gray-600 hover:text-black transition-colors"
+                      >
+                        {item}
+                    </Link>
+
                   ))}
                 </nav>
                 <div className="flex flex-col space-y-2 pt-2">
