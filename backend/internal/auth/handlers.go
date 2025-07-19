@@ -13,7 +13,6 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	var user User
 	var err error
-
 	if err = utils.Decode(r, &user); err != nil {
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
 		return
@@ -50,7 +49,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 
 }
 
@@ -89,4 +88,5 @@ func CheckAuth(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
+	utils.Delete_session(w)
 }
