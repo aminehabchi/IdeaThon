@@ -7,12 +7,7 @@ import (
 
 const SessionCookieName = "token"
 
-func Add_session(w http.ResponseWriter) error {
-	token, err := Get_token()
-	if err != nil {
-		return err
-	}
-
+func Add_session(w http.ResponseWriter, token string) {
 	expiration := time.Now().Add(24 * time.Hour)
 
 	http.SetCookie(w, &http.Cookie{
@@ -22,7 +17,6 @@ func Add_session(w http.ResponseWriter) error {
 		HttpOnly: true,
 		Path:     "/",
 	})
-	return nil
 }
 
 func Delete_session(w http.ResponseWriter) {
