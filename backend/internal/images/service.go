@@ -1,8 +1,9 @@
-package utils
+package images
 
 import (
 	"encoding/base64"
 	"errors"
+	"ideaThon/utils"
 	"os"
 	"strings"
 )
@@ -19,7 +20,11 @@ var imageExtensions = map[string]bool{
 }
 
 func SaveBase64ImageToPath(imageBase64, path string) (string, error) {
-	uuid, err := Get_token()
+	if imageBase64 == "" {
+		return "", nil
+	}
+
+	uuid, err := utils.Get_token()
 	if err != nil {
 		return "", err
 	}
