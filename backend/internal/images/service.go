@@ -1,8 +1,9 @@
-package utils
+package images
 
 import (
 	"encoding/base64"
 	"errors"
+	"ideaThon/utils"
 	"os"
 	"strings"
 )
@@ -22,8 +23,8 @@ func SaveBase64ImageToPath(imageBase64, path string) (string, error) {
 	if imageBase64 == "" {
 		return "", nil
 	}
-	
-	uuid, err := Get_token()
+
+	uuid, err := utils.Get_token()
 	if err != nil {
 		return "", err
 	}

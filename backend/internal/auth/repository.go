@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 	database "ideaThon/config"
-	"ideaThon/utils"
+	"ideaThon/internal/images"
 )
 
 func Insert_session(id int, token string) error {
@@ -18,7 +18,7 @@ func Insert_session(id int, token string) error {
 
 func Insert_user_info(user User) error {
 	var err error
-	user.Avatar, err = utils.SaveBase64ImageToPath(user.Avatar, "../images")
+	user.Avatar, err = images.SaveBase64ImageToPath(user.Avatar, "../images")
 	fmt.Println(user.Avatar, err)
 	if err != nil {
 		fmt.Println(err)
