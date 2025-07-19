@@ -3,6 +3,7 @@ package auth
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"ideaThon/utils"
 	"net/http"
 
@@ -56,24 +57,27 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func Register(w http.ResponseWriter, r *http.Request) {
 	var user User
 	var err error
-
 	if err = utils.Decode(r, &user); err != nil {
+		fmt.Println("weeeeeeeeeeee")
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
 		return
 	}
 
 	if err = user.Check_register_info(); err != nil {
+		fmt.Println("zeeeeeeeeeeee")
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
 	}
 
 	user.Password, err = utils.Hash_password(user.Password)
 	if err != nil {
+		fmt.Println("feeeeeeeeeeee")
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	if err = Insert_user_info(user); err != nil {
+		fmt.Println("reeeeeeeeeeee")
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}

@@ -12,7 +12,7 @@ export default function Home() {
     </>
   );
 }
-// Shared state for synchronizing stepper and image
+
 let globalActiveStep = 0
 const stepChangeListeners = []
 
@@ -29,26 +29,18 @@ function DynamicImage() {
     {
       title: "💡 Idea Conceptualization", 
       subtitle: "Brainstorm your innovative concept",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200"
     },
     {
       title: "⚙️ Contest Configuration", 
       subtitle: "Configure competition parameters",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200"
     },
     {
       title: "🚀 Ideas Flow In",
       subtitle: "Receive diverse submissions",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200"
     },
     {
       title: "🏆 Winner Selection",
       subtitle: "Choose the best submission",
-      bgColor: "bg-yellow-50", 
-      borderColor: "border-yellow-200"
     }
   ]
 
@@ -67,7 +59,7 @@ function DynamicImage() {
 
   return (
     <div className="flex justify-center">
-      <div className={`w-full max-w-md h-96 ${currentImage.bgColor} rounded-xl border-2 ${currentImage.borderColor} flex items-center justify-center transition-all duration-500`}>
+      <div className={`w-full max-w-md h-96  rounded-xl border-2 flex items-center justify-center transition-all duration-500`}>
         <div className="text-gray-600 text-center">
           <div className="text-3xl mb-4">{currentImage.title.split(' ')[0]}</div>
           <div className="text-lg font-medium mb-2">{currentImage.title.substring(2)}</div>
@@ -105,80 +97,72 @@ function IdeathonStepper() {
     }
   ]
 
-  // Auto advance every 4 seconds and notify image component
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveStep((prevStep) => {
-        const newStep = (prevStep + 1) % steps.length;
-        notifyStepChange(newStep);
-        return newStep;
-      });
-    }, 4000);
-  
-    return () => clearInterval(interval);
-  }, []);
-  
+      const newStep = (activeStep + 1) % steps.length
+      setActiveStep(newStep)
+      notifyStepChange(newStep)
+    }, 4000)
 
-  // Handle manual step change
+    return () => clearInterval(interval)
+  }, [activeStep])
+
   const handleStepClick = (index) => {
     setActiveStep(index)
     notifyStepChange(index)
   }
 
-  const progressPercentage = ((activeStep + 1) / steps.length) * 100
-
   return (
     <div className="flex space-x-8">
-      {/* Left side - Vertical Progress Bar */}
-      <div className="flex flex-col items-center">
-        <div className="relative w-1 h-80 bg-gray-200 rounded-full">
-          <div 
-            className="absolute top-0 left-0 w-1 bg-black rounded-full transition-all duration-500 ease-in-out"
-            style={{ height: `${progressPercentage}%` }}
-          />
-        </div>
+      {/* Vertical Stepper */}
+      <div className="relative flex flex-col items-center w-6">
+        {/* Gray track */}
+        <div className="absolute w-1 h-full bg-gray-200 rounded-full" />
+
+        {/* Animated black progress bar aligned to step */}
+        <div
+          className="absolute w-[3px]  bg-black rounded-full transition-all  duration-600"
+          style={{
+            top: `${activeStep * 4}rem`,  // spacing between titles (each ~4rem apart)
+            height: "3.2rem"
+          }}
+        />
       </div>
 
-      {/* Right side - Steps Content */}
+      {/* Step Titles and Descriptions */}
       <div className="flex-1 space-y-8">
-        {/* Steps */}
-        <div className="space-y-6">
-          {steps.map((step, index) => (
-            <div 
-              key={step.number}
-              className={`cursor-pointer transition-all duration-300 ${
-                activeStep === index ? 'opacity-100' : 'opacity-60 hover:opacity-80'
-              }`}
-              onClick={() => handleStepClick(index)}
-            >
-              <div>
-                <h4 className={`text-xl font-bold mb-2 transition-colors duration-300 ${
-                  activeStep === index ? 'text-black' : 'text-gray-500'
-                }`}>
-                  {step.number} - {step.title}
-                </h4>
-                {step.description && (
-                  <p className={`transition-colors duration-300 ${
-                    activeStep === index ? 'text-gray-600' : 'text-gray-400'
-                  }`}>
-                    {step.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        {steps.map((step, index) => (
+          <div
+            key={step.number}
+            className={`cursor-pointer transition-opacity duration-300 ${
+              activeStep === index ? 'opacity-100' : 'opacity-60 hover:opacity-80'
+            }`}
+            onClick={() => handleStepClick(index)}
+          >
+            <h4 className={`text-xl font-bold mb-2 ${
+              activeStep === index ? 'text-black' : 'text-gray-500'
+            }`}>
+              {step.number} - {step.title}
+            </h4>
+            {activeStep === index && (
+              <p className="text-gray-600 transition-all duration-300">
+                {step.description}
+              </p>
+            )}
+          </div>
+        ))}
 
-        <div className="pt-8">
+        {/* <div className="pt-8">
           <Button className="bg-black text-white hover:bg-gray-800 px-8 py-3 text-lg">
             Start an IdeaThon
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
-        </div>
+        </div> */}
       </div>
     </div>
   )
 }
+
 
 export  function IdeaThonsLanding() {
   return (

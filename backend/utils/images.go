@@ -19,6 +19,10 @@ var imageExtensions = map[string]bool{
 }
 
 func SaveBase64ImageToPath(imageBase64, path string) (string, error) {
+	if imageBase64 == "" {
+		return "", nil
+	}
+	
 	uuid, err := Get_token()
 	if err != nil {
 		return "", err
