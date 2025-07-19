@@ -19,7 +19,6 @@ func Insert_session(id int, token string) error {
 func Insert_user_info(user User) error {
 	var err error
 	user.Avatar, err = images.SaveBase64ImageToPath(user.Avatar, "../images")
-	fmt.Println(user.Avatar, err)
 	if err != nil {
 		fmt.Println(err)
 		return err

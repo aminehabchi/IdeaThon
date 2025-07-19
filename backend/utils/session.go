@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"database/sql"
+	"errors"
+	database "ideaThon/config"
 	"net/http"
 	"time"
 )
@@ -47,4 +50,21 @@ func Get_token_from_session(r *http.Request) (string, error) {
 		return "", err
 	}
 	return cookie.Value, nil
+}
+
+func Get_id_from_session(token string) (int, error) {
+	var id int
+
+	db := database.Get_DB()
+	query := "SELECT user_id FROM sessions WHERE token = ?"
+
+	err := db.QueryRow(query, token).Scan(&id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, errors.New("invalid or expired session token")
+		}
+		return 0, err
+	}
+
+	return id, nil
 }

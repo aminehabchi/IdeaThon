@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS ideathons (
     user_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
+    banner TEXT,
     start_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     price INTEGER,
     end_date DATETIME NOT NULL,
