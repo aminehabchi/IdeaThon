@@ -5,6 +5,7 @@ type Ideathons struct {
 	User_id     int
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Banner      string `json:"banner,omitempty"`
 	Start_date  string `json:"start_date"`
 	Price       int    `json:"price"`
 	End_date    string `json:"end_date"`
