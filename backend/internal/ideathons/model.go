@@ -1,13 +1,14 @@
 package ideathons
 
 type Ideathons struct {
-	Id          int `json:"id"`
-	User_id     int
+	Id          int    `json:"id"`
+	User_id     int    `json:"user_id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Banner      string `json:"banner,omitempty"`
-	Start_date  string `json:"start_date"`
 	Price       int    `json:"price"`
+	Created_at  string `json:"created_at"`
+	Start_date  string `json:"start_date"`
 	End_date    string `json:"end_date"`
 	Privacy     bool   `json:"privacy"`
 }

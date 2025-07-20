@@ -112,9 +112,6 @@ func Insert_ideathons_info(ideathon Ideathons) error {
 		ideathon.End_date,
 		ideathon.Privacy,
 	)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

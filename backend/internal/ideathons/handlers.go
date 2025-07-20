@@ -118,8 +118,12 @@ func Update_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Update_ideathon(user_id, ideathon)
-	if err != nil {
+	if err = ideathon.Check_ideathons_info(); err != nil {
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
+		return
+	}
+
+	if err = Update_ideathon(user_id, ideathon); err != nil {
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}

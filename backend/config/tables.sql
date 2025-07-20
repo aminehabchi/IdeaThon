@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS entries (
     ideathon_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
+    banner TEXT,
+    is_win INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (ideathon_id) REFERENCES ideathons(id) ON DELETE CASCADE
