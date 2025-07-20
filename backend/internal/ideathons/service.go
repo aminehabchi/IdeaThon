@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func PrepareIdeathonQuery(params I_params) (string, []interface{}) {
+func Prepare_ideathon_query(params I_params) (string, []interface{}) {
 	query := "SELECT * FROM ideathons WHERE 1=1"
 	args := []interface{}{}
 

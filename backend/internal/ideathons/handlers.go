@@ -15,14 +15,10 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
-	if !ok {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
-		return
-	}
+	user_id := r.Context().Value(middle.UserIDKey).(int)
 
 	var params I_params = Get_params(r, user_id)
-	query, args := PrepareIdeathonQuery(params)
+	query, args := Prepare_ideathon_query(params)
 
 	ideathons, err := Get_ideathons_Db(query, args)
 	if err != nil {
@@ -45,13 +41,8 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 
 	var ideathon Ideathons
 	var err error
-	var ok bool
 
-	ideathon.User_id, ok = r.Context().Value(middle.UserIDKey).(int)
-	if !ok {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
-		return
-	}
+	ideathon.User_id = r.Context().Value(middle.UserIDKey).(int)
 
 	if err = utils.Decode(r, &ideathon); err != nil {
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
@@ -63,12 +54,13 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = Insert_ideathons_info(ideathon); err != nil {
+	ideathons_id, err := Insert_ideathons_info(ideathon)
+	if err != nil {
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	utils.Respond_with_id(w, http.StatusCreated, ideathons_id)
 }
 
 func Delete_ideathons(w http.ResponseWriter, r *http.Request) {
@@ -77,11 +69,7 @@ func Delete_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
-	if !ok {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
-		return
-	}
+	user_id := r.Context().Value(middle.UserIDKey).(int)
 
 	ideathon_id, err := strconv.Atoi(r.FormValue("ideathon_id"))
 	if err != nil || ideathon_id <= 0 {
@@ -104,11 +92,7 @@ func Update_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
-	if !ok {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
-		return
-	}
+	user_id, _ := r.Context().Value(middle.UserIDKey).(int)
 
 	var ideathon Ideathons
 	var err error

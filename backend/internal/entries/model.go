@@ -10,3 +10,10 @@ type Entries struct {
 	Created_at  string `json:"created_at,omitempty"`
 	Is_win      bool   `json:"is_win,omitempty"`
 }
+
+type Params struct {
+	User_id     int
+	Ideathon_id int
+	Entries_id  int
+	Offset      int
+}

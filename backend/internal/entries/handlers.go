@@ -15,11 +15,7 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
-	if !ok {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
-		return
-	}
+	user_id := r.Context().Value(middle.UserIDKey).(int)
 
 	var err error
 	var entrie Entries
@@ -34,12 +30,13 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = Insert_entries(entrie); err != nil {
+	entrie_id, err := Insert_entries(entrie)
+	if err != nil {
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	utils.Respond_with_id(w, http.StatusCreated, entrie_id)
 }
 
 func Delete_entrie(w http.ResponseWriter, r *http.Request) {
@@ -48,11 +45,7 @@ func Delete_entrie(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
-	if !ok {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
-		return
-	}
+	user_id := r.Context().Value(middle.UserIDKey).(int)
 
 	entries_id, err := strconv.Atoi(r.FormValue("entries_id"))
 	if err != nil || entries_id <= 0 {
@@ -74,11 +67,7 @@ func Update_entrie(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
-	if !ok {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
-		return
-	}
+	user_id, _ := r.Context().Value(middle.UserIDKey).(int)
 
 	var err error
 	var entrie Entries
@@ -102,4 +91,28 @@ func Update_entrie(w http.ResponseWriter, r *http.Request) {
 }
 
 func Get_entries(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+		return
+	}
+
+	user_id := r.Context().Value(middle.UserIDKey).(int)
+
+	var params Params = Parse_form(r, user_id)
+
+	query, args := Prepare_entries_query(params)
+
+	entries, err := Get_entries_Db(query, args)
+	if err != nil {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = utils.Encode(w, entries)
+	if err != nil {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }

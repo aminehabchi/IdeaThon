@@ -5,9 +5,43 @@ import (
 	"ideaThon/internal/images"
 )
 
-func Update_entrie_DB(user_id int, entrie Entries) error {
-	db := database.Get_DB()
+func Get_entries_Db(query string, args []any) ([]Entries, error) {
+	var entries []Entries
 
+	rows, err := database.Get_DB().Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var e Entries
+
+		err := rows.Scan(
+			&e.Id,
+			&e.User_id,
+			&e.Ideathon_id,
+			&e.Title,
+			&e.Description,
+			&e.Banner,
+			&e.Is_win,
+			&e.Created_at,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		entries = append(entries, e)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return entries, nil
+}
+
+func Update_entrie_DB(user_id int, entrie Entries) error {
 	var err error
 	var query string
 	var args []interface{}
@@ -46,7 +80,7 @@ func Update_entrie_DB(user_id int, entrie Entries) error {
 		}
 	}
 
-	_, err = db.Exec(query, args...)
+	_, err = database.Get_DB().Exec(query, args...)
 	return err
 }
 
@@ -63,12 +97,12 @@ func Delete_entrie_DB(entries_id, user_id int) error {
 	return err
 }
 
-func Insert_entries(entrie Entries) error {
+func Insert_entries(entrie Entries) (int, error) {
 	var err error
 
 	entrie.Banner, err = images.SaveBase64ImageToPath(entrie.Banner, "../images")
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	query := `
@@ -76,7 +110,7 @@ func Insert_entries(entrie Entries) error {
 		VALUES (?, ?, ?, ?, ?, ?)
 	`
 
-	_, err = database.Get_DB().Exec(
+	result, err := database.Get_DB().Exec(
 		query,
 		entrie.User_id,
 		entrie.Ideathon_id,
@@ -86,5 +120,7 @@ func Insert_entries(entrie Entries) error {
 		0, // is_win default
 	)
 
-	return err
+	insertedID, err := result.LastInsertId()
+
+	return int(insertedID), err
 }

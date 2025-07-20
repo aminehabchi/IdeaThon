@@ -86,12 +86,12 @@ func Delete_ideathon(ideathon_id, user_id int) error {
 	return err
 }
 
-func Insert_ideathons_info(ideathon Ideathons) error {
+func Insert_ideathons_info(ideathon Ideathons) (int, error) {
 	var err error
 
 	ideathon.Banner, err = images.SaveBase64ImageToPath(ideathon.Banner, "../images")
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	db := database.Get_DB()
@@ -101,7 +101,7 @@ func Insert_ideathons_info(ideathon Ideathons) error {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
-	_, err = db.Exec(
+	result, err := db.Exec(
 		query,
 		ideathon.User_id,
 		ideathon.Title,
@@ -113,5 +113,7 @@ func Insert_ideathons_info(ideathon Ideathons) error {
 		ideathon.Privacy,
 	)
 
-	return err
+	last_id, err := result.LastInsertId()
+
+	return int(last_id), err
 }
