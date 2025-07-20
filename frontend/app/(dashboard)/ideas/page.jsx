@@ -3,7 +3,7 @@
 import React from "react";
 import { Categories } from "@/components/categories";
 import { DashboardNavbar } from "@/components/dashboardNavbar";
-import Ideathon from "@/components/ideathon"; // ✅ fixed import
+import Ideathon from "@/components/ideathon";
 
 const page = () => {
   const ideathon_data = {
