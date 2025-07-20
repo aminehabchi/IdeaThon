@@ -1,22 +1,20 @@
-package profile
+package auth
 
 import (
 	"database/sql"
 	"encoding/json"
 	"ideaThon/config"
-	"ideaThon/internal/auth"
 	"ideaThon/utils"
 	"net/http"
 )
 
 type ProfileResponse struct {
-	auth.User
+	User
 	TotalPrizeWon    int `json:"total_prize_won"`
 	WonContextsCount int `json:"won_contexts_count"`
 }
 
 func Profile(w http.ResponseWriter, r *http.Request) {
-	// TODO: Replace this mock token with real session or JWT parsing
 	userID, err := utils.Get_id_from_session(r.Header.Get("token"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
