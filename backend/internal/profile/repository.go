@@ -2,6 +2,7 @@ package profile
 
 import (
 	"ideaThon/config"
+	"strings"
 )
 
 func GetUserProfile(userID int) (*ProfileResponse, error) {
@@ -35,4 +36,42 @@ func GetUserProfile(userID int) (*ProfileResponse, error) {
 	}
 
 	return &resp, nil
+}
+
+func UpdateUserProfile(userID int, data UpdateProfileRequest) error {
+	query := "UPDATE users SET "
+	args := []interface{}{}
+	fields := []string{}
+
+	if data.FirstName != nil {
+		fields = append(fields, "first_name = ?")
+		args = append(args, *data.FirstName)
+	}
+	if data.LastName != nil {
+		fields = append(fields, "last_name = ?")
+		args = append(args, *data.LastName)
+	}
+	if data.Avatar != nil {
+		fields = append(fields, "avatar = ?")
+		args = append(args, *data.Avatar)
+	}
+	if data.PhoneNumber != nil {
+		fields = append(fields, "phone_number = ?")
+		args = append(args, *data.PhoneNumber)
+	}
+	if data.Bio != nil {
+		fields = append(fields, "bio = ?")
+		args = append(args, *data.Bio)
+	}
+
+	if len(fields) == 0 {
+		// No fields to update
+		return nil
+	}
+
+	query += strings.Join(fields, ", ") + " WHERE id = ?"
+	args = append(args, userID)
+
+	_, err := config.DATABASE.Exec(query, args...)
+	return err
 }
