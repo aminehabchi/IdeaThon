@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Upload, Download, Save, FileText } from "lucide-react";
+import "../app/globals.css";
 
 export default function ProfessionalEditor() {
     const editorRef = useRef(null);
@@ -9,7 +8,8 @@ export default function ProfessionalEditor() {
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState(null);
     const [wordCount, setWordCount] = useState(0);
-    const fileInputRef = useRef(null);
+    const [title, setTitle] = useState('');
+    const [isPublishing, setIsPublishing] = useState(false);
 
     // Initialize Editor
     useEffect(() => {
@@ -176,246 +176,143 @@ export default function ProfessionalEditor() {
         }
     }, []);
 
-    // Save content
+    // Save content (silently)
     const handleSave = useCallback(async () => {
         if (!editorRef.current) return;
         
-        setIsSaving(true);
         try {
             const data = await editorRef.current.save();
             
-            // Simulate save to backend
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Save to localStorage as backup
-            localStorage.setItem('editor-content', JSON.stringify(data));
+            // Simulate silent save to backend
+            await new Promise(resolve => setTimeout(resolve, 500));
             
             setLastSaved(new Date());
-            console.log('Content saved successfully!', data);
+            // Silent save - no user feedback
         } catch (error) {
             console.error('Save failed:', error);
-        } finally {
-            setIsSaving(false);
         }
     }, []);
 
-    // Export content
-    const handleExport = useCallback(async () => {
+    // Publish content (submit form)
+    const handlePublish = useCallback(async () => {
         if (!editorRef.current) return;
         
+        setIsPublishing(true);
         try {
-            const data = await editorRef.current.save();
-            const blob = new Blob([JSON.stringify(data, null, 2)], { 
-                type: 'application/json' 
-            });
+            const editorData = await editorRef.current.save();
             
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `document-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Prepare JSON payload
+            const payload = {
+                title: title.trim() || 'Untitled',
+                content: editorData,
+                publishedAt: new Date().toISOString(),
+                wordCount: wordCount
+            };
+            
+            // Simulate API call to backend
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Log the JSON that would be sent to backend
+            console.log('Publishing to backend:', JSON.stringify(payload, null, 2));
+            
+            // Here you would make your actual API call:
+            // const response = await fetch('/api/posts', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(payload)
+            // });
+            
+            alert('Content published successfully!');
         } catch (error) {
-            console.error('Export failed:', error);
+            console.error('Publish failed:', error);
+            alert('Failed to publish content. Please try again.');
+        } finally {
+            setIsPublishing(false);
         }
-    }, []);
+    }, [title, wordCount]);
 
-    // Import content
-    const handleImport = useCallback(() => {
-        fileInputRef.current?.click();
-    }, []);
-
-    const handleFileImport = useCallback(async (event) => {
-        const file = event.target.files?.[0];
-        if (!file || !editorRef.current) return;
-
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text);
-            await editorRef.current.render(data);
-            updateWordCount();
-        } catch (error) {
-            console.error('Import failed:', error);
-            // alert('Failed to import file. Please check the format.');
-        }
-        
-        // Reset file input
-        event.target.value = '';
-    }, [updateWordCount]);
-
-    // Auto-save every 30 seconds
+    // Auto-save every 10 seconds (silently)
     useEffect(() => {
         if (!isReady) return;
         
         const interval = setInterval(() => {
             handleSave();
-        }, 30000);
+        }, 10000); // Save every 10 seconds
 
         return () => clearInterval(interval);
     }, [isReady, handleSave]);
 
-    // Load saved content on mount
-    useEffect(() => {
-        if (!isReady || !editorRef.current) return;
-        
-        const savedContent = localStorage.getItem('editor-content');
-        if (savedContent) {
-            try {
-                const data = JSON.parse(savedContent);
-                editorRef.current.render(data);
-                updateWordCount();
-            } catch (error) {
-                console.error('Failed to load saved content:', error);
-            }
-        }
-    }, [isReady, updateWordCount]);
-
     return (
-      <div className="w-full max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        {/* Toolbar */}
-        <div className="bg-gray-50 border-b border-gray-200 px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            <div className="flex items-center justify-between sm:justify-start sm:space-x-4">
-              <div className="flex items-center space-x-2">
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
-                <h2 className="text-base sm:text-lg font-semibold text-gray-800">Content Editor</h2>
-              </div>
-    
-              <div className="flex sm:hidden items-center space-x-1 text-xs text-gray-500">
-                <div className={`w-2 h-2 rounded-full ${isReady ? 'bg-green-400' : 'bg-gray-400'}`} />
-                <span>{isReady ? 'Ready' : 'Loading...'}</span>
-              </div>
-            </div>
-    
-            <div className="hidden sm:flex items-center space-x-1 text-sm text-gray-500">
-              {/* <div className="flex items-center space-x-1">
-                <div className={`w-2 h-2 rounded-full ${isReady ? 'bg-green-400' : 'bg-gray-400'}`} />
-                <span>{isReady ? 'Ready' : 'Loading...'}</span>
-              </div> */}
-              {lastSaved && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span className="hidden md:inline">Saved {lastSaved.toLocaleTimeString()}</span>
-                  <span className="md:hidden">{lastSaved.toLocaleTimeString([], { timeStyle: 'short' })}</span>
-                </>
-              )}
-            </div>
-    
-            <div className="flex items-center justify-between sm:justify-end space-x-2">
-              {/* Word Count */}
-              <div className="text-xs sm:text-sm text-gray-500 px-2 sm:px-3 py-1 bg-white rounded-md border">
-                <span className="sm:hidden">{wordCount}w</span>
-                <span className="hidden sm:inline">{wordCount} words</span>
-              </div>
-    
-              {/* Action Buttons */}
-              <Button
-                onClick={handleImport}
-                variant="outline"
-                className="space-x-1 text-xs sm:text-sm px-2 sm:px-3"
-                disabled={!isReady}
-              >
-                <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline sm:hidden lg:inline">Import</span>
-              </Button>
-    
-              <Button
-                onClick={handleExport}
-                variant="outline"
-                className="space-x-1 text-xs sm:text-sm px-2 sm:px-3"
-                disabled={!isReady}
-              >
-                <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline sm:hidden lg:inline">Export</span>
-              </Button>
-    
-              <Button
-                onClick={handleSave}
-                disabled={isSaving || !isReady}
-                className="space-x-1 text-xs sm:text-sm px-2 sm:px-3"
-              >
-                <Save className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">{isSaving ? 'Saving...' : 'Save'}</span>
-                <span className="xs:hidden">{isSaving ? '...' : 'Save'}</span>
-              </Button>
-            </div>
-          </div>
-    
-          {/* Shortcuts - Only show on large screens */}
-          <div className="mt-3 text-xs text-gray-500 hidden xl:block">
-            <span className="font-medium">Shortcuts:</span>
-            <span className="ml-2">Header (⌘⇧H) • List (⌘⇧L) • Quote (⌘⇧O) • Code (⌘⇧C) • Table (⌘⌥T)</span>
-          </div>
-        </div>
-    
-        {/* Editor Container */}
-        <div className="relative">
-          {!isReady && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
-              <div className="flex items-center space-x-2 text-gray-600">
-                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-blue-600" />
-                <span className="text-sm sm:text-base">Loading editor...</span>
-              </div>
-            </div>
-          )}
-    
-          <div className="p-3 sm:p-4 md:p-6 lg:p-8">
-            <div
-              id="professional-editor"
-              className={`bg-white text-gray-900 rounded-lg min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] prose prose-sm sm:prose prose-lg max-w-none focus:outline-none transition-opacity ${
-                isReady ? 'opacity-100' : 'opacity-50'
-              }`}
-              style={{
-                fontSize: '14px',
-                '@media (min-width: 640px)': {
-                  fontSize: '16px'
-                },
-                lineHeight: '1.6',
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              }}
-            />
-          </div>
-        </div>
-    
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleFileImport}
-          className="hidden"
-        />
-    
-        {/* Status Bar */}
-        <div className="bg-gray-50 border-t border-gray-200 px-3 sm:px-4 lg:px-6 py-2 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 gap-2">
-
-          <div className="flex items-center space-x-2 xs:space-x-4">
-            <span>{wordCount} words</span>
-            <span className="hidden xs:inline">•</span>
-            <span className="hidden sm:inline">Auto-save enabled</span>
-            <span className="sm:hidden">Auto-save</span>
-            {lastSaved && (
-              <>
-                <span className="hidden xs:inline">•</span>
-                <div className="xs:hidden text-xs text-gray-400">
-                  Last saved: {lastSaved.toLocaleTimeString([], { timeStyle: 'short' })}
+        <div className="max-w-4xl mx-auto bg-white">
+            {/* Clean Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center space-x-6">
+                <div className="relative group">
+                  <button className="text-sm text-gray-600 hover:text-gray-800">
+                    Shortcuts
+                  </button>
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-72 p-3 z-10 rounded-lg bg-gray-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
+                    <p><kbd className="font-mono">Cmd+Shift+H</kbd>: Heading</p>
+                    <p><kbd className="font-mono">Cmd+Shift+L</kbd>: List</p>
+                    <p><kbd className="font-mono">Cmd+Shift+O</kbd>: Quote</p>
+                    <p><kbd className="font-mono">Cmd+Shift+C</kbd>: Code</p>
+                    <p><kbd className="font-mono">Cmd+Shift+D</kbd>: Divider</p>
+                    <p><kbd className="font-mono">Cmd+Alt+T</kbd>: Table</p>
+                    <p><kbd className="font-mono">Cmd+Shift+M</kbd>: Marker</p>
+                    <p><kbd className="font-mono">Cmd+Shift+X</kbd>: Inline Code</p>
+                  </div>
                 </div>
-                <span className="hidden xs:inline sm:hidden">
-                  {lastSaved.toLocaleTimeString([], { timeStyle: 'short' })}
-                </span>
-                <span className="hidden sm:inline">
-                  Last saved: {lastSaved.toLocaleTimeString()}
-                </span>
-              </>
-            )}
-          </div>
-          <div className="flex items-center space-x-2 xs:justify-end">
-            <div className={`w-1.5 h-1.5 rounded-full ${isReady ? 'bg-green-400' : 'bg-gray-400'}`} />
-            <span>{isReady ? 'Ready' : 'Loading'}</span>
-          </div>
+                    <span className="text-sm text-gray-500">
+                        Auto-save enabled
+                    </span>
+                    <span className="text-sm text-gray-500">
+                        {wordCount} words
+                    </span>
+                </div>
+                <button 
+                    onClick={handlePublish}
+                    disabled={isPublishing || !isReady}
+                    className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 disabled:opacity-50"
+                >
+                    {isPublishing ? 'Publishing...' : 'Publish'}
+                </button>
+            </div>
+
+            {/* Editor Container */}
+            <div className="px-6 py-8">
+                {/* Title Input */}
+                <div className="mb-8">
+                    <div className="flex items-start">
+                        <div className="w-1 h-6 bg-gray-800 mr-4 mt-1 flex-shrink-0"></div>
+                        <input
+                            type="text"
+                            placeholder="One Liner Title is going well here in this place"
+                            className="text-2xl font-normal text-gray-800 placeholder-gray-400 border-none outline-none w-full bg-transparent"
+                            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+                        />
+                    </div>
+                </div>
+
+                {!isReady && (
+                    <div className="flex items-center space-x-2 text-gray-400 mb-4">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400" />
+                        <span className="text-sm">Loading editor...</span>
+                    </div>
+                )}
+                
+                <div
+                    id="professional-editor"
+                    className={`min-h-[400px] transition-opacity ${
+                        isReady ? 'opacity-100' : 'opacity-50'
+                    }`}
+                    style={{
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        fontSize: '16px',
+                        lineHeight: '1.6',
+                        color: '#374151'
+                    }}
+                />
+            </div>
         </div>
-      </div>
     );
 }

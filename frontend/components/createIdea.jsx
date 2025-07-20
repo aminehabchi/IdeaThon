@@ -5,7 +5,7 @@ import { Calendar, ChevronDown, Upload, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { CalendarShad } from '@/components/ui/calendar';
 import { Input } from "@/components/ui/input";
-
+import { Label } from "@/components/ui/label"; // ✅ Correct import from shadcn
 
 // Predefined allowed categories
 const allowedCategories = [
@@ -73,12 +73,10 @@ export default function IdeathonForm() {
 
   const getFilteredSuggestions = () => {
     const availableCategories = allowedCategories.filter(cat => !categories.includes(cat));
-    
     if (!categoryInput.trim()) {
       return availableCategories;
     }
-    
-    return availableCategories.filter(cat => 
+    return availableCategories.filter(cat =>
       cat.toLowerCase().includes(categoryInput.toLowerCase())
     );
   };
@@ -110,7 +108,7 @@ export default function IdeathonForm() {
         <div className="space-y-6">
           {/* Date Picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Date</label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">Date</Label>
             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
               <PopoverTrigger>
                 <Button variant="outline" className="w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50">
@@ -134,15 +132,15 @@ export default function IdeathonForm() {
 
           {/* Categories */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Categories</label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">Categories</Label>
             <div className="space-y-3">
               {categories.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat, i) => (
                     <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 border">
                       {cat}
-                      <button 
-                        onClick={() => removeCategory(cat)} 
+                      <button
+                        onClick={() => removeCategory(cat)}
                         className="ml-2 hover:text-gray-900 transition-colors"
                         type="button"
                       >
@@ -152,7 +150,6 @@ export default function IdeathonForm() {
                   ))}
                 </div>
               )}
-              
               <div className="relative">
                 <input
                   type="text"
@@ -162,7 +159,7 @@ export default function IdeathonForm() {
                   onKeyPress={handleCategoryKeyPress}
                   onFocus={() => setShowCategorySuggestions(true)}
                   onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 200)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1  focus:border-transparent"
                 />
                 {showCategorySuggestions && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
@@ -186,8 +183,8 @@ export default function IdeathonForm() {
                 )}
               </div>
               <p className="text-xs text-gray-400">
-                {categories.length === 0 
-                  ? "Click on the input field to see all available categories" 
+                {categories.length === 0
+                  ? "Click on the input field to see all available categories"
                   : `${categories.length} categories selected. Type to search for more.`}
               </p>
             </div>
@@ -195,25 +192,30 @@ export default function IdeathonForm() {
 
           {/* Price Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">Price</label>
+            <Label className="block text-sm font-medium text-gray-900 mb-3">Price</Label>
             <div className="flex items-center space-x-4">
-              <label className="flex items-center">
+              <Label className="flex items-center">
                 <input type="radio" value="Paid" checked={priceType === 'Paid'} onChange={(e) => setPriceType(e.target.value)} className="h-4 w-4" />
                 <span className="ml-2 text-sm">Paid</span>
-              </label>
-              <label className="flex items-center">
+              </Label>
+              <Label className="flex items-center">
                 <input type="radio" value="Free" checked={priceType === 'Free'} onChange={(e) => setPriceType(e.target.value)} className="h-4 w-4" />
                 <span className="ml-2 text-sm">Free</span>
-              </label>
+              </Label>
               {priceType === 'Paid' && (
-                <Input
-                type="number"
-                min={0}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                className="ml-4 w-24"
-                />
+                <>
+                  {/* <Label className="block text-sm font-medium text-gray-900">Amount</Label> */}
+                    <Input
+                      id="price"
+                      type="number"
+                      min={0}
+                      value={price}
+                      onChange={(e) => setPrice(Number(e.target.value))}
+                      className="w-24"
+                    />
+                </>
               )}
+
             </div>
           </div>
         </div>
@@ -222,7 +224,7 @@ export default function IdeathonForm() {
         <div className="space-y-6">
           {/* Privacy */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Privacy</label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">Privacy</Label>
             <div className="relative">
               <Button
                 variant="outline"
@@ -256,13 +258,13 @@ export default function IdeathonForm() {
 
           {/* Banner Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Banner</label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">Banner</Label>
             <div className="relative">
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleImageUpload} 
-                className="absolute inset-0 opacity-0 z-10 cursor-pointer" 
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="absolute inset-0 opacity-0 z-10 cursor-pointer"
               />
               <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${bannerPreview ? 'border-gray-300' : 'border-gray-200 hover:border-gray-400'}`}>
                 {bannerPreview ? (
