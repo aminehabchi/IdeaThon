@@ -5,6 +5,49 @@ import (
 	"ideaThon/internal/images"
 )
 
+func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
+	db := database.Get_DB()
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ideathons []Ideathons
+
+	for rows.Next() {
+		var i Ideathons
+		var privacyInt int // intermediate to convert int->bool
+
+		err := rows.Scan(
+			&i.Id,
+			&i.User_id,
+			&i.Title,
+			&i.Description,
+			&i.Banner,
+			&i.Start_date,
+			&i.Price,
+			&i.End_date,
+			&privacyInt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Convert privacy integer (0 or 1) to bool
+		i.Privacy = privacyInt != 0
+
+		ideathons = append(ideathons, i)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return ideathons, nil
+}
+
 func Update_ideathon(user_id int, ideathon Ideathons) error {
 	db := database.Get_DB()
 

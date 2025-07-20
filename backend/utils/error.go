@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+
 type Error struct {
 	Err    string `json:"error"`
 	Status int    `json:"status"`

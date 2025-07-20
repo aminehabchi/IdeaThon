@@ -2,11 +2,40 @@ package ideathons
 
 import (
 	"errors"
-	middle "ideaThon/middleware"
-	"ideaThon/utils"
 	"net/http"
 	"strconv"
+
+	middle "ideaThon/middlewares"
+	"ideaThon/utils"
 )
+
+func Get_ideathons(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+		return
+	}
+
+	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
+	if !ok {
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Unauthorized"))
+		return
+	}
+
+	var params I_params = Get_params(r, user_id)
+	query, args := PrepareIdeathonQuery(params)
+
+	ideathons, err := Get_ideathons_Db(query, args)
+	if err != nil {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = utils.Encode(w, ideathons)
+	if err != nil {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+}
 
 func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {

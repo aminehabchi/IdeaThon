@@ -11,3 +11,13 @@ type Ideathons struct {
 	End_date    string `json:"end_date"`
 	Privacy     bool   `json:"privacy"`
 }
+
+type I_params struct {
+	Id        int
+	User_id   int
+	Category  string
+	Search    string
+	StartDate string
+	EndDate   string
+	Offset    int
+}

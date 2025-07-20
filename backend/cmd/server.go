@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	database "ideaThon/config"
-	middle "ideaThon/middleware"
+	middle "ideaThon/middlewares"
 	mux "ideaThon/routes"
 	"log"
 	"net/http"
@@ -18,7 +18,7 @@ func main() {
 
 	config := http.Server{
 		Addr:    ":8080",
-		Handler: middle.CORS_middle_ware(mux.Routes()),
+		Handler: middle.CORS(mux.Routes()),
 	}
 
 	fmt.Println("Server started on http://localhost:8080")
