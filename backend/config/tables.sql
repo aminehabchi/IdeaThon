@@ -64,3 +64,16 @@ CREATE TABLE IF NOT EXISTS sessions (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- Reports table
+CREATE TABLE IF NOT EXISTS report (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    ideathon_id INTEGER NOT NULL,
+    entrie_id INTEGER NOT NULL,
+    type TEXT NOT NULL CHECK(type IN ('generale', 'ideathon', 'entrie')),
+    issue TEXT NOT NULL,
+    description TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
