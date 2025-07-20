@@ -14,7 +14,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var user User
 	var err error
 	if err = utils.Decode(r, &user); err != nil {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
 

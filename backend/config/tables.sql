@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS ideathons (
     start_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     price INTEGER,
     end_date DATETIME NOT NULL,
+    winner_id INTEGER,
     privacy INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
