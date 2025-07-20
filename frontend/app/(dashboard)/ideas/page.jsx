@@ -4,6 +4,7 @@ import React from "react";
 import { Categories } from "@/components/categories";
 import { DashboardNavbar } from "@/components/dashboardNavbar";
 import Ideathon from "@/components/ideathon";
+import Link from "next/link";
 
 const page = () => {
   const ideathon_data = {
@@ -24,8 +25,12 @@ const page = () => {
       <DashboardNavbar />
       <Categories />
       <div className="flex flex-col items-center justify-center gap-8 mt-8">
+        <Link href={"/ideas/8"} >
         <Ideathon {...ideathon_data} />
+        </Link>
+        <Link href={"/ideas/8"}  >
         <Ideathon {...ideathon_data} />
+        </Link>
       </div>
     </>
   );

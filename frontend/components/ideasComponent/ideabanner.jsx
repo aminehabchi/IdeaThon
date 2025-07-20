@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { IdeaBody } from "@/components/ideasComponent/ideaBody";
+import { EntriesList } from "@/components/ideasComponent/ideaEntriesList";
 
 export function ProjectHeader() {
   const [activeTab, setActiveTab] = useState("project");
@@ -84,27 +85,3 @@ export function ProjectHeader() {
 }
 
 
-export function EntriesList() {
-    const entries = [1, 2, 3, 4]; // Placeholder data
-  
-    return (
-      <div className="mt-8 pt-8 border-t border-gray-100">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {entries.map((entry) => (
-            <div
-              key={entry}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition"
-            >
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Entry #{entry}
-              </h3>
-              <p className="text-sm text-gray-600">
-                This is a short description of entry {entry}. It provides
-                insight into what this entry covers.
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }

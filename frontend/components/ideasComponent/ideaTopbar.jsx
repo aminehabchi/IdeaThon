@@ -6,7 +6,7 @@ import { Unlock, Lock, Clock } from "lucide-react";
 
 export function ProjectNavbar() {
     return (
-      <nav className="border-b bg-gray-100 px-4 sm:px-6 py-4">
+      <nav className="border-b bg-gray-100  py-4 md:px-24  sm:px-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 max-w-full">
           
           {/* Left Section */}
