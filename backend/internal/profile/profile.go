@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"ideaThon/config"
 	"ideaThon/internal/auth"
+	"ideaThon/utils"
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 type ProfileResponse struct {
@@ -18,15 +17,9 @@ type ProfileResponse struct {
 
 func Profile(w http.ResponseWriter, r *http.Request) {
 	// TODO: Replace this mock token with real session or JWT parsing
-	authHeader := r.Header.Get("Authorization")
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	userID, err := strconv.Atoi(token)
+	userID, err := utils.Get_id_from_session(r.Header.Get("token"))
 	if err != nil {
-		http.Error(w, "Invalid token", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
