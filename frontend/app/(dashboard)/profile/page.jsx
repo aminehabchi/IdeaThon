@@ -1,5 +1,6 @@
 
 import { DashboardNavbar } from "@/components/dashboardNavbar";
+import Puzzle from "@/components/gsap";
 import ProfileComponent from "@/components/profile";
 
 
