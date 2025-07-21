@@ -11,6 +11,9 @@ export default function Profile() {
                 profile={{
                     name: "Bilal Daanouni",
                     location: "City / Country",
+                    bio: `adjectif (aliment) Issu de l'agriculture biologique*. 
+                    Légumes bios. adverbe Manger bio. Élaboré dans le respect de l'environnement 
+                    et avec des composants végétaux issus de l'agriculture biologique.`,
                     avatar: "/avatar.png",
                     totalPrize: 2000,
                     links: [
