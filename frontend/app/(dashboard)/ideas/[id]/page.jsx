@@ -9,7 +9,7 @@ export default async function IdeaPage({ params }) {
        <ProjectNavbar></ProjectNavbar>
        <ProjectHeader></ProjectHeader>
 
-     {/* <IdeaBody></IdeaBody> */}
+     {/* <IdeaBody></IdeaBody> */} 
     </>
   );
 }

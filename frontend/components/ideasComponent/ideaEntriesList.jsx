@@ -6,11 +6,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '../ui/button';
+import ReportIdeaPopup from './ideaReport';
+// import { Button } from '../ui/button';
 
 export  function EntriesList() {
   const [selectedEntry, setSelectedEntry] = useState(null);
-  
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTargetEntry, setReportTargetEntry] = useState(null);
+
   const entries = [
     {
       id: 1,
@@ -44,13 +47,18 @@ export  function EntriesList() {
     }
   ];
 
-  const openModal = (entry) => {
-    setSelectedEntry(entry);
-  };
+    const openModal = (entry) => {
+      setSelectedEntry(entry);
+    };
 
-  const closeModal = () => {
-    setSelectedEntry(null);
-  };
+    const closeModal = () => {
+      setSelectedEntry(null);
+    };
+
+    const openReportPopup = (entry = null) => {
+    setReportTargetEntry(entry);
+    setIsReportOpen(true);
+    };
 
   return (
     <>
@@ -83,10 +91,19 @@ export  function EntriesList() {
                       <Trophy className="w-4 h-4" />
                       Pick As a winner
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2">
+
+                    {/* Report button */}
+                    <DropdownMenuItem
+                      className="flex items-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent modal opening
+                        openReportPopup(entry);
+                      }}
+                    >
                       <Flag className="w-4 h-4" />
                       Report an issue
                     </DropdownMenuItem>
+
                     <DropdownMenuItem className="flex items-center gap-2 text-red-600">
                       <Trash2 className="w-4 h-4" />
                       Delete
@@ -120,82 +137,102 @@ export  function EntriesList() {
       </div>
 
       {/* Modal Popup */}
-{selectedEntry && (
-  <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-    <div className="bg-white rounded-lg w-full max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-      {/* Modal Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center  justify-between gap-4 p-4 sm:p-6 border-b border-gray-200">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1">
-            <img
-              src="/belmaayo_avatar.png"
-              alt="avatar"
-              className="rounded-2xl w-6 h-6"
-            />
-            <span className="ml-2 text-sm text-gray-600">
-              {selectedEntry.author}
-            </span>
+      {selectedEntry && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-lg w-full max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center  justify-between gap-4 p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1">
+                  <img
+                    src="/belmaayo_avatar.png"
+                    alt="avatar"
+                    className="rounded-2xl w-6 h-6"
+                  />
+                  <span className="ml-2 text-sm text-gray-600">
+                    {selectedEntry.author}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-400">•</span>
+                <span className="text-sm text-gray-600">{selectedEntry.timeAgo}</span>
+                <span className="text-sm text-gray-400">•</span>
+                <span className="text-sm text-gray-600">{selectedEntry.title}</span>
+                <span className="text-sm text-gray-400">•</span>
+                  <button className="cursor-pointer text-gray-400 hover:text-gray-600 text-sm px-3 py-1.5 rounded-lg flex items-center gap-2  transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent modal opening
+                        openReportPopup(true);
+                      }}
+                  >
+                  <Flag className="w-4 h-4" />
+                  <span className="sm:inline">report</span>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between sm:justify-end gap-3">
+                <button className="cursor-pointer bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
+                  <Trophy className="w-4 h-4" />
+                  <span className="sm:inline">Pick As a winner</span>
+                </button>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 sm:p-6">
+              {/* Title */}
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+                Imagine the future of General robotics
+              </h1>
+
+              {/* Solution Section */}
+              <div className="mb-6">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                  Solution
+                </h2>
+                <div className="space-y-3 sm:space-y-4 text-gray-700 text-sm leading-relaxed">
+                  <p>
+                    we are trying to build the next best thing and we want to have your
+                    feedback about ... we are trying to build the next best thing and we
+                    want to have your feedback about ...
+                  </p>
+                  <p>
+                    we are trying to build the next best thing and we want to have your
+                    feedback about ... we are trying to build the next best thing and we
+                    want to have your feedback about ...
+                  </p>
+                </div>
+              </div>
+
+              {/* Image Section */}
+              <div className="mb-4 sm:mb-6">
+                <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
+                  <img
+                    src={selectedEntry.imgPath}
+                    alt="entry banner"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <span className="text-sm text-gray-400">•</span>
-          <span className="text-sm text-gray-600">{selectedEntry.timeAgo}</span>
-          <span className="text-sm text-gray-400">•</span>
-          <span className="text-sm text-gray-600">{selectedEntry.title}</span>
         </div>
+      )}
 
-        <div className="flex items-center justify-between sm:justify-end gap-3">
-          <button className="bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
-            <Trophy className="w-4 h-4" />
-            <span className="sm:inline">Pick As a winner</span>
-          </button>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Modal Content */}
-      <div className="p-4 sm:p-6">
-        {/* Title */}
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-          Imagine the future of General robotics
-        </h1>
-
-        {/* Solution Section */}
-        <div className="mb-6">
-          <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-            Solution
-          </h2>
-          <div className="space-y-3 sm:space-y-4 text-gray-700 text-sm leading-relaxed">
-            <p>
-              we are trying to build the next best thing and we want to have your
-              feedback about ... we are trying to build the next best thing and we
-              want to have your feedback about ...
-            </p>
-            <p>
-              we are trying to build the next best thing and we want to have your
-              feedback about ... we are trying to build the next best thing and we
-              want to have your feedback about ...
-            </p>
-          </div>
-        </div>
-
-        {/* Image Section */}
-        <div className="mb-4 sm:mb-6">
-          <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
-            <img
-              src={selectedEntry.imgPath}
-              alt="entry banner"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      {/* report popup */}
+      {reportTargetEntry && (
+        <ReportIdeaPopup
+          isOpen={isReportOpen}
+          onClose={() => setIsReportOpen(false)}
+          entryId={reportTargetEntry.id}
+          // entryNumber={reportTargetEntry.title.replace(/\D/g, '')}
+        />
+      )}
     </>
   );
 }
