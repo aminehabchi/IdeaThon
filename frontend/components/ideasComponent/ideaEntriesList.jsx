@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, MoreVertical, Trophy, Flag, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
-export function EntriesList() {
+export  function EntriesList() {
   const [selectedEntry, setSelectedEntry] = useState(null);
   
   const entries = [
@@ -48,58 +54,64 @@ export function EntriesList() {
   return (
     <>
       <div className="mt-8 pt-8  border-gray-100">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {entries.map((entry) => (
             <div
               key={entry.id}
+              className="relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-all duration-200 cursor-pointer"
               onClick={() => openModal(entry)}
-              className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
             >
-              {/* Image placeholder area */}
-              <div className="h-32 bg-gray-100 relative overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                  <img
-                    src={entry.imgPath}
-                    alt="entry banner"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                {/* Hover overlay with blur effect */}
-                <div className="absolute inset-0 bg-black/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="text-white font-medium text-lg">Read</span>
-                </div>
+              {/* Header with title and more menu */}
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-sm font-medium text-gray-500">
+                  {entry.title}
+                </h3>
+                <DropdownMenu>
+                  <DropdownMenuTrigger 
+                    asChild
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button className="p-1 hover:bg-gray-200 rounded-full transition-colors cursor-pointer">
+                      <MoreVertical className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48" 
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <DropdownMenuItem className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4" />
+                      Pick As a winner
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-2">
+                      <Flag className="w-4 h-4" />
+                      Report an issue
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-2 text-red-600">
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              {/* Card content */}
-              <div className="p-4">
-                {/* Title and subtitle */}
-                <div className="mb-3">
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
-                    {entry.title}
-                  </h3>
-                  <h4 className="text-lg font-semibold text-gray-900 leading-tight">
-                    {entry.subtitle}
-                  </h4>
-                </div>
+              {/* Subtitle */}
+              <h4 className="text-lg font-semibold text-gray-900 mb-3 leading-tight">
+                {entry.subtitle}
+              </h4>
 
-                {/* Description */}
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                  {entry.description}
-                </p>
+              {/* Description */}
+              <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                {entry.description}
+              </p>
 
-                {/* Footer with author and time */}
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <img
-                      src={entry.imgPath}
-                      alt="Author Avatar"
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <span className="ml-1">{entry.author}</span>
-                  </div>
-                  <span>{entry.timeAgo}</span>
+              {/* Footer with author and time */}
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center gap-2">
+                <img src="/belmaayo_avatar.png" alt="avatar"   
+                    className=" rounded-2xl w-6 h-6"/>
+                  <span>{entry.author}</span>
                 </div>
+                <span>{entry.timeAgo}</span>
               </div>
             </div>
           ))}
@@ -114,7 +126,10 @@ export function EntriesList() {
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
-                    <img src="/belmaayo_avatar.png" alt="avatar"  className="w-6 h-6 rounded-full"/>
+
+                    <img src="/belmaayo_avatar.png" alt="avatar"   
+                    className=" rounded-2xl w-6 h-6"/>
+                    
                   <span className="ml-2 text-sm text-gray-600">{selectedEntry.author}</span>
                 </div>
                 <span className="text-sm text-gray-400">•</span>
@@ -122,6 +137,10 @@ export function EntriesList() {
                 <span className="text-sm text-gray-400">•</span>
                 <span className="text-sm text-gray-600">{selectedEntry.title}</span>
               </div>
+              <button className='text-gray-400 cursor-pointer border-2 border-gray-400 rounded-lg px-2 py-1 hover:text-gray-600 transition-colors flex items-center gap-1'>
+                <Trophy className='w-5 h-5'></Trophy>
+                pick winner
+              </button>
               <button
                 onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600 transition-colors"

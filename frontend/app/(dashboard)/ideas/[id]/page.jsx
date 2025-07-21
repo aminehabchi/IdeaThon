@@ -6,8 +6,9 @@ export default async function IdeaPage({ params }) {
   return (
     <>
      <DashboardNavbar />
-     <ProjectNavbar></ProjectNavbar>
-     <ProjectHeader></ProjectHeader>
+       <ProjectNavbar></ProjectNavbar>
+       <ProjectHeader></ProjectHeader>
+
      {/* <IdeaBody></IdeaBody> */}
     </>
   );
