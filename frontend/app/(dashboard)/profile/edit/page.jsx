@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, MapPin, Phone, Lock, Globe, Camera, Loader } from "lucide-react";
-import {IdeaLoader} from "@/components/ui/cosloader";
+import { User, Mail, MapPin, Phone, Lock, Globe, Camera } from "lucide-react";
+import { IdeaLoader } from "@/components/ui/cosloader";
+import { toast, Toaster } from "sonner";
 
 export default function EditProfile() {
   const [profile, setProfile] = useState(null);
@@ -81,14 +82,12 @@ export default function EditProfile() {
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
-    // Validate file size (max 5MB)
+
     if (file.size > 5 * 1024 * 1024) {
-    //  make a pop up here 
-      alert("File size should be less than 5MB");
+      toast.error("File size should be less than 5MB");
       return;
     }
-    
+
     setAvatarFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setAvatarPreview(reader.result);
@@ -107,17 +106,17 @@ export default function EditProfile() {
       const formData = new FormData();
       for (const key in form) formData.append(key, form[key]);
       if (avatarFile) formData.append("avatar", avatarFile);
-      
-      const res = await fetch("/api/profile", { 
-        method: "PATCH", 
-        body: formData 
+
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        body: formData,
       });
-      
+
       if (!res.ok) throw new Error("Save failed");
-      alert("Profile saved successfully!");
+      toast.success("Profile saved successfully!");
     } catch (err) {
       console.error(err);
-      alert("Error saving profile");
+      toast.error("Error saving profile");
     } finally {
       setLoading(false);
     }
@@ -126,7 +125,7 @@ export default function EditProfile() {
   const getInitials = () => {
     return `${form.firstName.charAt(0)}${form.lastName.charAt(0)}`.toUpperCase();
   };
-  // loader
+
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -135,11 +134,10 @@ export default function EditProfile() {
     );
   }
   
-
   return (
     <div className="min-h-screen bg-gray-50/50">
       <DashboardNavbar />
-      
+      <Toaster />
       <div className="container max-w-4xl mx-auto py-8 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Edit Profile</h1>
