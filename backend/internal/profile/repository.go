@@ -1,39 +1,75 @@
 package profile
 
 import (
-	"ideaThon/config"
 	"strings"
+
+	"ideaThon/config"
 )
 
 func GetUserProfile(userID int) (*ProfileResponse, error) {
-	query := `
-	SELECT 
-		u.id, u.first_name, u.last_name, u.email, u.avatar, u.phone_number, u.bio,
-		IFNULL(SUM(i.price), 0) AS total_prize_won,
-		COUNT(i.id) AS won_contexts_count
-	FROM users u
-	LEFT JOIN ideathons i ON i.winner_id = u.id
-	WHERE u.id = ?
-	GROUP BY u.id
-	`
-
-	row := config.DATABASE.QueryRow(query, userID)
-
 	var resp ProfileResponse
-	err := row.Scan(
-		&resp.ID,
-		&resp.FirstName,
-		&resp.LastName,
-		&resp.Email,
-		&resp.Avatar,
-		&resp.PhoneNumber,
-		&resp.Bio,
-		&resp.TotalPrizeWon,
-		&resp.WonContextsCount,
+
+	// Step 1: Get User Info
+	userQuery := `
+	SELECT id, first_name, last_name, email, avatar, phone_number, bio
+	FROM users
+	WHERE id = ?
+	`
+	err := config.DATABASE.QueryRow(userQuery, userID).Scan(
+		&resp.ID, &resp.FirstName, &resp.LastName, &resp.Email,
+		&resp.Avatar, &resp.PhoneNumber, &resp.Bio,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	// Step 2: Get Created Ideathons
+	ideathonQuery := `
+	SELECT id, title, description, banner, start_date, end_date, price, privacy
+	FROM ideathons
+	WHERE user_id = ?
+	ORDER BY start_date DESC
+	`
+	ideathonRows, err := config.DATABASE.Query(ideathonQuery, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer ideathonRows.Close()
+
+	var createdIdeathons []Ideathon
+	for ideathonRows.Next() {
+		var i Ideathon
+		err := ideathonRows.Scan(&i.ID, &i.Title, &i.Description, &i.Banner, &i.StartDate, &i.EndDate, &i.Price, &i.Privacy)
+		if err != nil {
+			return nil, err
+		}
+		createdIdeathons = append(createdIdeathons, i)
+	}
+	resp.CreatedIdeathons = createdIdeathons
+
+	// Step 3: Get Submitted Entries
+	entryQuery := `
+	SELECT id, title, description, ideathon_id, created_at
+	FROM entries
+	WHERE user_id = ?
+	ORDER BY created_at DESC
+	`
+	entryRows, err := config.DATABASE.Query(entryQuery, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer entryRows.Close()
+
+	var entries []Entry
+	for entryRows.Next() {
+		var e Entry
+		err := entryRows.Scan(&e.ID, &e.Title, &e.Description, &e.IdeathonID, &e.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		entries = append(entries, e)
+	}
+	resp.SubmittedEntries = entries
 
 	return &resp, nil
 }
