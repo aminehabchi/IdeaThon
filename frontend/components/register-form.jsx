@@ -74,7 +74,7 @@ export function SignUpForm({ className, ...props }) {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <a
-              href="#"
+              href="/login"
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="flex mb-4 items-center justify-center rounded-md">

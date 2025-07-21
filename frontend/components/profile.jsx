@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { PenLine } from "lucide-react";
+import { Pen } from "lucide-react";
 
 export default function ProfileComponent({ profile, createdIdeathons, submittedEntries }) {
     const [activeTab, setActiveTab] = useState("ideathons");
@@ -12,7 +12,7 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
         <div className="min-h-screen bg-[#ffffff]">
             <div className="max-w-7xl mx-auto flex px-4 pt-8">
                 {/* Left Sidebar */}
-                <aside className="w-full max-w-[260px] p-6 rounded-xl mr-6">
+                <aside className="w-full max-w-[260px] p-6  mr-6 border-r border-gray-200">
                     <div className="flex flex-col gap-6">
                         {/* Avatar and Name */}
                         <div className="flex flex-col items-start text-center">
@@ -59,8 +59,8 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
 
                         {/* Edit Profile Button */}
                         <Link href="/edit_profile">
-                            <Button className="w-full bg-transparent text-black hover:bg-gray-100 flex items-center justify-center space-x-2">
-                                <PenLine className="w-4 h-4" />
+                            <Button className="cursor-pointer w-full  hover:bg-gray-800 flex items-center justify-center space-x-1">
+                                <Pen className="w-4 h-4" />
                                 <span>Edit Profile</span>
                             </Button>
                         </Link>
@@ -71,16 +71,16 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
                     <div className="flex gap-6 border-b mb-4 text-sm font-medium">
                         <button
                             className={activeTab === "ideathons"
-                                ? "text-black border-b-2 border-black pb-1"
-                                : "text-gray-500 hover:text-black"}
+                                ? "text-black border-b-2 border-black pb-1 cursor-pointer"
+                                : "text-gray-500 hover:text-black cursor-pointer"}
                             onClick={() => setActiveTab("ideathons")}
                         >
                             Ideathons
                         </button>
                         <button
                             className={activeTab === "entries"
-                                ? "text-black border-b-2 border-black pb-1"
-                                : "text-gray-500 hover:text-black"}
+                                ? "text-black border-b-2 border-black pb-1 cursor-pointer"
+                                : "text-gray-500 hover:text-black cursor-pointer"}
                             onClick={() => setActiveTab("entries")}
                         >
                             Entries
