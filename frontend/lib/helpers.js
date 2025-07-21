@@ -1,10 +1,31 @@
+export function imageToBase64(file) {
+  return new Promise((resolve) => {
+    if (!file) {
+      return resolve(""); // return empty string if no file
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      resolve(reader.result); // base64 string (data URL)
+    };
+
+    reader.onerror = () => {
+      resolve(""); // return empty string on error
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
 export async function fetcher({
   url,
   method = "GET",
   data = null,
   token = null,
-  returned_status = 200,
+  returned_status = 200, // expected response status
 }) {
+  if (!url) throw new Error("fetcher: URL is required");
+
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -17,28 +38,40 @@ export async function fetcher({
   const config = {
     method,
     headers,
-    credentials: "include", // important for sending cookies
+    credentials: "include", // send cookies if needed
   };
 
-  if (data) {
+  if (data && method !== "GET") {
     config.body = JSON.stringify(data);
   }
 
   try {
-    const res = await fetch(url, config);
+    const response = await fetch(url, config);
 
-    if (res.status !== returned_status) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || `Unexpected status: ${res.status}`);
+    // If status doesn't match expected, throw error
+    if (response.status !== returned_status) {
+      let errorData = {};
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        // no JSON in response
+      }
+      const message =
+        errorData?.message ||
+        `Expected status ${returned_status}, got ${response.status}`;
+      throw new Error(message);
     }
 
-    if (returned_status !== 200) {
-      return; // no body expected
+    // If response has a body, try to return it as JSON
+    const contentType = response.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
     }
 
-    return await res.json();
+    // No JSON body (e.g., DELETE 204 No Content)
+    return null;
   } catch (err) {
-    console.error("API Error:", err.message);
+    console.error("Fetcher error:", err.message);
     throw err;
   }
 }

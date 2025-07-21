@@ -63,10 +63,6 @@ func Get_params(r *http.Request, user_id int) I_params {
 }
 
 func (i *Ideathons) Check_ideathons_info() error {
-	i.Title = strings.TrimSpace(i.Title)
-	if len(i.Title) < 6 {
-		return errors.New("Title must be at least 6 characters")
-	}
 
 	i.Description = strings.TrimSpace(i.Description)
 	if len(i.Description) < 6 {

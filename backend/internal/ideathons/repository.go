@@ -23,7 +23,6 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 		err := rows.Scan(
 			&i.Id,
 			&i.User_id,
-			&i.Title,
 			&i.Description,
 			&i.Banner,
 			&i.Start_date,
@@ -36,8 +35,11 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 		}
 
 		// Convert privacy integer (0 or 1) to bool
-		i.Privacy = privacyInt != 0
-
+		if privacyInt != 0 {
+			i.Privacy = "dsf"
+		} else {
+			i.Privacy = "dsd"
+		}
 		ideathons = append(ideathons, i)
 	}
 
@@ -59,13 +61,12 @@ func Update_ideathon(user_id int, ideathon Ideathons) error {
 
 	query := `
 		UPDATE ideathons
-		SET title = ?, description = ?, banner = ?, start_date = ?, price = ?, end_date = ?, privacy = ?
+		SET description = ?, banner = ?, start_date = ?, price = ?, end_date = ?, privacy = ?
 		WHERE id = ? AND user_id = ?
 	`
 
 	_, err = db.Exec(
 		query,
-		ideathon.Title,
 		ideathon.Description,
 		ideathon.Banner,
 		ideathon.Start_date,
@@ -97,14 +98,13 @@ func Insert_ideathons_info(ideathon Ideathons) (int, error) {
 	db := database.Get_DB()
 
 	query := `
-		INSERT INTO ideathons (user_id, title, description, banner, start_date, price, end_date, privacy)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO ideathons (user_id, description, banner, start_date, price, end_date, privacy)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := db.Exec(
 		query,
 		ideathon.User_id,
-		ideathon.Title,
 		ideathon.Description,
 		ideathon.Banner,
 		ideathon.Start_date,
@@ -112,7 +112,10 @@ func Insert_ideathons_info(ideathon Ideathons) (int, error) {
 		ideathon.End_date,
 		ideathon.Privacy,
 	)
-
+	if err != nil {
+		return 0, err
+	}
+	
 	last_id, err := result.LastInsertId()
 
 	return int(last_id), err
