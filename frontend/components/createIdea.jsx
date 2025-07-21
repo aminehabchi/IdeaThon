@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, ChevronDown, Upload, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { CalendarShad } from '@/components/ui/calendar';
@@ -39,7 +39,7 @@ const PopoverContent = ({ children, open, className = "" }) => {
   );
 };
 
-export default function IdeathonForm() {
+export default function IdeathonForm({setForm}) {
   const [endDate, setEndDate] = useState(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [privacy, setPrivacy] = useState('Select Privacy');
@@ -51,6 +51,16 @@ export default function IdeathonForm() {
   const [price, setPrice] = useState(0);
   const [bannerImage, setBannerImage] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
+
+  useEffect(() => {
+    setForm({
+      endDate,
+      categories,
+      price,
+      privacy,
+      banner: bannerImage
+    })
+  }, [endDate, categories, price,privacy, bannerImage])
 
   const handleCategoryKeyPress = (e) => {
     if (e.key === 'Enter' && categoryInput.trim()) {
@@ -205,14 +215,14 @@ export default function IdeathonForm() {
               {priceType === 'Paid' && (
                 <>
                   {/* <Label className="block text-sm font-medium text-gray-900">Amount</Label> */}
-                    <Input
-                      id="price"
-                      type="number"
-                      min={0}
-                      value={price}
-                      onChange={(e) => setPrice(Number(e.target.value))}
-                      className="w-24"
-                    />
+                  <Input
+                    id="price"
+                    type="number"
+                    min={0}
+                    value={price}
+                    onChange={(e) => setPrice(Number(e.target.value))}
+                    className="w-24"
+                  />
                 </>
               )}
 

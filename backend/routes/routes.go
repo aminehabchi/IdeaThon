@@ -5,6 +5,7 @@ import (
 	"ideaThon/internal/entries"
 	"ideaThon/internal/ideathons"
 	"ideaThon/internal/images"
+	"ideaThon/internal/profile"
 	"net/http"
 )
 
@@ -15,7 +16,8 @@ func Routes() *http.ServeMux {
 	images.Routes(mux)
 	ideathons.Routes(mux)
 	entries.Routes(mux)
-	
+	profile.RegisterProfileRoutes(mux)
+
 	return mux
 
 }

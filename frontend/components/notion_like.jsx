@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import "../app/globals.css";
 
-export default function ProfessionalEditor() {
+export default function ProfessionalEditor({form}) {
     const editorRef = useRef(null);
     const [isReady, setIsReady] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -214,6 +214,7 @@ export default function ProfessionalEditor() {
             
             // Log the JSON that would be sent to backend
             console.log('Publishing to backend:', JSON.stringify(payload, null, 2));
+            console.log('==>',form);
             
             // Here you would make your actual API call:
             // const response = await fetch('/api/posts', {
