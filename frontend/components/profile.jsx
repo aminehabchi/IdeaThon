@@ -58,7 +58,7 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
                         </div>
 
                         {/* Edit Profile Button */}
-                        <Link href="/edit_profile">
+                        <Link href="/profile/edit">
                             <Button className="cursor-pointer w-full  hover:bg-gray-800 flex items-center justify-center space-x-1">
                                 <Pen className="w-4 h-4" />
                                 <span>Edit Profile</span>
