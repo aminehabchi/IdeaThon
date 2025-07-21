@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Search, Bell, User, PenLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ProfileDropdown } from "./ProfileDropdown"; // Import the new component
 
 export function DashboardNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,8 +19,7 @@ export function DashboardNavbar() {
           {/* Left: Logo */}
           <div className="flex items-center">
             <Link href="/ideas" className="flex items-center">
-              {/* <h1 className="text-xl font-bold text-black">IdeaThons</h1> */}
-            <img src="/Logo.svg" alt="logo" />
+              <img src="/Logo.svg" alt="logo" />
             </Link>
           </div>
 
@@ -82,15 +82,8 @@ export function DashboardNavbar() {
               <Bell className="w-5 h-5" />
             </button>
 
-            <Link href="/profile">
-              <img
-                src="/belmaayo_avatar.png"
-                alt="Profile"
-                width={36}
-                height={36}
-                className="rounded-full hover:scale-105 transition-transform cursor-pointer"
-              />
-            </Link>
+            {/* Replace the Link with ProfileDropdown */}
+            <ProfileDropdown />
           </div>
         </div>
 
@@ -133,12 +126,12 @@ export function DashboardNavbar() {
                     <span>Notifications</span>
                   </button>
 
-                  <Link href="/profile">
+                  {/* <Link href="/profile"> */}
                     <button className="w-full p-3 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center space-x-2">
                       <User className="w-5 h-5" />
                       <span>Profile</span>
                     </button>
-                  </Link>
+                  {/* </Link> */}
                 </div>
               </div>
             </motion.div>

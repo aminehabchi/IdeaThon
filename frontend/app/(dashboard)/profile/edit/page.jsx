@@ -112,7 +112,10 @@ export default function EditProfile() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Save failed");
+      if (!res.ok)  {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to save profile");
+      }
       toast.success("Profile saved successfully!");
     } catch (err) {
       console.error(err);
