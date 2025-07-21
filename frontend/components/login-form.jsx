@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { fetcher } from "@/lib/helpers";
+import Image from "next/image";
 
 export function LoginForm({ className, ...props }) {
   const [formData, setFormData] = useState({
@@ -52,13 +53,13 @@ export function LoginForm({ className, ...props }) {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <a
-              href="#"
+              href="/"
               className="flex flex-col items-center gap-2 font-medium"
             >
-              <div className="flex size-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
+              <div className="flex mb-5 items-center justify-center rounded-md">
+                {/* <GalleryVerticalEnd className="size-6" /> */}
+                    <Image src="/Logo.svg" alt="logo" width={120} height={40} priority />
               </div>
-              <span className="sr-only">IdeaThon.</span>
             </a>
             <h1 className="text-xl font-bold">Welcome to IdeaThon.</h1>
             <div className="text-center text-sm">

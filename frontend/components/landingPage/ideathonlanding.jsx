@@ -46,13 +46,15 @@ export default  function IdeaThonsLanding() {
               </p>
             </div>
   
-            <div className="grid lg:grid-cols-2 gap-12 items-start">
-              {/* Left Side - Dynamic Image */}
-              <DynamicImage />
-  
-              {/* Right Side - Interactive Stepper */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 justify-items-center items-center  w-full">
+                {/* Right Side - Interactive Stepper */}
               <IdeathonStepper />
-            </div>
+                {/* Left Side - Dynamic Image */}
+              <div className="w-full h-full  flex justify-center">
+                <DynamicImage />
+              </div>
+          </div>
+
           </div>
         </section>
   
@@ -120,53 +122,39 @@ function notifyStepChange(newStep) {
 }
 
 // Dynamic Image Component that changes based on stepper
-function DynamicImage() {
-  const [activeStep, setActiveStep] = useState(0)
+export function DynamicImage() {
+  const [activeStep, setActiveStep] = useState(0);
 
   const images = [
-    {
-      title: "💡 Idea Conceptualization", 
-      subtitle: "Brainstorm your innovative concept",
-    },
-    {
-      title: "⚙️ Contest Configuration", 
-      subtitle: "Configure competition parameters",
-    },
-    {
-      title: "🚀 Ideas Flow In",
-      subtitle: "Receive diverse submissions",
-    },
-    {
-      title: "🏆 Winner Selection",
-      subtitle: "Choose the best submission",
-    }
-  ]
+    { src: "/first.png" },
+    { src: "/sec.png" },
+    { src: "third.png" },
+    { src: "fourth.png" },
+  ];
 
-  // Listen for step changes
   useEffect(() => {
-    const listener = (newStep) => setActiveStep(newStep)
-    stepChangeListeners.push(listener)
-    
-    return () => {
-      const index = stepChangeListeners.indexOf(listener)
-      if (index > -1) stepChangeListeners.splice(index, 1)
-    }
-  }, [])
+    const listener = (newStep) => setActiveStep(newStep);
+    stepChangeListeners.push(listener);
 
-  const currentImage = images[activeStep]
+    return () => {
+      const index = stepChangeListeners.indexOf(listener);
+      if (index > -1) stepChangeListeners.splice(index, 1);
+    };
+  }, []);
+
+  const current = images[activeStep];
 
   return (
-    <div className="flex justify-center">
-      <div className={`w-full max-w-md h-96  rounded-xl border-2 flex items-center justify-center transition-all duration-500`}>
-        <div className="text-gray-600 text-center">
-          <div className="text-3xl mb-4">{currentImage.title.split(' ')[0]}</div>
-          <div className="text-lg font-medium mb-2">{currentImage.title.substring(2)}</div>
-          <div className="text-sm">{currentImage.subtitle}</div>
-        </div>
-      </div>
+    <div className="flex justify-center align-center items-center">
+        <img
+          src={current.src}
+          alt={`Step ${activeStep + 1}`}
+          className="object-contain h-full w-full transition-all duration-500"
+        />
     </div>
-  )
+  );
 }
+
 
 // Updated Stepper Component with left-side vertical progress bar
 function IdeathonStepper() {

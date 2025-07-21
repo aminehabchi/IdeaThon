@@ -20,7 +20,10 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo + Nav */}
           <div className="flex items-center space-x-8">
-            <h1 className="text-xl font-bold text-black">IdeaThons</h1>
+            {/* <h1 className="text-xl font-bold text-black">IdeaThons</h1> */}
+             <Link href="/" className="flex items-center">
+                <img src="/Logo.svg" alt="logo" />
+             </Link>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex space-x-8">

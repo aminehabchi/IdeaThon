@@ -17,8 +17,9 @@ export function DashboardNavbar() {
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center">
-              <h1 className="text-xl font-bold text-black">IdeaThons</h1>
+            <Link href="/ideas" className="flex items-center">
+              {/* <h1 className="text-xl font-bold text-black">IdeaThons</h1> */}
+            <img src="/Logo.svg" alt="logo" />
             </Link>
           </div>
 

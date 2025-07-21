@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fetcher } from "@/lib/helpers";
+import Image from "next/image";
 
 export function SignUpForm({ className, ...props }) {
   // State to hold the avatar preview URL (base64)
@@ -76,13 +77,15 @@ export function SignUpForm({ className, ...props }) {
               href="#"
               className="flex flex-col items-center gap-2 font-medium"
             >
-              <div className="flex size-8 items-center justify-center rounded-md">
+              <div className="flex mb-4 items-center justify-center rounded-md">
                 {/* Icon for the brand/app */}
-                <GalleryVerticalEnd className="size-6" />
+                {/* <GalleryVerticalEnd className="size-6" /> */}
+                <Image src="/Logo.svg" alt="logo" width={120} height={40} priority />
+                
               </div>
-              <span className="sr-only">IdeaThon.</span>
+              {/* <span className="sr-only">IdeaThon.</span> */}
             </a>
-            <h1 className="text-xl font-bold">Join IdeaThon.</h1>
+            {/* <h1 className="text-xl font-bold">Join IdeaThon.</h1> */}
             <div className="text-center text-sm">
               Already have an account?{" "}
               <a href="/login" className="underline underline-offset-4">
@@ -219,16 +222,16 @@ export function SignUpForm({ className, ...props }) {
             </Button>
           </div>
           {/* Or separator */}
-          <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+          {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
             <span className="bg-background text-muted-foreground relative z-10 px-2">
               Or
             </span>
-          </div>
+          </div> */}
           {/* Social Sign-in Buttons */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Button variant="outline" type="button" className="w-full">
+          {/* <div className="grid gap-4 sm:grid-cols-2">
+            <Button variant="outline" type="button" className="w-full"> */}
               {/* Apple Icon */}
-              <svg
+              {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 className="size-4 mr-2"
@@ -240,9 +243,9 @@ export function SignUpForm({ className, ...props }) {
               </svg>
               Continue with Apple
             </Button>
-            <Button variant="outline" type="button" className="w-full">
+            <Button variant="outline" type="button" className="w-full"> */}
               {/* Google Icon */}
-              <svg
+              {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 className="size-4 mr-2"
@@ -253,8 +256,8 @@ export function SignUpForm({ className, ...props }) {
                 />
               </svg>
               Continue with Google
-            </Button>
-          </div>
+            </Button> */}
+          {/* </div> */}
         </div>
       </div>
       {/* Terms and Privacy Policy */}
