@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, MapPin, Phone, Lock, Globe, Camera } from "lucide-react";
+import { User, Mail, MapPin, Phone, Lock, Globe, Camera, Loader } from "lucide-react";
+import {IdeaLoader} from "@/components/ui/cosloader";
 
 export default function EditProfile() {
   const [profile, setProfile] = useState(null);
@@ -40,14 +41,14 @@ export default function EditProfile() {
         lastName: "Bozorgi",
         email: "Mehrabbozorgi.business@gmail.com",
         address: "33062 Zboncak isle",
-        contactNumber: "58077.79",
+        contactNumber: "+1 234 567 8900",
         country: "US",
         password: "sbdfbnd65sfvdb s",
-        avatarUrl: "/avatar.png",
+        avatarUrl: "/belmaayo_avatar.png",
       };
       setProfile(data);
       setForm(data);
-      setAvatarPreview(data.avatarUrl || "/avatar.png");
+      setAvatarPreview(data.avatarUrl || "/belmaayo_avatar.png");
     }
     fetchProfile();
   }, []);
@@ -83,6 +84,7 @@ export default function EditProfile() {
     
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
+    //  make a pop up here 
       alert("File size should be less than 5MB");
       return;
     }
@@ -124,14 +126,15 @@ export default function EditProfile() {
   const getInitials = () => {
     return `${form.firstName.charAt(0)}${form.lastName.charAt(0)}`.toUpperCase();
   };
-
+  // loader
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <IdeaLoader />
       </div>
     );
   }
+  
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -159,7 +162,7 @@ export default function EditProfile() {
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
                   <AvatarImage src={avatarPreview} alt="Profile" />
-                  <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                  <AvatarFallback className="text-2xl bg-gradient-to-br  text-white">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
