@@ -68,3 +68,21 @@ func Get_id_from_session(token string) (int, error) {
 
 	return id, nil
 }
+
+// func GetUserIDFromSession(r *http.Request) (int, error) {
+// 	tokenCookie, err := r.Cookie("session_token")
+// 	if err != nil {
+// 		return 0, errors.New("unauthorized: no session cookie")
+// 	}
+
+// 	token := tokenCookie.Value
+// 	var userID int
+// 	err = database.DATABASE.QueryRow("SELECT user_id FROM sessions WHERE token = ?", token).Scan(&userID)
+// 	if err == sql.ErrNoRows {
+// 		return 0, errors.New("unauthorized: invalid session")
+// 	} else if err != nil {
+// 		return 0, errors.New("internal server error: failed to query session")
+// 	}
+
+// 	return userID, nil
+// }
