@@ -40,7 +40,10 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 		i.Start_date = time1.Format("2006-01-02 15:04:05")
 		i.End_date = time2.Format("2006-01-02 15:04:05")
 
-		ideathons = append(ideathons, i)
+		i.Category, err = Get_categories_by_ideathon_ID(i.Id)
+		if err == nil {
+			ideathons = append(ideathons, i)
+		} 
 	}
 
 	if err := rows.Err(); err != nil {
@@ -48,6 +51,63 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 	}
 
 	return ideathons, nil
+}
+func Insert_categories(ideathonID int, categorys []string) error {
+	db := database.Get_DB()
+
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	stmt, err := tx.Prepare("INSERT INTO ideathons_categories (ideathon_id, category) VALUES (?, ?)")
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	for _, categoryID := range categorys {
+		_, err := stmt.Exec(ideathonID, categoryID)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to insert category '%s': %w", categoryID, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+func Get_categories_by_ideathon_ID(ideathonID int) ([]string, error) {
+	db := database.Get_DB()
+
+	query := `
+		SELECT category FROM ideathons_categories WHERE ideathon_id = ?
+	`
+
+	rows, err := db.Query(query, ideathonID)
+	if err != nil {
+		return nil, fmt.Errorf("query error: %w", err)
+	}
+	defer rows.Close()
+
+	var categories []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, fmt.Errorf("scan error: %w", err)
+		}
+		categories = append(categories, name)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows error: %w", err)
+	}
+
+	return categories, nil
 }
 
 func Update_ideathon(user_id int, ideathon Ideathons) error {

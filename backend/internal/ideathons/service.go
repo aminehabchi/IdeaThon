@@ -2,8 +2,6 @@ package ideathons
 
 import (
 	"errors"
-	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -41,24 +39,6 @@ func Prepare_ideathon_query(params I_params) (string, []interface{}) {
 	args = append(args, params.Offset)
 
 	return query, args
-}
-
-func Get_params(r *http.Request, user_id int) I_params {
-	query := r.URL.Query()
-	var params I_params
-
-	params.User_id = user_id
-
-	params.Id, _ = strconv.Atoi(query.Get("id"))
-
-	params.Offset, _ = strconv.Atoi(query.Get("offset"))
-
-	params.Category = query.Get("category")
-	params.Search = query.Get("search")
-	params.StartDate = query.Get("start_date")
-	params.EndDate = query.Get("end_date")
-
-	return params
 }
 
 func (i *Ideathons) Check_ideathons_info() error {
