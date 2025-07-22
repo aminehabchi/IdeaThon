@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import "../app/globals.css";
 import { fetcher, imageToBase64 } from "@/lib/helpers.js";
+import { useRouter } from "next/navigation";
+import { toast, Toaster } from "sonner";
 
 export default function ProfessionalEditor({ form }) {
   console.log("from the start", form);
@@ -13,6 +15,7 @@ export default function ProfessionalEditor({ form }) {
   const [wordCount, setWordCount] = useState(0);
   const [title, setTitle] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const router = useRouter();
 
   // Initialize Editor
   useEffect(() => {
@@ -195,57 +198,52 @@ export default function ProfessionalEditor({ form }) {
       setLastSaved(new Date());
       // Silent save - no user feedback
     } catch (error) {
-      console.error("Save failed:", error);
+      toast.error("Publish failed:", error);
     }
   }, []);
 
-  const handlePublish = useCallback(async () => {
-    if (!editorRef.current) return;
+    const handlePublish = useCallback(async () => {
+      if (!editorRef.current) return;
 
-    setIsPublishing(true);
-    try {
-      const editorData = await editorRef.current.save();
+      setIsPublishing(true);
+      try {
+        const editorData = await editorRef.current.save();
 
-      const payload = {
-        title: title.trim() || "Untitled",
-        content: editorData,
-        publishedAt: new Date().toISOString(),
-        wordCount,
-      };
-      let banner = await imageToBase64(form.banner);
-      console.log("--->", form.bannerImage);
+        const payload = {
+          title: title.trim() || "Untitled",
+          content: editorData,
+          publishedAt: new Date().toISOString(),
+          wordCount,
+        };
 
-      let obj = {
-        end_date: form.endDate,
-        categories: form.categories,
-        price: form.price,
-        privacy: form.privacy,
-        banner,
-        description: JSON.stringify(payload, null, 2),
-      };
-      console.log("------>", obj);
+        const banner = await imageToBase64(form.banner);
 
-      await fetcher({
-        url: "http://localhost:8080/api/ideathons/add",
-        method: "POST",
-        data: obj,
-        token: null,
-        returned_status: 201,
-      });
+        const obj = {
+          end_date: form.endDate,
+          categories: form.categories,
+          price: form.price,
+          privacy: form.privacy,
+          banner,
+          description: JSON.stringify(payload, null, 2),
+        };
 
-      //   console.log("Publishing to backend:", JSON.stringify(payload, null, 2));
-
-      // send to backend
-      // await fetch('/api/posts', { method: 'POST', body: JSON.stringify(payload) });
-
-      //   alert("Content published successfully!");
-    } catch (error) {
-      console.error("Publish failed:", error);
-      alert("Failed to publish content.");
-    } finally {
-      setIsPublishing(false);
-    }
-  }, [title, wordCount, form]); // ✅ Include `form` here
+         await fetcher({
+          url: "http://localhost:8080/api/ideathons/add",
+          method: "POST",
+          data: obj,
+          token: null,
+          returned_status: 201,
+        });
+        
+          router.push("/create/publish"); 
+      } catch (error) {
+        toast.error(error.message);
+        // toast.error("Publish failed:", error);
+        // alert("Failed to publish content.");
+      } finally {
+        setIsPublishing(false);
+      }
+    }, [title, wordCount, form, router]);
 
   // Auto-save every 10 seconds (silently)
   useEffect(() => {
@@ -300,7 +298,7 @@ export default function ProfessionalEditor({ form }) {
         <button
           onClick={handlePublish}
           disabled={isPublishing || !isReady}
-          className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 disabled:opacity-50"
+          className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
         >
           {isPublishing ? "Publishing..." : "Publish"}
         </button>

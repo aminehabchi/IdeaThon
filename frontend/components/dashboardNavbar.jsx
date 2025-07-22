@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Search, Bell, User, PenLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ProfileDropdown } from "./ProfileDropdown"; // Import the new component
-
+import ProfileDropdown from "./profileDropdown"
 export function DashboardNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

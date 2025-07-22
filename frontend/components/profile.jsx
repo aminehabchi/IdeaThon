@@ -13,9 +13,9 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
             <div className="max-w-7xl mx-auto flex px-4 pt-8">
                 {/* Left Sidebar */}
                 <aside className="w-full max-w-[260px] p-6  mr-6 border-r border-gray-200">
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-6 ">
                         {/* Avatar and Name */}
-                        <div className="flex flex-col items-start text-center">
+                        <div className="flex flex-col  items-center text-center">
                             <img
                                 src={profile.avatar}
                                 alt="avatar"

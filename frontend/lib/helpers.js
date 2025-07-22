@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export function imageToBase64(file) {
   return new Promise((resolve) => {
     if (!file) {
@@ -71,7 +73,8 @@ export async function fetcher({
     // No JSON body (e.g., DELETE 204 No Content)
     return null;
   } catch (err) {
-    console.error("Fetcher error:", err.message);
+    toast.error(err.message);
+    // console.error("Fetcher error:", err.message);
     throw err;
   }
 }

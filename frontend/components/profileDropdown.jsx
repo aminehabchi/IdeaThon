@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { User, Shield, Flag, LogOut } from "lucide-react";
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 
-export function ProfileDropdown({
+export default function ProfileDropdown({
   userImage = "/belmaayo_avatar.png",
   userName = "Yassine Jouichate",
   userEmail = "YassineJ210@workel.com"
