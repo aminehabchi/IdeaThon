@@ -48,7 +48,6 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
-
 	err = utils.Encode(w, ideathons)
 	if err != nil {
 		fmt.Println("Encode", err)
@@ -79,6 +78,13 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	ideathons_id, err := Insert_ideathons_info(ideathon)
+	if err != nil {
+		fmt.Println(err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = Insert_categories(ideathons_id, ideathon.Category)
 	if err != nil {
 		fmt.Println(err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)

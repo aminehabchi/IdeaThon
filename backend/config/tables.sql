@@ -33,13 +33,10 @@ CREATE TABLE IF NOT EXISTS ideathons (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Many-to-many relationship: Ideathon <-> Category
 CREATE TABLE IF NOT EXISTS ideathons_categories (
     ideathon_id INTEGER NOT NULL,
-    category_id INTEGER NOT NULL,
-    PRIMARY KEY (ideathon_id, category_id),
-    FOREIGN KEY (ideathon_id) REFERENCES ideathons(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+    category TEXT NOT NULL,
+    FOREIGN KEY (ideathon_id) REFERENCES ideathons(id) ON DELETE CASCADE
 );
 
 -- Entries table
