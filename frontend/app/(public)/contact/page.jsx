@@ -4,13 +4,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-import { DashboardNavbar } from "@/components/dashboardNavbar";
 
 export default function ContactPage() {
   return (
     <div>
-      {/* <Navbar /> */}
-      <DashboardNavbar/>
+      <Navbar />
       <main className="mt-[-60px] min-h-screen flex items-center justify-center bg-white px-4">
         <div className="w-full max-w-md space-y-6">
           <h1 className="text-2xl font-bold text-black">Contact us</h1>

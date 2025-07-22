@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail, MapPin, Phone, Lock, Globe, Camera } from "lucide-react";
 import { IdeaLoader } from "@/components/ui/cosloader";
-import { toast, Toaster } from "@/components/ui/sonner";
+// import { toast, Toaster } from "@/components/ui/sonner";
 
 export default function EditProfile() {
   const [profile, setProfile] = useState(null);
