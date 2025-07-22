@@ -6,6 +6,9 @@ import Link from "next/link";
 import { Search, Bell, User, PenLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProfileDropdown from "./profileDropdown"
+import NotificationDropdown from "@/components/navbarcomps/notiofications";
+
+
 export function DashboardNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -77,10 +80,10 @@ export function DashboardNavbar() {
               </Button>
             </Link>
 
-            <button className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors">
+            {/* <button className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors">
               <Bell className="w-5 h-5" />
-            </button>
-
+            </button> */}
+            <NotificationDropdown />
             {/* Replace the Link with ProfileDropdown */}
             <ProfileDropdown />
           </div>
