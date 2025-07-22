@@ -9,15 +9,16 @@ type Ideathons struct {
 	Created_at  string `json:"created_at,omitempty"`
 	Start_date  string `json:"start_date,omitempty"`
 	End_date    string `json:"end_date,omitempty"`
-	Privacy     string   `json:"privacy,omitempty"`
+	Winner_id   *int    `json:"winner_id,omitempty"`
+	Privacy     string `json:"privacy,omitempty"`
 }
 
 type I_params struct {
-	Id        int
-	User_id   int
-	Category  string
-	Search    string
-	StartDate string
-	EndDate   string
-	Offset    int
+	Id        int    `json:"id,omitempty"`
+	User_id   int    `json:"user_id,omitempty"`
+	Category  string `json:"category,omitempty"`
+	Search    string `json:"search,omitempty"`
+	StartDate string `json:"start_date,omitempty"`
+	EndDate   string `json:"end_date,omitempty"`
+	Offset    int    `json:"offset"`
 }

@@ -24,24 +24,34 @@ func PrintIdeathon(idea Ideathons) {
 	fmt.Println("")
 }
 func Get_ideathons(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+	// if r.Method != http.MethodGe {
+	// 	utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+	// 	return
+	// }
+
+	// user_id := r.Context().Value(middle.UserIDKey).(int)
+	// user_id := 1
+
+	var params I_params
+
+	if err := utils.Decode(r, &params); err != nil {
+		fmt.Println("Decode", err)
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
 		return
 	}
 
-	user_id := r.Context().Value(middle.UserIDKey).(int)
-
-	var params I_params = Get_params(r, user_id)
 	query, args := Prepare_ideathon_query(params)
 
 	ideathons, err := Get_ideathons_Db(query, args)
 	if err != nil {
+		fmt.Println("Get_ideathons_Db", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	err = utils.Encode(w, ideathons)
 	if err != nil {
+		fmt.Println("Encode", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -59,13 +69,12 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 	ideathon.User_id = 1
 	if err = utils.Decode(r, &ideathon); err != nil {
 		fmt.Println(err)
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body (json)"))
 		return
 	}
-	// PrintIdeathon(ideathon)
 
 	// if err = ideathon.Check_ideathons_info(); err != nil {
-	// 	utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
+	// 	utils.SendResponseStatus(w, http.StatusBadRequest, err)
 	// 	return
 	// }
 

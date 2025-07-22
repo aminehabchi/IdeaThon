@@ -27,7 +27,7 @@ export async function fetcher({
   returned_status = 200, // expected response status
 }) {
   if (!url) throw new Error("fetcher: URL is required");
-
+  
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",

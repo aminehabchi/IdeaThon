@@ -1,8 +1,10 @@
 package ideathons
 
 import (
+	"fmt"
 	database "ideaThon/config"
 	"ideaThon/internal/images"
+	"time"
 )
 
 func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
@@ -10,7 +12,7 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 
 	rows, err := db.Query(query, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("db query error: %w", err)
 	}
 	defer rows.Close()
 
@@ -18,33 +20,31 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 
 	for rows.Next() {
 		var i Ideathons
-		var privacyInt int // intermediate to convert int->bool
+		var time1, time2 time.Time
 
-		err := rows.Scan(
+		if err := rows.Scan(
 			&i.Id,
 			&i.User_id,
 			&i.Description,
 			&i.Banner,
-			&i.Start_date,
+			&time1,
 			&i.Price,
-			&i.End_date,
-			&privacyInt,
-		)
-		if err != nil {
-			return nil, err
+			&time2,
+			&i.Winner_id,
+			&i.Privacy,
+		); err != nil {
+			return nil, fmt.Errorf("row scan error: %w", err)
 		}
 
-		// Convert privacy integer (0 or 1) to bool
-		if privacyInt != 0 {
-			i.Privacy = "dsf"
-		} else {
-			i.Privacy = "dsd"
-		}
+		// Convert time.Time → string
+		i.Start_date = time1.Format("2006-01-02 15:04:05")
+		i.End_date = time2.Format("2006-01-02 15:04:05")
+
 		ideathons = append(ideathons, i)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("rows iteration error: %w", err)
 	}
 
 	return ideathons, nil
@@ -115,7 +115,7 @@ func Insert_ideathons_info(ideathon Ideathons) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	
+
 	last_id, err := result.LastInsertId()
 
 	return int(last_id), err

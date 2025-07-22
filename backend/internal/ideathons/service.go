@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -64,17 +63,8 @@ func Get_params(r *http.Request, user_id int) I_params {
 
 func (i *Ideathons) Check_ideathons_info() error {
 
-	i.Description = strings.TrimSpace(i.Description)
-	if len(i.Description) < 6 {
-		return errors.New("Description must be at least 6 characters")
-	}
-
 	if i.Price < 0 {
 		return errors.New("Price must be non-negative")
-	}
-
-	if i.User_id <= 0 {
-		return errors.New("User ID must be valid")
 	}
 
 	layout := "2006-01-02"
