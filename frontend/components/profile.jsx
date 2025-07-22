@@ -7,6 +7,8 @@ import { Pen } from "lucide-react";
 
 export default function ProfileComponent({ profile, createdIdeathons, submittedEntries }) {
     const [activeTab, setActiveTab] = useState("ideathons");
+    console.log(profile?.totalPrize);
+
 
     return (
         <div className="min-h-screen bg-[#ffffff]">
@@ -17,36 +19,39 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
                         {/* Avatar and Name */}
                         <div className="flex flex-col  items-center text-center">
                             <img
-                                src={profile.avatar}
+                                src={profile?.avatar || "/avatar-default.svg"}
                                 alt="avatar"
-                                className="w-24 h-24 rounded-full object-cover mb-4"
+                                className="w-24 h-24 rounded-full border-2 border-gray-300 object-cover mb-4"
                             />
-                            <h2 className="text-lg font-semibold">{profile.name}</h2>
-                            <p className="text-sm text-gray-500">{profile.location}</p>
+                            <h2 className="text-lg font-semibold">{profile?.first_name}</h2>
+                            <h2 className="text-lg font-semibold">{profile?.last_name}</h2>
+                            <p className="text-sm text-gray-500">{profile?.location}</p>
                         </div>
 
                         {/* Bio */}
                         <div>
                             <h2 className="text-lg font-semibold">Bio</h2>
-                            <p className="text-sm text-gray-500">{profile.bio}</p>
+                            <p className="text-sm text-gray-500 break-words">
+                                {profile?.bio || "No bio available."}
+                            </p>
                         </div>
 
                         {/* Stats */}
                         <div className="text-sm space-y-4">
                             <div>
                                 <p className="text-gray-500">Total Ideathons</p>
-                                <p className="font-medium">{createdIdeathons.length} Ideas</p>
+                                {<p className="font-medium">{createdIdeathons?.length} Ideas</p>}
                             </div>
 
                             <div>
                                 <p className="text-gray-500">Total prize won</p>
-                                <p className="font-medium">{profile.totalPrize} $</p>
+                                <p className="font-medium">{profile?.totalPrize ?? 0} $</p>
                             </div>
 
-                            <div>
+                            {profile?.links ? <div>
                                 <p className="text-gray-500">On the web</p>
                                 <ul className="text-blue-500 space-y-1">
-                                    {profile.links?.map((link, i) => (
+                                    {profile?.links?.map((link, i) => (
                                         <li key={i}>
                                             <a href={link.url} target="_blank" rel="noreferrer">
                                                 {link.label}
@@ -54,7 +59,7 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
+                            </div> : null}
                         </div>
 
                         {/* Edit Profile Button */}
@@ -87,7 +92,7 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
                         </button>
                     </div>
 
-                    {activeTab === "ideathons" && createdIdeathons.map((idea, index) => (
+                    {activeTab === "ideathons" && createdIdeathons?.map((idea, index) => (
                         <div key={idea.id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md hover:border-transparent transition-shadow max-w-sm mb-4">
                             <p className="text-xs text-gray-400 mb-1"># IDEA {index + 1}</p>
                             <h3 className="font-semibold mb-1">{idea.title}</h3>
@@ -95,7 +100,7 @@ export default function ProfileComponent({ profile, createdIdeathons, submittedE
                         </div>
                     ))}
 
-                    {activeTab === "entries" && submittedEntries.map((entry, index) => (
+                    {activeTab === "entries" && submittedEntries?.map((entry, index) => (
                         <div key={entry.id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md hover:border-transparent transition-shadow max-w-sm mb-4">
                             <p className="text-xs text-gray-400 mb-1"># ENTRY {index + 1}</p>
                             <h3 className="font-semibold mb-1">{entry.title}</h3>

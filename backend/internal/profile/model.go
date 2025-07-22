@@ -2,13 +2,13 @@ package profile
 
 type Ideathon struct {
 	ID          int    `json:"id"`
-	Title       string `json:"title"`
 	Description string `json:"description"`
 	Banner      string `json:"banner"`
 	StartDate   string `json:"start_date"`
-	EndDate     string `json:"end_date"`
 	Price       int    `json:"price"`
-	Privacy     int    `json:"privacy"`
+	EndDate     string `json:"end_date"`
+	Winner_id   *int   `json:"winner_id"`
+	Privacy     string `json:"privacy"`
 }
 
 type Entry struct {

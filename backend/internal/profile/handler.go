@@ -7,12 +7,12 @@ import (
 )
 
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
-	userID, err := utils.Get_id_from_session(r.Header.Get("token"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
-
+	// userID, err := utils.Get_id_from_session(r.Header.Get("token"))
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusUnauthorized)
+	// 	return
+	// }
+	var userID = 1
 	profile, err := FetchUserProfile(userID)
 	if err != nil {
 		http.Error(w, "Error fetching profile", http.StatusInternalServerError)

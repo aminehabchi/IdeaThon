@@ -1,6 +1,8 @@
 package profile
 
 import (
+	"database/sql"
+	"fmt"
 	"strings"
 
 	"ideaThon/config"
@@ -20,18 +22,21 @@ func GetUserProfile(userID int) (*ProfileResponse, error) {
 		&resp.Avatar, &resp.PhoneNumber, &resp.Bio,
 	)
 	if err != nil {
+		fmt.Println("errr1", err)
 		return nil, err
 	}
 
 	// Step 2: Get Created Ideathons
 	ideathonQuery := `
-	SELECT id, title, description, banner, start_date, end_date, price, privacy
+	SELECT id, description, banner, start_date, price, end_date, privacy, winner_id
 	FROM ideathons
 	WHERE user_id = ?
 	ORDER BY start_date DESC
 	`
+
 	ideathonRows, err := config.DATABASE.Query(ideathonQuery, userID)
 	if err != nil {
+		fmt.Println("errr2", err)
 		return nil, err
 	}
 	defer ideathonRows.Close()
@@ -39,10 +44,31 @@ func GetUserProfile(userID int) (*ProfileResponse, error) {
 	var createdIdeathons []Ideathon
 	for ideathonRows.Next() {
 		var i Ideathon
-		err := ideathonRows.Scan(&i.ID, &i.Title, &i.Description, &i.Banner, &i.StartDate, &i.EndDate, &i.Price, &i.Privacy)
-		if err != nil {
-			return nil, err
+		var winner sql.NullInt64 
+
+		err := ideathonRows.Scan(
+			&i.ID,
+			&i.Description,
+			&i.Banner,
+			&i.StartDate,
+			&i.Price,
+			&i.EndDate,
+			&i.Privacy,
+			&winner, 
+		)
+		if err != nil {	
+			fmt.Println("errr3", err)
+			continue // skip bad row but continue processing others
 		}
+
+		// Convert sql.NullInt64 to *int
+		if winner.Valid {
+			val := int(winner.Int64)
+			i.Winner_id = &val
+		} else {
+			i.Winner_id = nil
+		}
+
 		createdIdeathons = append(createdIdeathons, i)
 	}
 	resp.CreatedIdeathons = createdIdeathons
@@ -56,6 +82,7 @@ func GetUserProfile(userID int) (*ProfileResponse, error) {
 	`
 	entryRows, err := config.DATABASE.Query(entryQuery, userID)
 	if err != nil {
+		fmt.Println("errr4", err)
 		return nil, err
 	}
 	defer entryRows.Close()

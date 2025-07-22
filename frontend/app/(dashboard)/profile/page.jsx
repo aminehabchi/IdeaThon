@@ -1,34 +1,46 @@
+"use client";
 
+import { useEffect, useState } from "react";
 import { DashboardNavbar } from "@/components/dashboardNavbar";
-import Puzzle from "@/components/gsap";
 import ProfileComponent from "@/components/profile";
-
-
+import { fetcher } from "@/lib/helpers"
+import { IdeaLoader } from "@/components/ui/cosloader";
 export default function Profile() {
+    const [profileData, setProfileData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function getProfile() {
+            try {
+                const data = await fetcher({
+                    url: "http://localhost:8080/api/profile",
+                    method: "GET",
+                    returned_status: 200,
+                });
+                setProfileData(data);
+            } catch (error) {
+                console.error("Failed to load profile:", error.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getProfile();
+    }, []);
+
+    if (loading || !profileData) return <IdeaLoader />;
+    console.log(profileData);
+
     return (
         <div>
             <DashboardNavbar />
             <ProfileComponent
-                profile={{
-                    name: "Bilal Daanouni",
-                    location: "City / Country",
-                    bio: `adjectif (aliment) Issu de l'agriculture biologique*. 
-                    Légumes bios. adverbe Manger bio. Élaboré dans le respect de l'environnement 
-                    et avec des composants végétaux issus de l'agriculture biologique.`,
-                    avatar: "/belmaayo_avatar.png",
-                    totalPrize: 2000,
-                    links: [
-                        { label: "LinkedIn", url: "https://linkedin.com" },
-                        { label: "Medium", url: "https://medium.com" }
-                    ]
-                }}
-                createdIdeathons={[
-                    { id: 1, title: "AI Hackathon", description: "An ideathon on building with AI" }
-                ]}
-                submittedEntries={[
-                    { id: 1, title: "Smart Farming", description: "An idea for precision agriculture" }
-                ]}
+                profile={profileData}
+                createdIdeathons={profileData.created_ideathons}
+                submittedEntries={profileData.submitted_entries}
             />
+
+
 
         </div>
     );
