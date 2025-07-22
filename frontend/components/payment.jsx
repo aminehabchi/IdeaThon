@@ -6,7 +6,8 @@ import { ArrowLeft, Check, CreditCard } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { DashboardNavbar } from "./dashboardNavbar";
+
+
 export default function PaymentPage() {
   const [paymentMethod, setPaymentMethod] = useState("paypal");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -55,7 +56,7 @@ export default function PaymentPage() {
             {/* PayPal */}
             <button
               onClick={() => routing("paypal")}
-              className={`w-full p-3 rounded-2xl border-2 transition-colors cursor-pointer ${
+              className={`w-full p-4 rounded-2xl border-2 border-orange-200 transition-colors cursor-pointer ${
                 paymentMethod === "paypal"
                   ? "bg-[#FFC43A]"
                   : "border-orange-300"

@@ -156,7 +156,7 @@ export  default function NotificationDropdown() {
           {/* Footer */}
           {notifications.length > 0 && (
             <div className="px-4 py-3 border-t border-gray-200">
-              <button className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+              <button className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer">
                 View all notifications
               </button>
             </div>
