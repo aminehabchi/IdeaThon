@@ -4,11 +4,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, CreditCard } from "lucide-react";
 import Link from "next/link";
-
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { DashboardNavbar } from "./dashboardNavbar";
 export default function PaymentPage() {
   const [paymentMethod, setPaymentMethod] = useState("paypal");
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const router = useRouter();
 
   const handlePayment = async () => {
     setIsProcessing(true);
@@ -22,14 +25,19 @@ export default function PaymentPage() {
 
   if (paymentSuccess) {
     return (
-     <PaymentSuccess></PaymentSuccess>
+      <PaymentSuccess></PaymentSuccess>
     );
   }
 
+  function routing(method) {
+    setPaymentMethod(method);
+    router.push(`/${method}.com`);
+  }
+
   return (
-    <div className=" mt-[-30px] min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className=" mt-[-60px] min-h-screen flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-sm border p-8 space-y-6">
+        <div className="bg-white  p-8 space-y-6">
           <div className="text-center">
             <h1 className="text-xl font-medium text-gray-900 mb-2">Payment</h1>
             <p className="text-sm text-gray-600">
@@ -46,24 +54,29 @@ export default function PaymentPage() {
           <div className="space-y-3">
             {/* PayPal */}
             <button
-              onClick={() => setPaymentMethod("paypal")}
-              className={`w-full p-3 rounded-lg border-2 transition-colors ${
+              onClick={() => routing("paypal")}
+              className={`w-full p-3 rounded-2xl border-2 transition-colors cursor-pointer ${
                 paymentMethod === "paypal"
-                  ? "border-orange-300 bg-orange-50"
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "bg-[#FFC43A]"
+                  : "border-orange-300"
               }`}
             >
               <div className="flex items-center justify-center space-x-2">
-                <div className="bg-orange-400 text-white px-4 py-1 rounded text-sm font-medium">
-                  PayPal
-                </div>
+                  <Link href={"paypal.com"} className="flex  items-center space-x-2">
+                  <Image
+                    src={"/paypal.png"}
+                    width={72}
+                    height={72}
+                    alt="PayPal"
+                  ></Image>
+                  </Link>
               </div>
             </button>
 
             {/* Credit Card */}
             <button
-              onClick={() => setPaymentMethod("card")}
-              className={`w-full p-3 rounded-lg border-2 transition-colors ${
+              onClick={() => routing("card")}
+              className={`w-full p-3 rounded-2xl border-2 transition-colors ${
                 paymentMethod === "card"
                   ? "border-gray-400 bg-gray-50"
                   : "border-gray-200 hover:border-gray-300"
@@ -71,9 +84,9 @@ export default function PaymentPage() {
             >
               <div className="flex items-center justify-center space-x-2">
                 <CreditCard className="w-4 h-4 text-gray-600" />
-                <div className="bg-gray-800 text-white px-4 py-1 rounded text-sm font-medium">
-                  Credit Card
-                </div>
+                  <Link href={"paypal.com"} className="flex  items-center space-x-2">
+                    Pay with Credit Card
+                  </Link>
               </div>
             </button>
           </div>
@@ -96,7 +109,7 @@ export default function PaymentPage() {
             <Button 
               onClick={handlePayment}
               disabled={isProcessing}
-              className="bg-gray-900 hover:bg-gray-800"
+              className="bg-gray-900 hover:bg-gray-800 cursor-pointer"
             >
               {isProcessing ? (
                 <div className="flex items-center space-x-2">
@@ -114,13 +127,12 @@ export default function PaymentPage() {
   );
 }
 
-
 export function PaymentSuccess() {
     return (
-        <div className=" min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className=" min-h-screen mt-[-70px] flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-lg shadow-sm border p-8 space-y-6">
-            <h1 className="text-xl font-medium text-gray-900">Payment</h1>
+          <div className="bg-white p-8 space-y-6 ">
+            <h1 className="text-2xl font-message text-gray-900">Payment</h1>
             <p className="text-sm text-gray-600">
                 Payment was successful! Thank you for your contribution.
             </p>
