@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
 
 export default function ProfessionalEditor({ form }) {
-  console.log("from the start", form);
+  //console.log("from the start", form);
 
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  // const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
   const [wordCount, setWordCount] = useState(0);
   const [title, setTitle] = useState("");
@@ -202,48 +202,151 @@ export default function ProfessionalEditor({ form }) {
     }
   }, []);
 
-    const handlePublish = useCallback(async () => {
-      if (!editorRef.current) return;
+  // REPLACE YOUR OLD handlePublish WITH THIS ENHANCED VERSION
+  const handlePublish = useCallback(async () => {
+    if (!editorRef.current) return;
 
-      setIsPublishing(true);
-      try {
-        const editorData = await editorRef.current.save();
-
-        const payload = {
-          title: title.trim() || "Untitled",
-          content: editorData,
-          publishedAt: new Date().toISOString(),
-          wordCount,
-        };
-
-        const banner = await imageToBase64(form.banner);
-
-        const obj = {
-          end_date: form.endDate,
-          categories: form.categories,
-          price: form.price,
-          privacy: form.privacy,
-          banner,
-          description: JSON.stringify(payload, null, 2),
-        };
-
-         await fetcher({
-          url: "http://localhost:8080/api/ideathons/add",
-          method: "POST",
-          data: obj,
-          token: null,
-          returned_status: 201,
-        });
+    setIsPublishing(true);
+    try {
+      // Get raw EditorJS data
+      const editorData = await editorRef.current.save();
+      
+      // Helper function to enhance block data
+      function enhanceBlockData(block) {
+        const baseData = { ...block.data };
         
-          router.push("/create/publish"); 
-      } catch (error) {
-        toast.error(error.message);
-        // toast.error("Publish failed:", error);
-        // alert("Failed to publish content.");
-      } finally {
-        setIsPublishing(false);
+        switch (block.type) {
+          case 'header':
+            return {
+              ...baseData,
+              anchor: baseData.text ? baseData.text.toLowerCase().replace(/[^a-z0-9]+/g, '-') : ''
+            };
+            
+          case 'paragraph':
+            return {
+              ...baseData,
+              alignment: baseData.alignment || 'left'
+            };
+            
+          case 'image':
+            return {
+              ...baseData,
+              alt: baseData.alt || baseData.caption || 'Image',
+              alignment: baseData.alignment || 'center'
+            };
+            
+          case 'list':
+            return {
+              ...baseData,
+              items: baseData.items ? baseData.items.map(item => ({
+                content: typeof item === 'string' ? item : item.content || item,
+                items: [] // Support for nested items
+              })) : []
+            };
+            
+          case 'code':
+            return {
+              ...baseData,
+              language: baseData.language || 'javascript',
+              theme: 'dark',
+              showLineNumbers: true
+            };
+            
+          case 'quote':
+            return {
+              ...baseData,
+              alignment: 'left',
+              style: 'border-left'
+            };
+            
+          default:
+            return baseData;
+        }
       }
-    }, [title, wordCount, form, router]);
+      
+      // Transform to enhanced structure
+      const enhancedData = {
+        meta: {
+          version: "1.0",
+          created: new Date().toISOString(),
+          modified: new Date().toISOString(),
+          wordCount: wordCount,
+          readingTime: Math.ceil(wordCount / 250), // avg reading speed
+          language: "en"
+        },
+        
+        document: {
+          id: `doc_${Date.now()}`,
+          title: title.trim() || "Untitled",
+          slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+          status: "published",
+          tags: form.categories || [],
+          featuredImage: form.banner ? {
+            url: form.banner,
+            alt: "Featured image",
+            caption: ""
+          } : null
+        },
+        
+        // Transform EditorJS blocks to enhanced format
+        blocks: editorData.blocks.map((block, index) => ({
+          id: block.id || `block_${index}`,
+          type: block.type,
+          data: enhanceBlockData(block),
+          meta: {
+            order: index,
+            created: new Date().toISOString()
+          }
+        })),
+        
+        // Generate table of contents from headers
+        tableOfContents: editorData.blocks
+          .filter(block => block.type === 'header')
+          .map((block, index) => ({
+            id: block.id || `header_${index}`,
+            text: block.data.text,
+            level: block.data.level,
+            anchor: block.data.text ? block.data.text.toLowerCase().replace(/[^a-z0-9]+/g, '-') : ''
+          })),
+        
+        // Calculate statistics
+        statistics: {
+          blockCount: editorData.blocks.length,
+          wordCount: wordCount,
+          readingTime: Math.ceil(wordCount / 250),
+          blockTypes: editorData.blocks.reduce((acc, block) => {
+            acc[block.type] = (acc[block.type] || 0) + 1;
+            return acc;
+          }, {})
+        },
+        
+        // Add form-specific data
+        endDate: form.endDate,
+        categories: form.categories,
+        price: form.price,
+        privacy: form.privacy,
+        publishedAt: new Date().toISOString()
+      };
+      
+      console.log("Enhanced Data:", enhancedData);
+
+      // Send to api/create endpoint with enhanced structure
+      await fetcher({
+        url: "http://localhost:8080/api/create",
+        method: "POST",
+        data: enhancedData,
+        token: null,
+        returned_status: 201,
+      });
+      
+      router.push("/create/publish");
+      
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsPublishing(false);
+    }
+  }, [title, wordCount, form, router]);
 
   // Auto-save every 10 seconds (silently)
   useEffect(() => {
@@ -265,32 +368,8 @@ export default function ProfessionalEditor({ form }) {
             <button className="text-sm text-gray-600 hover:text-gray-800">
               Shortcuts
             </button>
-            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-72 p-3 z-10 rounded-lg bg-gray-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
-              <p>
-                <kbd className="font-mono">Cmd+Shift+H</kbd>: Heading
-              </p>
-              <p>
-                <kbd className="font-mono">Cmd+Shift+L</kbd>: List
-              </p>
-              <p>
-                <kbd className="font-mono">Cmd+Shift+O</kbd>: Quote
-              </p>
-              <p>
-                <kbd className="font-mono">Cmd+Shift+C</kbd>: Code
-              </p>
-              <p>
-                <kbd className="font-mono">Cmd+Shift+D</kbd>: Divider
-              </p>
-              <p>
-                <kbd className="font-mono">Cmd+Alt+T</kbd>: Table
-              </p>
-              <p>
-                <kbd className="font-mono">Cmd+Shift+M</kbd>: Marker
-              </p>
-              <p>
-                <kbd className="font-mono">Cmd+Shift+X</kbd>: Inline Code
-              </p>
-            </div>
+            {/* noion like shortcuts */}
+            <Shortcuts></Shortcuts>
           </div>
           <span className="text-sm text-gray-500">Auto-save enabled</span>
           <span className="text-sm text-gray-500">{wordCount} words</span>
@@ -312,6 +391,8 @@ export default function ProfessionalEditor({ form }) {
             <div className="w-1 h-6 bg-gray-800 mr-4 mt-1 flex-shrink-0"></div>
             <input
               type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="One Liner Title is going well here in this place"
               className="text-2xl font-normal text-gray-800 placeholder-gray-400 border-none outline-none w-full bg-transparent"
               style={{
@@ -343,6 +424,38 @@ export default function ProfessionalEditor({ form }) {
           }}
         />
       </div>
+    </div>
+  );
+}
+
+// notoion-like shortcuts:
+export function Shortcuts() {
+  return (
+    <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-72 p-3 z-10 rounded-lg bg-gray-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
+      <p>
+        <kbd className="font-mono">Cmd+Shift+H</kbd>: Heading
+      </p>
+      <p>
+        <kbd className="font-mono">Cmd+Shift+L</kbd>: List
+      </p>
+      <p>
+        <kbd className="font-mono">Cmd+Shift+O</kbd>: Quote
+      </p>
+      <p>
+        <kbd className="font-mono">Cmd+Shift+C</kbd>: Code
+      </p>
+      <p>
+        <kbd className="font-mono">Cmd+Shift+D</kbd>: Divider
+      </p>
+      <p>
+        <kbd className="font-mono">Cmd+Alt+T</kbd>: Table
+      </p>
+      <p>
+        <kbd className="font-mono">Cmd+Shift+M</kbd>: Marker
+      </p>
+      <p>
+        <kbd className="font-mono">Cmd+Shift+X</kbd>: Inline Code
+      </p>
     </div>
   );
 }
