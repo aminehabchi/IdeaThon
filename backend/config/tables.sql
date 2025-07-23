@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     avatar TEXT,
     phone_number TEXT,
     bio TEXT,
+    country TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

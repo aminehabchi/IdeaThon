@@ -2,7 +2,7 @@ package profile
 
 import (
 	"encoding/json"
-	"ideaThon/utils"
+	"fmt"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	// 	http.Error(w, err.Error(), http.StatusUnauthorized)
 	// 	return
 	// }
-	var userID = 1
+	userID := 1
 	profile, err := FetchUserProfile(userID)
 	if err != nil {
 		http.Error(w, "Error fetching profile", http.StatusInternalServerError)
@@ -29,20 +29,23 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := utils.Get_id_from_session(r.Header.Get("token"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
+	// userID, err := utils.Get_id_from_session(r.Header.Get("token"))
+	userID := 1
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusUnauthorized)
+	// 	return
+	// }
 
 	var req UpdateProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		fmt.Println("01err", err)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	err = UpdateUser(userID, req)
+	err := UpdateUser(userID, req)
 	if err != nil {
+		fmt.Println("02err", err)
 		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
 		return
 	}

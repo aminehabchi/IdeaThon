@@ -44,7 +44,7 @@ func GetUserProfile(userID int) (*ProfileResponse, error) {
 	var createdIdeathons []Ideathon
 	for ideathonRows.Next() {
 		var i Ideathon
-		var winner sql.NullInt64 
+		var winner sql.NullInt64
 
 		err := ideathonRows.Scan(
 			&i.ID,
@@ -54,10 +54,9 @@ func GetUserProfile(userID int) (*ProfileResponse, error) {
 			&i.Price,
 			&i.EndDate,
 			&i.Privacy,
-			&winner, 
+			&winner,
 		)
-		if err != nil {	
-			fmt.Println("errr3", err)
+		if err != nil {
 			continue // skip bad row but continue processing others
 		}
 
@@ -102,10 +101,14 @@ func GetUserProfile(userID int) (*ProfileResponse, error) {
 }
 
 func UpdateUserProfile(userID int, data UpdateProfileRequest) error {
+	fmt.Println("dkhl", data)
 	query := "UPDATE users SET "
 	args := []interface{}{}
 	fields := []string{}
-
+	if data.Avatar != nil {
+		fields = append(fields, "avatar = ?")
+		args = append(args, *data.Avatar)
+	}
 	if data.FirstName != nil {
 		fields = append(fields, "first_name = ?")
 		args = append(args, *data.FirstName)
@@ -114,14 +117,20 @@ func UpdateUserProfile(userID int, data UpdateProfileRequest) error {
 		fields = append(fields, "last_name = ?")
 		args = append(args, *data.LastName)
 	}
-	if data.Avatar != nil {
-		fields = append(fields, "avatar = ?")
-		args = append(args, *data.Avatar)
+	if data.Email != nil {
+		fields = append(fields, "email = ?")
+		args = append(args, *data.Email)
 	}
 	if data.PhoneNumber != nil {
 		fields = append(fields, "phone_number = ?")
 		args = append(args, *data.PhoneNumber)
 	}
+	if data.Country != nil {
+		fields = append(fields, "country = ?")
+		args = append(args, *data.PhoneNumber)
+	}
+
+
 	if data.Bio != nil {
 		fields = append(fields, "bio = ?")
 		args = append(args, *data.Bio)

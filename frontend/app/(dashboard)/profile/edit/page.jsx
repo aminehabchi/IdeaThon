@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, MapPin, Phone, Lock, Globe, Camera } from "lucide-react";
+import { User, Mail, MapPin, Phone, Lock, Globe, Camera, BookMinus } from "lucide-react";
 import { IdeaLoader } from "@/components/ui/cosloader";
-// import { toast, Toaster } from "@/components/ui/sonner";
+import { fetcher } from "@/lib/helpers";
+import { toast } from "sonner";
 
 export default function EditProfile() {
   const [profile, setProfile] = useState(null);
@@ -24,7 +25,7 @@ export default function EditProfile() {
     firstName: "",
     lastName: "",
     email: "",
-    address: "",
+    bio: "",
     contactNumber: "",
     country: "",
     password: "",
@@ -35,22 +36,42 @@ export default function EditProfile() {
   const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Get token from localStorage
+  const getToken = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("token");
+    }
+    return null;
+  };
+
   useEffect(() => {
     async function fetchProfile() {
-      const data = {
-        firstName: "Mehrab",
-        lastName: "Bozorgi",
-        email: "Mehrabbozorgi.business@gmail.com",
-        address: "33062 Zboncak isle",
-        contactNumber: "+1 234 567 8900",
-        country: "US",
-        password: "sbdfbnd65sfvdb s",
-        avatarUrl: "/belmaayo_avatar.png",
-      };
-      setProfile(data);
-      setForm(data);
-      setAvatarPreview(data.avatarUrl || "/belmaayo_avatar.png");
+      try {
+        const token = getToken();
+        const data = await fetcher({
+          url: "http://localhost:8080/api/profile",
+          method: "GET",
+          token: token,
+          returned_status: 200,
+        });
+
+        setProfile("dataa", data);
+        setForm({
+          firstName: data.first_name || "",
+          lastName: data.last_name || "",
+          email: data.email || "",
+          bio: data.bio || "",
+          contactNumber: data.phone_number || "",
+          country: data.country || "",
+          password: "", // optional
+        });
+        setAvatarPreview(data.avatar || "/belmaayo_avatar.png");
+      } catch (err) {
+        console.error("Failed to fetch profile", err);
+        toast.error("Failed to load profile data");
+      }
     }
+
     fetchProfile();
   }, []);
 
@@ -65,6 +86,7 @@ export default function EditProfile() {
         setCountries(sorted);
       } catch (err) {
         console.error("Failed to fetch countries", err);
+        toast.error("Failed to load countries");
       }
     }
     fetchCountries();
@@ -95,38 +117,95 @@ export default function EditProfile() {
   };
 
   const handleCancel = () => {
-    setForm(profile);
-    setAvatarPreview(profile.avatarUrl || "/avatar.png");
-    setAvatarFile(null);
+    if (profile) {
+      setForm({
+        firstName: profile.first_name || "",
+        lastName: profile.last_name || "",
+        email: profile.email || "",
+        address: profile.bio || "",
+        contactNumber: profile.phone_number || "",
+        country: profile.country || "",
+        password: "",
+      });
+      setAvatarPreview(profile.avatar || "/belmaayo_avatar.png");
+      setAvatarFile(null);
+    }
   };
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      const formData = new FormData();
-      for (const key in form) formData.append(key, form[key]);
-      if (avatarFile) formData.append("avatar", avatarFile);
+      // const token = getToken();
+      const payload = {};
 
-      const res = await fetch("/api/profile", {
-        method: "PATCH",
-        body: formData,
-      });
+      // Only include fields that have values
+      if (form.firstName.trim()) payload.first_name = form.firstName.trim();
+      if (form.lastName.trim()) payload.last_name = form.lastName.trim();
+      if (form.email.trim()) payload.email = form.email.trim();
+      if (form.contactNumber.trim()) payload.phone_number = form.contactNumber.trim();
+      if (form.country) payload.country = form.country;
+      if (form.bio.trim()) payload.bio = form.bio.trim();
+      if (form.password.trim()) payload.password = form.password.trim();
+      console.log('payload', payload);
 
-      if (!res.ok)  {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to save profile");
+
+      // Handle avatar file conversion
+      if (avatarFile) {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          payload.avatar = reader.result;
+
+          // Send the update request with avatar
+          await fetcher({
+            url: "http://localhost:8080/api/updateprofile",
+            method: "PATCH",
+            data: payload,
+            // token: token,
+            returned_status: 200,
+          });
+
+          toast.success("Profile updated successfully!");
+
+          // Update local profile state
+          setProfile(prev => ({
+            ...prev,
+            ...payload,
+            avatar: reader.result
+          }));
+        };
+        reader.readAsDataURL(avatarFile);
+      } else {
+        // Send the update request without avatar
+        await fetcher({
+          url: "http://localhost:8080/api/updateprofile",
+          method: "PATCH",
+          data: payload,
+          // token: token,
+          returned_status: 200,
+        });
+        console.log("datataaa", payload); 
+
+
+        toast.success("Profile updated successfully!");
+
+        // Update local profile state
+        setProfile(prev => ({
+          ...prev,
+          ...payload
+        }));
       }
-      toast.success("Profile saved successfully!");
     } catch (err) {
-      console.error(err);
-      toast.error("Error saving profile");
+      console.error("Error updating profile", err);
+      toast.error(err.message || "Failed to update profile");
     } finally {
       setLoading(false);
     }
   };
 
   const getInitials = () => {
-    return `${form.firstName.charAt(0)}${form.lastName.charAt(0)}`.toUpperCase();
+    const firstName = form.firstName || "";
+    const lastName = form.lastName || "";
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
   if (!profile) {
@@ -136,11 +215,10 @@ export default function EditProfile() {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-50/50">
       <DashboardNavbar />
-      <Toaster />
       <div className="container max-w-4xl mx-auto py-8 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Edit Profile</h1>
@@ -163,11 +241,11 @@ export default function EditProfile() {
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
                   <AvatarImage src={avatarPreview} alt="Profile" />
-                  <AvatarFallback className="text-2xl bg-gradient-to-br  text-white">
+                  <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
-                
+
                 <div className="relative">
                   <Input
                     type="file"
@@ -249,15 +327,15 @@ export default function EditProfile() {
                 {/* Address Field */}
                 <div className="space-y-2">
                   <Label htmlFor="address" className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Address
+                    <BookMinus className="h-4 w-4" />
+                    Bio
                   </Label>
                   <Input
-                    id="address"
-                    name="address"
-                    value={form.address}
+                    id="bio"
+                    name="bio"
+                    value={form.bio}
                     onChange={handleChange}
-                    placeholder="Enter your full address"
+                    placeholder="Enter your full bio"
                     className="transition-all focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
@@ -278,7 +356,7 @@ export default function EditProfile() {
                       className="transition-all focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                       <Globe className="h-4 w-4" />
@@ -306,7 +384,7 @@ export default function EditProfile() {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="flex items-center gap-2">
                     <Lock className="h-4 w-4" />
-                    Password
+                    Password (Optional)
                   </Label>
                   <Input
                     id="password"
@@ -314,24 +392,24 @@ export default function EditProfile() {
                     type="password"
                     value={form.password}
                     onChange={handleChange}
-                    placeholder="Enter your password"
+                    placeholder="Leave blank to keep current password"
                     className="transition-all focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
-                  <Button 
-                    type="button" 
-                    onClick={handleCancel} 
+                  <Button
+                    type="button"
+                    onClick={handleCancel}
                     variant="outline"
                     className="order-2 sm:order-1 transition-all hover:bg-gray-50"
                     disabled={loading}
                   >
                     Cancel
                   </Button>
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="order-1 sm:order-2 transition-all hover:shadow-lg"
                     disabled={loading}
                   >

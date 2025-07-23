@@ -31,9 +31,11 @@ type ProfileResponse struct {
 	SubmittedEntries []Entry    `json:"submitted_entries"`
 }
 type UpdateProfileRequest struct {
+	Avatar      *string `json:"avatar,omitempty"`
 	FirstName   *string `json:"first_name,omitempty"`
 	LastName    *string `json:"last_name,omitempty"`
-	Avatar      *string `json:"avatar,omitempty"`
+	Email       *string `json:"email,omitempty"`
 	PhoneNumber *string `json:"phone_number,omitempty"`
+	Country     *string `json:"country,omitempty"`
 	Bio         *string `json:"bio,omitempty"`
 }
