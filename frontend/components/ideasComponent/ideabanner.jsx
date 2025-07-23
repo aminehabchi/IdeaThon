@@ -6,13 +6,13 @@ import { IdeaBody } from "@/components/ideasComponent/ideaBody";
 import { EntriesList } from "@/components/ideasComponent/ideaEntriesList";
 import { fetcher } from "@/lib/helpers";
 
-export function ProjectHeader({id}) {
+export function ProjectHeader({ id }) {
   const [activeTab, setActiveTab] = useState("project");
   const [ideathon, setIdeathon] = useState({});
   useEffect(() => {
     if (!id) return;
     console.log("-->", id);
-    console.log("--->", Number(id.id));
+    console.log("--->", Number(id));
     async function fetchIdeathon() {
       try {
         const data = await fetcher({
@@ -40,11 +40,10 @@ export function ProjectHeader({id}) {
           <div className="relative">
             <button
               onClick={() => setActiveTab("project")}
-              className={`pb-4 px-1 font-medium transition-colors cursor-pointer ${
-                activeTab === "project"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`pb-4 px-1 font-medium transition-colors cursor-pointer ${activeTab === "project"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               Project
             </button>
@@ -52,11 +51,10 @@ export function ProjectHeader({id}) {
           <div className="relative">
             <button
               onClick={() => setActiveTab("entries")}
-              className={`pb-4 px-1 font-medium transition-colors cursor-pointer ${
-                activeTab === "entries"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`pb-4 px-1 font-medium transition-colors cursor-pointer ${activeTab === "entries"
+                ? "text-gray-900 border-b-2 border-gray-900"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               Entries 4
             </button>
@@ -103,7 +101,7 @@ export function ProjectHeader({id}) {
           </>
         )}
 
-        {activeTab === "entries" && <EntriesList />}
+        {activeTab === "entries" && <EntriesList id={id} />}
       </div>
     </div>
   );

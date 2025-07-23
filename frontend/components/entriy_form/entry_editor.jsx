@@ -110,7 +110,7 @@ async function publishContent({ editorRef, title, wordCount, form, ideathon_id, 
         const obj = {
             ideathon_id: Number(ideathon_id),
             banner,
-            description: JSON.stringify(payload, null, 2),
+            description: JSON.stringify(payload),
         };
         console.log(obj);
 

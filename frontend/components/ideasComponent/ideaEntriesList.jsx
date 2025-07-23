@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+"use client"
+import React, { useState, useEffect } from 'react';
 import { X, MoreVertical, Trophy, Flag, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -7,58 +8,57 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ReportIdeaPopup from './ideaReport';
+import { fetcher, timeAgo } from '@/lib/helpers';
 // import { Button } from '../ui/button';
 
-export  function EntriesList() {
+
+
+export function EntriesList({ id }) {
+  const [entries, setEntries] = useState([]);
+
+  useEffect(() => {
+    async function fetch_entry() {
+
+      const data = await fetcher({
+        url: " http://localhost:8080/api/entries/get",
+        method: "POST",
+        data: { offset: 0, ideathon_id: id },
+        token: null,
+        returned_status: 200,
+      });
+
+      data.map((d) => {
+        d.description = JSON.parse(d.description)
+      })
+      setEntries(data);
+      console.log(data);
+
+      console.log(data[0].description.content.blocks[0].data.text);
+
+    }
+
+
+    fetch_entry();
+  }, [])
+
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTargetEntry, setReportTargetEntry] = useState(null);
 
-  const entries = [
-    {
-      id: 1,
-      title: "# IDEA 1",
-      subtitle: "UI/UX Design Development",
-      description: "we are trying to build the next best thing and we want to have your feedback about ...",
-      fullContent: "we are trying to build the next best thing and we want to have your feedback about ... we are trying to build the next best thing and we want to have your feedback about ... we are trying to build the next best thing and we want to have your feedback about ...",
-      imgPath: "/belmaayo_avatar.png",
-      author: "By Asana",
-      timeAgo: "5 Days ago"
-    },
-    {
-      id: 2,
-      title: "# IDEA 2", 
-      subtitle: "Search for a better materials",
-      description: "we are trying to build the next best thing and we want to have your feedback about ...",
-      fullContent: "we are trying to build the next best thing and we want to have your feedback about ... we are trying to build the next best thing and we want to have your feedback about ... we are trying to build the next best thing and we want to have your feedback about ...",
-      imgPath: "/belmaayo_avatar.png",
-      author: "By Asana",
-      timeAgo: "5 Days ago"
-    },
-    {
-      id: 3,
-      title: "# IDEA 3",
-      subtitle: "Advanced Analytics Dashboard", 
-      description: "we are trying to build the next best thing and we want to have your feedback about ...",
-      fullContent: "we are trying to build the next best thing and we want to have your feedback about ... we are trying to build the next best thing and we want to have your feedback about ... we are trying to build the next best thing and we want to have your feedback about ...",
-      imgPath: "/belmaayo_avatar.png",
-      author: "By Asana", 
-      timeAgo: "5 Days ago"
-    }
-  ];
 
-    const openModal = (entry) => {
-      setSelectedEntry(entry);
-    };
 
-    const closeModal = () => {
-      setSelectedEntry(null);
-    };
+  const openModal = (entry) => {
+    setSelectedEntry(entry);
+  };
 
-    const openReportPopup = (entry = null) => {
+  const closeModal = () => {
+    setSelectedEntry(null);
+  };
+
+  const openReportPopup = (entry = null) => {
     setReportTargetEntry(entry);
     setIsReportOpen(true);
-    };
+  };
 
   return (
     <>
@@ -73,10 +73,10 @@ export  function EntriesList() {
               {/* Header with title and more menu */}
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-medium text-gray-500">
-                  {entry.title}
+                  {entry.description.title}
                 </h3>
                 <DropdownMenu>
-                  <DropdownMenuTrigger 
+                  <DropdownMenuTrigger
                     asChild
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -84,7 +84,7 @@ export  function EntriesList() {
                       <MoreVertical className="w-4 h-4 text-gray-400" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48" 
+                  <DropdownMenuContent align="end" className="w-48"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <DropdownMenuItem className="flex items-center gap-2">
@@ -113,23 +113,27 @@ export  function EntriesList() {
               </div>
 
               {/* Subtitle */}
-              <h4 className="text-lg font-semibold text-gray-900 mb-3 leading-tight">
-                {entry.subtitle}
-              </h4>
+              <h4
+                className="text-lg font-semibold text-gray-900 mb-3 leading-tight"
+                dangerouslySetInnerHTML={{ __html: entry.description?.content?.blocks?.[0]?.data?.text || "" }}
+              ></h4>
 
               {/* Description */}
-              <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                {entry.description}
-              </p>
+              <p
+                className="text-sm text-gray-600 mb-4 leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: entry.description?.content?.blocks?.[1]?.data?.text || "",
+                }}
+              ></p>
 
               {/* Footer with author and time */}
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center gap-2">
-                <img src="/belmaayo_avatar.png" alt="avatar"   
-                    className=" rounded-2xl w-6 h-6"/>
-                  <span>{entry.author}</span>
+                  <img src="/belmaayo_avatar.png" alt="avatar"
+                    className=" rounded-2xl w-6 h-6" />
+                  <span>mazaal</span>
                 </div>
-                <span>{entry.timeAgo}</span>
+                <span>{timeAgo(entry.created_at)}</span>
               </div>
             </div>
           ))}
@@ -158,12 +162,12 @@ export  function EntriesList() {
                 <span className="text-sm text-gray-400">•</span>
                 <span className="text-sm text-gray-600">{selectedEntry.title}</span>
                 <span className="text-sm text-gray-400">•</span>
-                  <button className="cursor-pointer text-gray-400 hover:text-gray-600 text-sm px-3 py-1.5 rounded-lg flex items-center gap-2  transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent modal opening
-                        openReportPopup(true);
-                      }}
-                  >
+                <button className="cursor-pointer text-gray-400 hover:text-gray-600 text-sm px-3 py-1.5 rounded-lg flex items-center gap-2  transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent modal opening
+                    openReportPopup(true);
+                  }}
+                >
                   <Flag className="w-4 h-4" />
                   <span className="sm:inline">report</span>
                 </button>
@@ -230,7 +234,7 @@ export  function EntriesList() {
           isOpen={isReportOpen}
           onClose={() => setIsReportOpen(false)}
           entryId={reportTargetEntry.id}
-          // entryNumber={reportTargetEntry.title.replace(/\D/g, '')}
+        // entryNumber={reportTargetEntry.title.replace(/\D/g, '')}
         />
       )}
     </>

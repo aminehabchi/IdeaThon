@@ -93,12 +93,13 @@ func Update_entrie(w http.ResponseWriter, r *http.Request) {
 }
 
 func Get_entries(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodPost {
 		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
 		return
 	}
 
-	user_id := r.Context().Value(middle.UserIDKey).(int)
+	// user_id := r.Context().Value(middle.UserIDKey).(int)
+	user_id := 1
 
 	var params Params = Parse_form(r, user_id)
 
@@ -106,15 +107,17 @@ func Get_entries(w http.ResponseWriter, r *http.Request) {
 
 	entries, err := Get_entries_Db(query, args)
 	if err != nil {
+		fmt.Println("Get_entries_Db", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	err = utils.Encode(w, entries)
 	if err != nil {
+		fmt.Println("Encode", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	// w.WriteHeader(http.StatusCreated)
 }

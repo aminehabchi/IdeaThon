@@ -1,16 +1,20 @@
+"use client"
+
 // app/idea/[id]/page.tsx
 import { DashboardNavbar } from "@/components/dashboardNavbar";
 import { ProjectNavbar } from "@/components/ideasComponent/ideaTopbar";
 import { ProjectHeader } from "@/components/ideasComponent/ideabanner";
+import { useEffect, useState } from "react";
+import { useParams } from 'next/navigation';
 
-export default function IdeaPage({ params }) {
+export default function IdeaPage() {
+  const params = useParams();
   const id = params.id;
-  console.log("+++++", id);
 
   return (
     <>
       <DashboardNavbar />
-      <ProjectNavbar  id={id} />
+      <ProjectNavbar id={id} />
       <ProjectHeader id={id} />
       {/* <IdeaBody /> */}
     </>
