@@ -327,18 +327,44 @@ export default function ProfessionalEditor({ form }) {
         privacy: form.privacy,
         publishedAt: new Date().toISOString()
       };
-      
+
+
+      let base64Banner = "";
+
+      if (form.banner) {
+      try {
+        base64Banner = await imageToBase64(form.banner);
+      } catch (err) {
+        console.error("Banner conversion failed:", err);
+        toast.error("Failed to convert banner image to base64.");
+        return;
+      }
+}
       console.log("Enhanced Data:", enhancedData);
+
+      const backendPayload = {
+          user_id: 1, // TODO: Replace with actual logged-in user ID
+          description: JSON.stringify(enhancedData),
+          banner: base64Banner,
+          price: parseInt(form.price, 10) || 0,
+          created_at: new Date().toISOString(), // match Go's string format
+          start_date: form.startDate || "",     // make sure it's in ISO format
+          end_date: form.endDate || "",
+          category: Array.isArray(form.categories) ? form.categories : [],
+          winner_id: null,                      // or dynamically assign if needed
+          privacy: form.privacy || "public"     // default fallback
+      };
 
       // Send to api/create endpoint with enhanced structure
       await fetcher({
         url: "http://localhost:8080/api/ideathons/add",
         method: "POST",
-        data: enhancedData,
+        data: backendPayload,
         token: null,
         returned_status: 201,
       });
       
+      toast.success("Ideathon created successfully!");
       router.push("/create/publish");
       
     } catch (error) {
