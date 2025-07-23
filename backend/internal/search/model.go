@@ -10,10 +10,9 @@ type UserResult struct {
 	Avatar    string `json:"avatar,omitempty"`
 }
 type IdeathonResult struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
-	EndDate string `json:"end_date"`
-	OwnerID int    `json:"owner_id"`
+	ID          int    `json:"id"`
+	Description string `json:"description"`
+	EndDate     string `json:"end_date"`
 }
 
 type SearchResponse struct {

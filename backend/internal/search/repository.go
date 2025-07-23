@@ -14,12 +14,12 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) SearchUsers(query string) ([]UserResult, error) {
-	query = "%" + query + "%"
+	searchQuery := "%" + query + "%"
 	rows, err := r.DB.Query(`
-		SELECT id, first_name, last_name, avatar
+		SELECT id, first_name, last_name, COALESCE(avatar, '') as avatar
 		FROM users
 		WHERE first_name LIKE ? OR last_name LIKE ?
-	`, query, query)
+	`, searchQuery, searchQuery)
 	if err != nil {
 		return nil, fmt.Errorf("search users: %w", err)
 	}
@@ -29,20 +29,25 @@ func (r *Repository) SearchUsers(query string) ([]UserResult, error) {
 	for rows.Next() {
 		var u UserResult
 		if err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Avatar); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan user row: %w", err)
 		}
 		users = append(users, u)
 	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate user rows: %w", err)
+	}
+
 	return users, nil
 }
 
 func (r *Repository) SearchIdeathons(query string) ([]IdeathonResult, error) {
-	query = "%" + query + "%"
+	searchQuery := "%" + query + "%"
 	rows, err := r.DB.Query(`
-		SELECT id, title, content, owner_id
+		SELECT id, description, end_date
 		FROM ideathons
-		WHERE title LIKE ? OR content LIKE ?
-	`, query, query)
+		WHERE description LIKE ?
+	`, searchQuery)
 	if err != nil {
 		return nil, fmt.Errorf("search ideathons: %w", err)
 	}
@@ -51,10 +56,16 @@ func (r *Repository) SearchIdeathons(query string) ([]IdeathonResult, error) {
 	var ideathons []IdeathonResult
 	for rows.Next() {
 		var i IdeathonResult
-		if err := rows.Scan(&i.ID, &i.Title, &i.OwnerID); err != nil {
-			return nil, err
+		// Fixed: added end_date to Scan - it was missing before
+		if err := rows.Scan(&i.ID, &i.Description,  &i.EndDate); err != nil {
+			return nil, fmt.Errorf("scan ideathon row: %w", err)
 		}
 		ideathons = append(ideathons, i)
 	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate ideathon rows: %w", err)
+	}
+
 	return ideathons, nil
 }
