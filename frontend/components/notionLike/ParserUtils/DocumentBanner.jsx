@@ -3,6 +3,8 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 
 export const DocumentBanner = ({ data }) => {
+
+  console.log("DocumentBanner data:", data);
   return (
     <div className="px-6 py-6 bg-white">
       <div className="max-w-6xl mx-auto">
@@ -20,7 +22,7 @@ export const DocumentBanner = ({ data }) => {
             </div>
           </div>
           <div className="flex justify-center">
-            <img src={data.banner} alt="Banner" className="w-full max-w-xs rounded-lg shadow-lg" />
+            <img src={data.banner.url} alt="Banner" className="w-full max-w-xs rounded-lg shadow-lg" />
           </div>
         </div>
       </div>

@@ -12,11 +12,11 @@ export const DocumentViewer = ({ data }) => {
   if (!parsedData) {
     return (
       <div className="max-w-4xl mx-auto p-6">
-        <Card>
+        <div>
           <CardContent className="p-6">
             <p className="text-muted-foreground">No content to display</p>
           </CardContent>
-        </Card>
+        </div>
       </div>
     );
   }

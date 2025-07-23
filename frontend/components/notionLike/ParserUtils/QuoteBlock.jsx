@@ -6,7 +6,7 @@ export const QuoteBlock = ({ block }) => {
   const { data } = block;
   
   return (
-    <Card className="mb-6 border-l-4 border-l-primary">
+    <div className="mb-6 border-l-4 border-l-primary">
       <CardContent className="p-6">
         <blockquote className="text-lg italic text-muted-foreground mb-3">
           "{data.text}"
@@ -17,6 +17,6 @@ export const QuoteBlock = ({ block }) => {
           </cite>
         )}
       </CardContent>
-    </Card>
+    </div>
   );
 };

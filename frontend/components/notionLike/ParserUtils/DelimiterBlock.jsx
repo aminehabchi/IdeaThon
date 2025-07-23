@@ -10,7 +10,7 @@ export const TableBlock = ({ block }) => {
   }
 
   return (
-    <Card className="mb-6">
+    <div className="mb-6">
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -37,6 +37,6 @@ export const TableBlock = ({ block }) => {
           </table>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 };

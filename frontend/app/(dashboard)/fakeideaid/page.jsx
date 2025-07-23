@@ -1,6 +1,6 @@
 "use client";
 
-import {MainParser} from "@/components/notionLike/MainParser";
+import {MainParserIdea} from "@/components/notionLike/IdeaParser";
 import { DashboardNavbar } from "@/components/dashboardNavbar";
 import { usePathname } from "next/navigation";
 
@@ -12,7 +12,7 @@ export default function Page() {
     return (
         <>
             <DashboardNavbar />
-            <MainParser data={null} />
+            <MainParserIdea data={null} />
         </>
     );
 }
