@@ -16,10 +16,10 @@ export function DynamicImage() {
   const [activeStep, setActiveStep] = useState(0);
 
   const images = [
-    { src: "/first.png" },
-    { src: "/sec.png" },
-    { src: "third.png" },
-    { src: "fourth.png" },
+    { src: "/slide1.png" },
+    { src: "/slide2.png" },
+    { src: "slide3.png" },
+    { src: "slide4.png" },
   ];
 
   useEffect(() => {
@@ -36,18 +36,18 @@ export function DynamicImage() {
 
   return (
     <div className="flex justify-center align-center items-center">
-        <img
-          src={current.src}
-          alt={`Step ${activeStep + 1}`}
-          className="object-contain h-full w-full transition-all duration-500"
-        />
+      <img
+        src={current.src}
+        alt={`Step ${activeStep + 1}`}
+        className="object-contain h-full w-full transition-all duration-500"
+      />
     </div>
   );
 }
 
 
 // Updated Stepper Component with left-side vertical progress bar
-export  function IdeathonStepper() {
+export function IdeathonStepper() {
   const [activeStep, setActiveStep] = useState(0)
 
   const steps = [
@@ -89,35 +89,26 @@ export  function IdeathonStepper() {
   }
 
   return (
-    <div className="flex space-x-8">
+    <div className="flex space-x-4">
       {/* Vertical Stepper */}
-      <div className="relative flex flex-col items-center w-6">
-        {/* Gray track */}
+      <div className="relative flex flex-col items-center w-8">
         <div className="absolute w-1 h-full bg-gray-200 rounded-full" />
-
-        {/* Animated black progress bar aligned to step */}
         <div
-          className="absolute w-[3px]  bg-black rounded-full transition-all  duration-600"
-          style={{
-            top: `${activeStep * 4}rem`,  // spacing between titles (each ~4rem apart)
-            height: "3.2rem"
-          }}
+          className="absolute w-[3px] bg-black rounded-full transition-all duration-600"
+          style={{ top: `${activeStep * 4}rem`, height: "3.2rem" }}
         />
       </div>
 
-      {/* Step Titles and Descriptions */}
-      <div className="flex-1 space-y-8">
+      <div className="flex-1 min-w-[280px] sm:min-w-[320px] lg:min-w-[400px] space-y-8">
         {steps.map((step, index) => (
           <div
             key={step.number}
-            className={`cursor-pointer transition-opacity duration-300 ${
-              activeStep === index ? 'opacity-100' : 'opacity-60 hover:opacity-80'
-            }`}
+            className={`cursor-pointer transition-opacity duration-300 ${activeStep === index ? 'opacity-100' : 'opacity-60 hover:opacity-80'
+              }`}
             onClick={() => handleStepClick(index)}
           >
-            <h4 className={`text-xl font-bold mb-2 ${
-              activeStep === index ? 'text-black' : 'text-gray-500'
-            }`}>
+            <h4 className={`text-xl font-bold mb-2 ${activeStep === index ? 'text-black' : 'text-gray-500'
+              }`}>
               {step.number} - {step.title}
             </h4>
             {activeStep === index && (
