@@ -2,6 +2,7 @@ package entries
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -15,24 +16,25 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id := r.Context().Value(middle.UserIDKey).(int)
-
+	// user_id := r.Context().Value(middle.UserIDKey).(int)
+	user_id := 1
 	var err error
 	var entrie Entries
 	entrie.User_id = user_id
 	if err = utils.Decode(r, &entrie); err != nil {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid Request Body"))
-		return
-	}
-
-	if err = entrie.Check_entries_info(); err != nil {
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
 	}
 
+	// if err = entrie.Check_entries_info(); err != nil {
+	// 	utils.SendResponseStatus(w, http.StatusBadRequest, err)
+	// 	return
+	// }
+	fmt.Println(entrie.Ideathon_id)
 	entrie_id, err := Insert_entries(entrie)
 	if err != nil {
-		utils.SendResponseStatus(w, http.StatusBadRequest, err)
+		fmt.Println(err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 

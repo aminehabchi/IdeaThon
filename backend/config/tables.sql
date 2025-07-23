@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     ideathon_id INTEGER NOT NULL,
-    title TEXT NOT NULL,
     description TEXT NOT NULL,
     banner TEXT,
     is_win INTEGER,

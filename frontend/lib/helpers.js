@@ -19,15 +19,16 @@ export function imageToBase64(file) {
     reader.readAsDataURL(file);
   });
 }
+
 export async function fetcher({
   url,
   method = "GET",
   data = null,
   token = null,
-  returned_status = 200, // expected response status
+  returned_status = 200,
 }) {
   if (!url) throw new Error("fetcher: URL is required");
-  
+
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -74,7 +75,7 @@ export async function fetcher({
     return null;
   } catch (err) {
     toast.error(err.message);
-    // console.error("Fetcher error:", err.message);
+     console.error("Fetcher error:", err.message);
     throw err;
   }
 }
