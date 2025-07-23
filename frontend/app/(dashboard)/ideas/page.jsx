@@ -22,7 +22,7 @@ const page = () => {
           token: null,
           returned_status: 200,
         });
-        console.log(data);
+        console.log("data);
         setIdeathons(data);
       } catch (err) {
         console.error("Error fetching ideathons:", err);

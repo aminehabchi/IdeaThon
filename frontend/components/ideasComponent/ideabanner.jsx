@@ -6,7 +6,7 @@ import { IdeaBody } from "@/components/ideasComponent/ideaBody";
 import { EntriesList } from "@/components/ideasComponent/ideaEntriesList";
 import { fetcher } from "@/lib/helpers";
 
-export function ProjectHeader(id) {
+export function ProjectHeader({id}) {
   const [activeTab, setActiveTab] = useState("project");
   const [ideathon, setIdeathon] = useState({});
   useEffect(() => {

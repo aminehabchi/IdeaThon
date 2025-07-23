@@ -21,7 +21,6 @@ func Get_entries_Db(query string, args []any) ([]Entries, error) {
 			&e.Id,
 			&e.User_id,
 			&e.Ideathon_id,
-			&e.Title,
 			&e.Description,
 			&e.Banner,
 			&e.Is_win,
@@ -54,11 +53,10 @@ func Update_entrie_DB(user_id int, entrie Entries) error {
 
 		query = `
 			UPDATE entries 
-			SET title = ?, description = ?, banner = ?, is_win = ?
+			SET  description = ?, banner = ?, is_win = ?
 			WHERE id = ? AND user_id = ?
 		`
 		args = []interface{}{
-			entrie.Title,
 			entrie.Description,
 			entrie.Banner,
 			boolToInt(entrie.Is_win),
@@ -68,11 +66,10 @@ func Update_entrie_DB(user_id int, entrie Entries) error {
 	} else {
 		query = `
 			UPDATE entries 
-			SET title = ?, description = ?, is_win = ?
+			SET description = ?, is_win = ?
 			WHERE id = ? AND user_id = ?
 		`
 		args = []interface{}{
-			entrie.Title,
 			entrie.Description,
 			boolToInt(entrie.Is_win),
 			entrie.Id,
@@ -106,19 +103,21 @@ func Insert_entries(entrie Entries) (int, error) {
 	}
 
 	query := `
-		INSERT INTO entries (user_id, ideathon_id, title, description, banner, is_win)
-		VALUES (?, ?, ?, ?, ?, ?)
+		INSERT INTO entries (user_id, ideathon_id, description, banner, is_win)
+		VALUES (?, ?, ?, ?, ?)
 	`
 
 	result, err := database.Get_DB().Exec(
 		query,
 		entrie.User_id,
 		entrie.Ideathon_id,
-		entrie.Title,
 		entrie.Description,
 		entrie.Banner,
 		0, // is_win default
 	)
+	if err != nil {
+		return 0, err
+	}
 
 	insertedID, err := result.LastInsertId()
 
