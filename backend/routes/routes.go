@@ -1,12 +1,14 @@
 package routes
 
 import (
+	"net/http"
+
 	"ideaThon/internal/auth"
 	"ideaThon/internal/entries"
 	"ideaThon/internal/ideathons"
 	"ideaThon/internal/images"
 	"ideaThon/internal/profile"
-	"net/http"
+	"ideaThon/internal/search"
 )
 
 func Routes() *http.ServeMux {
@@ -17,7 +19,7 @@ func Routes() *http.ServeMux {
 	ideathons.Routes(mux)
 	entries.Routes(mux)
 	profile.RegisterProfileRoutes(mux)
+	search.Routes(mux)
 
 	return mux
-
 }

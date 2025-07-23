@@ -332,7 +332,7 @@ export default function ProfessionalEditor({ form }) {
 
       // Send to api/create endpoint with enhanced structure
       await fetcher({
-        url: "http://localhost:8080/api/create",
+        url: "http://localhost:8080/api/ideathons/add",
         method: "POST",
         data: enhancedData,
         token: null,

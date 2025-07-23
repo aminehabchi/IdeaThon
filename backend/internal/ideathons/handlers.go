@@ -23,6 +23,7 @@ func PrintIdeathon(idea Ideathons) {
 	fmt.Println("")
 	fmt.Println("")
 }
+
 func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 	// if r.Method != http.MethodGe {
 	// 	utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
@@ -76,7 +77,7 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 	// 	utils.SendResponseStatus(w, http.StatusBadRequest, err)
 	// 	return
 	// }
-
+	fmt.Println("idea", ideathon)
 	ideathons_id, err := Insert_ideathons_info(ideathon)
 	if err != nil {
 		fmt.Println(err)
