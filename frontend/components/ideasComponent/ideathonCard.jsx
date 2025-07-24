@@ -1,3 +1,6 @@
+import { getDaysLeft } from "@/lib/helpers";
+
+
 export default function Ideathon(idea) {
   const { banner, owner, entries, privacy, category, price, end_date } = idea;
 
@@ -64,17 +67,3 @@ export default function Ideathon(idea) {
   );
 }
 
-function getDaysLeft(dateString) {
-  const targetDate = new Date(dateString);
-  const now = new Date();
-
-  // Calculate the difference in milliseconds
-  const diff = targetDate - now;
-
-  if (diff <= 0) {
-    return "Ended";
-  }
-
-  const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-  return `${daysLeft} Day${daysLeft > 1 ? "s" : ""} left`;
-}

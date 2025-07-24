@@ -57,17 +57,23 @@ export function SignUpForm({ className, ...props }) {
     }
   };
 
-  const sumbitInfo = () => {
+  const sumbitInfo = async () => {
     console.log("Form Data Submitted:", formData);
-    fetcher({
-      url: "http://localhost:8080/api/auth/register",
-      method: "post",
-      data: formData,
-      token: null,
-      returned_status: 201,
-    });
+    try {
+      await fetcher({
+        url: "http://localhost:8080/api/auth/register",
+        method: "POST",
+        data: formData,
+        token: null,
+        returned_status: 201,
+      });
+      // Redirect after success
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Registration failed:", error);
+      // Handle error UI here if you want
+    }
   };
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div>
@@ -80,8 +86,13 @@ export function SignUpForm({ className, ...props }) {
               <div className="flex mb-4 items-center justify-center rounded-md">
                 {/* Icon for the brand/app */}
                 {/* <GalleryVerticalEnd className="size-6" /> */}
-                <Image src="/Logo.svg" alt="logo" width={120} height={40} priority />
-                
+                <Image
+                  src="/Logo.svg"
+                  alt="logo"
+                  width={120}
+                  height={40}
+                  priority
+                />
               </div>
               {/* <span className="sr-only">IdeaThon.</span> */}
             </a>
@@ -230,8 +241,8 @@ export function SignUpForm({ className, ...props }) {
           {/* Social Sign-in Buttons */}
           {/* <div className="grid gap-4 sm:grid-cols-2">
             <Button variant="outline" type="button" className="w-full"> */}
-              {/* Apple Icon */}
-              {/* <svg
+          {/* Apple Icon */}
+          {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 className="size-4 mr-2"
@@ -244,8 +255,8 @@ export function SignUpForm({ className, ...props }) {
               Continue with Apple
             </Button>
             <Button variant="outline" type="button" className="w-full"> */}
-              {/* Google Icon */}
-              {/* <svg
+          {/* Google Icon */}
+          {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 className="size-4 mr-2"

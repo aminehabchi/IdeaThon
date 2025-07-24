@@ -1,11 +1,13 @@
 package entries
 
-import "net/http"
+import (
+	middle "ideaThon/middlewares"
+	"net/http"
+)
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/entries/add", Add_entries)
-	mux.HandleFunc("/api/entries/delete", Delete_entrie)
-	mux.HandleFunc("/api/entries/update", Update_entrie)
-	mux.HandleFunc("/api/entries/get", Get_entries)
+	mux.Handle("/api/entries/add", middle.Auth(Add_entries))
+	mux.Handle("/api/entries/delete", middle.Auth(Delete_entrie))
+	mux.Handle("/api/entries/update", middle.Auth(Update_entrie))
+	mux.Handle("/api/entries/get", middle.Auth(Get_entries))
 }
-

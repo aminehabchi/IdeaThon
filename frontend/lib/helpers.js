@@ -41,7 +41,7 @@ export async function fetcher({
   const config = {
     method,
     headers,
-    credentials: "include", // send cookies if needed
+    credentials: "include",
   };
 
   if (data && method !== "GET") {
@@ -50,6 +50,12 @@ export async function fetcher({
 
   try {
     const response = await fetch(url, config);
+
+    // Handle 401 Unauthorized globally
+    if (response.status === 401 && typeof window !== "undefined") {
+      window.location.href = "/login"; // or use Router.push if in React component
+      return; // prevent further execution
+    }
 
     // If status doesn't match expected, throw error
     if (response.status !== returned_status) {
@@ -65,20 +71,18 @@ export async function fetcher({
       throw new Error(message);
     }
 
-    // If response has a body, try to return it as JSON
     const contentType = response.headers.get("Content-Type");
     if (contentType && contentType.includes("application/json")) {
       return await response.json();
     }
 
-    // No JSON body (e.g., DELETE 204 No Content)
     return null;
   } catch (err) {
     toast.error(err.message);
-    // console.error("Fetcher error:", err.message);
     throw err;
   }
 }
+
 export function timeAgo(dateString) {
   const now = new Date();
   const past = new Date(dateString);
@@ -91,10 +95,25 @@ export function timeAgo(dateString) {
   const months = Math.floor(days / 30);
   const years = Math.floor(days / 365);
 
-  if (seconds < 60) return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
-  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-  if (days < 30) return `${days} day${days !== 1 ? 's' : ''} ago`;
-  if (months < 12) return `${months} month${months !== 1 ? 's' : ''} ago`;
-  return `${years} year${years !== 1 ? 's' : ''} ago`;
+  if (seconds < 60) return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  if (days < 30) return `${days} day${days !== 1 ? "s" : ""} ago`;
+  if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
+  return `${years} year${years !== 1 ? "s" : ""} ago`;
+}
+
+export function getDaysLeft(dateString) {
+  const targetDate = new Date(dateString);
+  const now = new Date();
+
+  // Calculate the difference in milliseconds
+  const diff = targetDate - now;
+
+  if (diff <= 0) {
+    return "Ended";
+  }
+
+  const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return `${daysLeft} Day${daysLeft > 1 ? "s" : ""} left`;
 }

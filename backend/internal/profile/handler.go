@@ -3,16 +3,13 @@ package profile
 import (
 	"encoding/json"
 	"fmt"
+	middle "ideaThon/middlewares"
 	"net/http"
 )
 
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
-	// userID, err := utils.Get_id_from_session(r.Header.Get("token"))
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusUnauthorized)
-	// 	return
-	// }
-	userID := 1
+
+	userID := r.Context().Value(middle.UserIDKey).(int)
 	profile, err := FetchUserProfile(userID)
 	if err != nil {
 		http.Error(w, "Error fetching profile", http.StatusInternalServerError)
@@ -30,7 +27,8 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// userID, err := utils.Get_id_from_session(r.Header.Get("token"))
-	userID := 1
+	userID := r.Context().Value(middle.UserIDKey).(int)
+
 	// if err != nil {
 	// 	http.Error(w, err.Error(), http.StatusUnauthorized)
 	// 	return

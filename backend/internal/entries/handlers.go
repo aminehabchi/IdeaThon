@@ -16,8 +16,8 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// user_id := r.Context().Value(middle.UserIDKey).(int)
-	user_id := 1
+	user_id := r.Context().Value(middle.UserIDKey).(int)
+
 	var err error
 	var entrie Entries
 	entrie.User_id = user_id
@@ -69,7 +69,7 @@ func Update_entrie(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, _ := r.Context().Value(middle.UserIDKey).(int)
+	user_id := r.Context().Value(middle.UserIDKey).(int)
 
 	var err error
 	var entrie Entries
@@ -98,8 +98,7 @@ func Get_entries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// user_id := r.Context().Value(middle.UserIDKey).(int)
-	user_id := 1
+	user_id := r.Context().Value(middle.UserIDKey).(int)
 
 	var params Params = Parse_form(r, user_id)
 

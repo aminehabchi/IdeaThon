@@ -35,16 +35,26 @@ export function LoginForm({ className, ...props }) {
    * @param {Event} e - The change event object from the file input.
    */
 
-  const submitInfo = (e) => {
+  const submitInfo = async (e) => {
     e.preventDefault();
     console.log("Form Data Submitted:", formData);
-    fetcher({
-      url: "http://localhost:8080/api/auth/login",
-      method: "post",
-      data: formData,
-      token: null,
-      returned_status: 204,
-    });
+
+    try {
+      await fetcher({
+        url: "http://localhost:8080/api/auth/login",
+        method: "POST",
+        data: formData,
+        token: null,
+        returned_status: 204,
+      });
+      // Redirect after successful login
+      window.location.href = "/ideas";
+      // Or if in Next.js client component with useRouter:
+      // router.push("/ideas");
+    } catch (error) {
+      console.error("Login failed:", error);
+      // Optionally show error to user
+    }
   };
 
   return (
@@ -58,7 +68,13 @@ export function LoginForm({ className, ...props }) {
             >
               <div className="flex mb-5 items-center justify-center rounded-md">
                 {/* <GalleryVerticalEnd className="size-6" /> */}
-                    <Image src="/Logo.svg" alt="logo" width={120} height={40} priority />
+                <Image
+                  src="/Logo.svg"
+                  alt="logo"
+                  width={120}
+                  height={40}
+                  priority
+                />
               </div>
             </a>
             <h1 className="text-xl font-bold">Welcome to IdeaThon.</h1>

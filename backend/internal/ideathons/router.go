@@ -1,10 +1,14 @@
 package ideathons
 
-import "net/http"
+import (
+	"net/http"
+
+	middle "ideaThon/middlewares"
+)
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/ideathons/add", Add_ideathons)
-	mux.HandleFunc("/api/ideathons/delete", Delete_ideathons)
-	mux.HandleFunc("/api/ideathons/update", Update_ideathons)
-	mux.HandleFunc("/api/ideathons/get", Get_ideathons)
+	mux.Handle("/api/ideathons/add", middle.Auth(Add_ideathons))
+	mux.Handle("/api/ideathons/delete", middle.Auth(Delete_ideathons))
+	mux.Handle("/api/ideathons/update", middle.Auth(Update_ideathons))
+	mux.Handle("/api/ideathons/get", middle.Auth(Get_ideathons))
 }

@@ -17,7 +17,6 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// user_id := r.Context().Value(middle.UserIDKey).(int)
-	// user_id := 1
 
 	var params I_params
 
@@ -52,8 +51,8 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 
 	var ideathon Ideathons
 	var err error
-	// ideathon.User_id = r.Context().Value(middle.UserIDKey).(int)
-	ideathon.Owner.ID = 1
+	ideathon.Owner.ID = r.Context().Value(middle.UserIDKey).(int)
+
 	if err = utils.Decode(r, &ideathon); err != nil {
 		fmt.Println(err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body (json)"))
@@ -111,7 +110,7 @@ func Update_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id, _ := r.Context().Value(middle.UserIDKey).(int)
+	user_id := r.Context().Value(middle.UserIDKey).(int)
 
 	var ideathon Ideathons
 	var err error
