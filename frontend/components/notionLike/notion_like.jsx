@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
-import "../app/globals.css";
+import "../../app/globals.css";
 import { fetcher, imageToBase64 } from "@/lib/helpers.js";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";

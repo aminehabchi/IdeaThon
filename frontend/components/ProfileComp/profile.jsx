@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { Pen } from "lucide-react";
 
 export default function ProfileComponent({ profile, createdIdeathons, submittedEntries }) {

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DashboardNavbar } from "@/components/dashboardNavbar";
-import ProfileComponent from "@/components/profile";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
+import ProfileComponent from "@/components/ProfileComp/profile";
 import { fetcher } from "@/lib/helpers"
 import { IdeaLoader } from "@/components/ui/cosloader";
 export default function Profile() {

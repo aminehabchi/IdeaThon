@@ -1,7 +1,7 @@
 "use client"
 
 // app/idea/[id]/page.tsx
-import { DashboardNavbar } from "@/components/dashboardNavbar";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import { ProjectNavbar } from "@/components/ideasComponent/ideaTopbar";
 import { ProjectHeader } from "@/components/ideasComponent/ideabanner";
 import { useEffect, useState } from "react";

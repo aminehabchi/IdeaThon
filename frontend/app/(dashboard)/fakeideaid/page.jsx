@@ -1,7 +1,7 @@
 "use client";
 
 import {MainParserIdea} from "@/components/notionLike/IdeaParser";
-import { DashboardNavbar } from "@/components/dashboardNavbar";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import { usePathname } from "next/navigation";
 
 export default function Page() {

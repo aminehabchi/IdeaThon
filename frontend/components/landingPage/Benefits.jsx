@@ -1,20 +1,6 @@
 export default function Benefits() {
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navigation Header */}
-      <nav className="bg-white px-4 py-4 shadow-sm">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="text-xl font-bold text-gray-900">
-            ideaThons
-          </div>
-          <div className="flex space-x-6 text-sm text-gray-600">
-            <a href="#" className="hover:text-gray-900">Privacy</a>
-            <a href="#" className="hover:text-gray-900">Terms</a>
-            <a href="#" className="hover:text-gray-900">Support</a>
-          </div>
-        </div>
-      </nav>
-
       {/* Benefits Section */}
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">

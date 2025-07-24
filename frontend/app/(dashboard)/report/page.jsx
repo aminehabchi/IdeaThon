@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Bug, AlertTriangle, HelpCircle, MessageSquare, Send, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-import { DashboardNavbar } from "@/components/dashboardNavbar";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 
 export default function ReportPage() {
   const [formData, setFormData] = useState({

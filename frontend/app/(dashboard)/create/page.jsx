@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import IdeathonForm from "@/components/createIdea";
-import { DashboardNavbar } from "@/components/dashboardNavbar";
-import Editor from "@/components/notion_like";
+import IdeathonForm from "@/components/ideasComponent/createIdea";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
+import Editor from "@/components/notionLike/notion_like";
 
 function Create() {
   const [form, setForm] = useState({});

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Categories } from "@/components/categories";
-import { DashboardNavbar } from "@/components/dashboardNavbar";
-import Ideathon from "@/components/ideathon";
+import { Categories } from "@/components/ideasComponent/categories";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
+import Ideathon from "@/components/ideasComponent/ideathonCard";
 import Link from "next/link";
 import { fetcher } from "@/lib/helpers";
 

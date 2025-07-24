@@ -1,6 +1,6 @@
 "use client";
 
-import { DashboardNavbar } from "@/components/dashboardNavbar";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";

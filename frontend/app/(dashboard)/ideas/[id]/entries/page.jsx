@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { DashboardNavbar } from "@/components/dashboardNavbar";
+import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import Link from "next/link";
 import { fetcher } from "@/lib/helpers";
-import Entry from "@/components/entry";
+import Entry from "@/components/ideasComponent/entry";
 import { usePathname } from 'next/navigation';
 
 import { ProjectNavbar } from "@/components/ideasComponent/ideaTopbar";

@@ -1,11 +1,13 @@
 "use client";
-import { Navbar } from "../navbar"
+import { Navbar } from "../navbarcomps/navbar"
 import { Users, Lightbulb, Trophy } from "lucide-react"
 // import { useState, useEffect } from "react";
 import Lottie from "lottie-react";
 import animationData from "../../public/assest/animation.json";
 import { motion } from 'framer-motion';
 import { IdeathonStepper, DynamicImage } from "./helpers";
+import Benefits from "./Benefits";
+import Link from "next/link";
 
 // // Animation variants
 // const fadeInUp = {
@@ -250,6 +252,7 @@ export default function IdeaThonsLanding() {
           </motion.div>
         </div>
       </motion.section>
+      <Benefits/>
 
       {/* Footer */}
       <motion.footer
@@ -268,7 +271,9 @@ export default function IdeaThonsLanding() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
             >
-              IdeaThons
+            <Link href="/" className="flex items-center">
+                <img src="/Logo.svg" alt="logo" />
+             </Link>
             </motion.div>
             <motion.div
               className="flex space-x-6 text-sm text-gray-600"
