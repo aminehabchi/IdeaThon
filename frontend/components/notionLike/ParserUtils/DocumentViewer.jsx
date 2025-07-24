@@ -5,6 +5,7 @@ import { DocumentParser } from "@/lib/utils";
 import { DocumentHeader } from "./DocumentHeader";
 import { DocumentBanner } from "./DocumentBanner";
 import { DocumentContent } from "./DocumentContent";
+import {ProjectHeader} from "./ideasBanner"
 
 export const DocumentViewer = ({ data }) => {
   const parsedData = DocumentParser.parseDocument(data);
@@ -24,8 +25,9 @@ export const DocumentViewer = ({ data }) => {
   return (
     <div className="bg-white">
       <DocumentHeader data={parsedData} />
-      <DocumentBanner data={parsedData} />
-      <DocumentContent blocks={parsedData.blocks} />
+      {/* <DocumentBanner data={parsedData} /> */}
+      <ProjectHeader parsedData={parsedData} id={data?.id} />
+      {/* <DocumentContent blocks={parsedData.blocks} /> */}
     </div>
   );
 };
