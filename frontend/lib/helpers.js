@@ -75,7 +75,7 @@ export async function fetcher({
     return null;
   } catch (err) {
     toast.error(err.message);
-    console.error("Fetcher error:", err.message);
+    // console.error("Fetcher error:", err.message);
     throw err;
   }
 }
