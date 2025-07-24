@@ -59,7 +59,7 @@ func SaveBase64ImageToPath(imageBase64, path string) (string, error) {
 		return "", errors.New("failed to save image: " + err.Error())
 	}
 
-	return fullPath, nil
+	return fullPath[2:], nil
 }
 
 func GetImageExtensionFromBase64(data string) (string, error) {

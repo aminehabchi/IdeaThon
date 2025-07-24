@@ -12,7 +12,7 @@ const allowedCategories = [
   "Technology", "Health", "Education", "Environment", "Business", "Finance",
   "Productivity", "Design", "Marketing", "Sustainability", "Innovation", "AI",
   "Startups", "Social Impact", "Remote Work", "Mental Health", "Mobility",
-  "Entertainment", "E-commerce", "Food", "Fashion", "Gaming", "Travel Problem Solving",
+  "Entertainment", "E-commerce", "Food", "Fashion", "Gaming",
   "Civic Tech", "Youth", "Equality", "Freelancing", "Future of Work"
 ];
 

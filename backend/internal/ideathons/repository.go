@@ -24,7 +24,7 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 
 		if err := rows.Scan(
 			&i.Id,
-			&i.User_id,
+			&i.Owner.ID,
 			&i.Description,
 			&i.Banner,
 			&time1,
@@ -32,6 +32,10 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 			&time2,
 			&i.Winner_id,
 			&i.Privacy,
+			&i.Owner.FirstName,
+			&i.Owner.LastName,
+			&i.Owner.Avatar,
+			&i.Entries,
 		); err != nil {
 			return nil, fmt.Errorf("row scan error: %w", err)
 		}
@@ -43,7 +47,7 @@ func Get_ideathons_Db(query string, args []interface{}) ([]Ideathons, error) {
 		i.Category, err = Get_categories_by_ideathon_ID(i.Id)
 		if err == nil {
 			ideathons = append(ideathons, i)
-		} 
+		}
 	}
 
 	if err := rows.Err(); err != nil {
@@ -164,7 +168,7 @@ func Insert_ideathons_info(ideathon Ideathons) (int, error) {
 
 	result, err := db.Exec(
 		query,
-		ideathon.User_id,
+		ideathon.Owner.ID,
 		ideathon.Description,
 		ideathon.Banner,
 		ideathon.Start_date,

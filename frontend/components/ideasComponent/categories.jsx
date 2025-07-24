@@ -1,15 +1,10 @@
-"use client";
-
-import { useState } from "react";
 import { motion } from "framer-motion";
 
-export function Categories() {
-  const [selectedCategories, setSelectedCategories] = useState([]);
-
-  const categories = ["Products", "Saas", "Gaming", "Tech", "Education"];
+export function Categories({ selectedCategory, onCategorySelect }) {
+  const categories = ["Technology", "Design", "Gaming", "Health", "Food"];
 
   const toggleCategory = (category) => {
-    setSelectedCategories((prev) =>
+    onCategorySelect((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
         : [...prev, category]
@@ -27,7 +22,7 @@ export function Categories() {
         {/* Categories Pills */}
         <div className="flex flex-wrap justify-center gap-3">
           {categories.map((category) => {
-            const isActive = selectedCategories.includes(category);
+            const isActive = selectedCategory.includes(category);
             return (
               <motion.button
                 key={category}
