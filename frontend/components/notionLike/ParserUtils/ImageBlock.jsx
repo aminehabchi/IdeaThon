@@ -98,7 +98,7 @@ export const ImageBlock = ({ block }) => {
                   ${imageLoaded ? 'opacity-100' : 'opacity-0'}
                   ${withBackground ? 'p-4 bg-muted rounded-lg' : ''}
                 `}
-                onLoadingComplete={() => setImageLoaded(true)}
+                onLoad={() => setImageLoaded(true)}
                 onError={() => {
                   setImageError(true);
                   setImageLoaded(true);
