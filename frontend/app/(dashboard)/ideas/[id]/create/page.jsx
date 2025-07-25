@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import React, { useState } from "react";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 // import EntryForm from "@/components/entriy_form/create_entry";
-import Editor from "@/components/entriy_form/entry_editor";
+// import Editor from "@/components/entriy_form/entry_editor";
 import {ProfessionalEditor} from "@/components/notionLike/notion_like";
 
 export default function Create_entry() {
