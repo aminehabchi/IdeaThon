@@ -4,7 +4,7 @@ import { fetcher, imageToBase64 } from "@/lib/helpers.js";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
 
-export default function ProfessionalEditor({ form }) {
+export  function ProfessionalEditor({ form }) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -41,6 +41,7 @@ export default function ProfessionalEditor({ form }) {
           holder: "professional-editor",
           placeholder: "Start crafting your amazing content...",
           minHeight: 300,
+          minWidth: 300,
           tools: {
             // Text formatting tools
             paragraph: {
@@ -669,8 +670,8 @@ export default function ProfessionalEditor({ form }) {
 
         <div
           id="professional-editor"
-          className={`min-h-[400px] transition-opacity ${
-            isReady ? "opacity-100" : "opacity-50"
+          className={`min-h-[400px] transition-opacity${
+            isReady ? "opacity-100 mr-30" : "opacity-50"
           }`}
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',

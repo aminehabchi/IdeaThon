@@ -9,9 +9,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ReportIdeaPopup from './ideaReport';
 import { fetcher, timeAgo } from '@/lib/helpers';
-// import { Button } from '../ui/button';
-
-
 
 export function EntriesList({ id }) {
   const [entries, setEntries] = useState([]);
@@ -36,7 +33,6 @@ export function EntriesList({ id }) {
       console.log(data[0].description.content.blocks[0].data.text);
 
     }
-
 
     fetch_entry();
   }, [])

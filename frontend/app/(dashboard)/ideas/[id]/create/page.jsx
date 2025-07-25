@@ -4,8 +4,9 @@ import { usePathname } from 'next/navigation';
 
 import React, { useState } from "react";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
-import EntryForm from "@/components/entriy_form/create_entry";
+// import EntryForm from "@/components/entriy_form/create_entry";
 import Editor from "@/components/entriy_form/entry_editor";
+import {ProfessionalEditor} from "@/components/notionLike/notion_like";
 
 export default function Create_entry() {
     console.log("hello from create entry");
@@ -13,7 +14,7 @@ export default function Create_entry() {
     const pathname = usePathname();
     let ideathon_id = Number(pathname.split("/")[2])
     console.log(ideathon_id);
-    const [form, setForm] = useState({});
+    // const [form, setForm] = useState({});
     return (
         <>
             <DashboardNavbar />
@@ -22,8 +23,8 @@ export default function Create_entry() {
                     <h1 className="text-xl font-bold text-black mb-[-10px]">
                         Create a New Entry
                     </h1>
-                    <EntryForm setForm={setForm} />
-                    <Editor form={form} />
+                    {/* <EntryForm setForm={setForm} /> */}
+                    <ProfessionalEditor form={null} />
                 </div>
             </main>
         </>)

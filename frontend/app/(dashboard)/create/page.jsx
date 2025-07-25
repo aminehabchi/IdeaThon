@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import IdeathonForm from "@/components/ideasComponent/createIdea";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import Editor from "@/components/notionLike/notion_like";
+import {ProfessionalEditor} from "@/components/notionLike/notion_like";
 
 function Create() {
   const [form, setForm] = useState({});
@@ -16,7 +17,8 @@ function Create() {
             Create a New Ideathon
           </h1>
           <IdeathonForm setForm={setForm} />
-          <Editor form={form} />
+          {/* <Editor form={form} /> */}
+          <ProfessionalEditor form={form} />
         </div>
       </main>
     </>

@@ -10,6 +10,7 @@ import { DelimiterBlock } from "./DelimiterBlock";
 import { TableBlock } from "./TableBlock";
 import { EmbedBlock } from "./EmbedBlock";
 import { UnsupportedBlock } from "./UnsupportedBlock";
+import { RawBlock } from "./RawBlock";
 
 export const BlockRenderer = ({ block }) => {
   const blockComponents = {
@@ -21,7 +22,8 @@ export const BlockRenderer = ({ block }) => {
     image: ImageBlock,
     delimiter: DelimiterBlock,
     table: TableBlock,
-    embed: EmbedBlock
+    raw: RawBlock,
+    embed: EmbedBlock,
   };
 
   const Component = blockComponents[block.type] || UnsupportedBlock;

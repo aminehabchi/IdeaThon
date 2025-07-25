@@ -24,7 +24,7 @@ export const DocumentViewer = ({ data }) => {
 
   return (
     <div className="bg-white">
-      <DocumentHeader data={parsedData} />
+      <DocumentHeader data={data} />
       {/* <DocumentBanner data={parsedData} /> */}
       <ProjectHeader parsedData={parsedData} id={data?.id} />
       {/* <DocumentContent blocks={parsedData.blocks} /> */}
