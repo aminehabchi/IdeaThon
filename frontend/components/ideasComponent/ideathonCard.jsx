@@ -5,7 +5,7 @@ export default function Ideathon(idea) {
   const { banner, owner, entries, privacy, category, price, end_date } = idea;
 
   let data = idea.description;
-
+  
   if (!data) {
     data = "{}";
   }
@@ -44,7 +44,7 @@ export default function Ideathon(idea) {
               </span>
             </span>
             <span>|</span>
-            <span>{entries} Entries</span>
+            <span>{entries | 0} Entries</span>
             <span>|</span>
             <span>{privacy}</span>
             <span>|</span>

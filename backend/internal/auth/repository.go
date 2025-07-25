@@ -2,9 +2,27 @@ package auth
 
 import (
 	"fmt"
+
 	database "ideaThon/config"
 	"ideaThon/internal/images"
 )
+
+func Get_my_Info(userID int) (User, error) {
+	var user User
+	db := database.Get_DB()
+
+	query := "SELECT id, first_name, last_name, email, avatar FROM users WHERE id = ?"
+
+	err := db.QueryRow(query, userID).Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Avatar,
+	)
+
+	return user, err
+}
 
 func Insert_session(id int, token string) error {
 	db := database.Get_DB()

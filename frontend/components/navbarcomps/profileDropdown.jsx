@@ -20,16 +20,15 @@ export default function ProfileDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <img
-          src={userImage}
+          src={userImage || "/avatar-default.svg"}
           alt="Profile"
-          width={36}
-          height={36}
-          className="rounded-full hover:scale-105 transition-transform cursor-pointer"
+          className="h-8 w-8 rounded-full border-2 border-gray-300 object-cover mb-4"
         />
+
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
-        align="end" 
+
+      <DropdownMenuContent
+        align="end"
         className="w-64 p-0 bg-white border border-gray-200 shadow-lg rounded-lg"
       >
         {/* User Info Header */}
@@ -54,8 +53,8 @@ export default function ProfileDropdown({
         {/* Menu Items */}
         <div className="py-2">
           <DropdownMenuItem asChild>
-            <Link 
-              href="/profile" 
+            <Link
+              href="/profile"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer"
             >
               <User className="w-4 h-4" />
@@ -64,8 +63,8 @@ export default function ProfileDropdown({
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild>
-            <Link 
-              href="/privacy-policy" 
+            <Link
+              href="/privacy-policy"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer"
             >
               <Shield className="w-4 h-4" />
@@ -74,8 +73,8 @@ export default function ProfileDropdown({
           </DropdownMenuItem>
 
           <DropdownMenuItem asChild>
-            <Link 
-              href="/report" 
+            <Link
+              href="/report"
               className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer"
             >
               <Flag className="w-4 h-4" />
@@ -88,7 +87,7 @@ export default function ProfileDropdown({
 
         {/* Logout */}
         <div className="py-2">
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 cursor-pointer focus:bg-red-50 focus:text-red-600"
             onClick={() => {
               // Add your logout logic here

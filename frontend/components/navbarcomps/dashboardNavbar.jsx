@@ -1,15 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Bell, User, PenLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProfileDropdown from "./profileDropdown";
 import NotificationDropdown from "@/components/navbarcomps/notiofications";
-import { SearchBar } from "./NavSearchBar"; // Import the new SearchBar component
+import { SearchBar } from "./NavSearchBar";
+import { fetcher } from "@/lib/helpers";
+
 
 export function DashboardNavbar() {
+  const [user, setUser] = useState({});
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const u = await fetcher({
+          url: `http://localhost:8080/api/auth/me`,
+          method: "GET",
+          returned_status: 200,
+        });
+        setUser(u);
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    }
+
+    fetchUser();
+  }, []);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
@@ -52,7 +73,7 @@ export function DashboardNavbar() {
             <SearchBar />
           </div>
 
-          
+
 
           {/* Right: Create Button + Notifications + Profile */}
           <div className="hidden md:flex items-center space-x-4">
@@ -64,7 +85,11 @@ export function DashboardNavbar() {
             </Link>
 
             <NotificationDropdown />
-            <ProfileDropdown />
+            <ProfileDropdown
+              userImage={"http://localhost:8080/api" + user?.avatar}
+              userName={`${user?.first_name} ${user?.last_name}`}
+              userEmail={user?.email}
+            />
           </div>
         </div>
 

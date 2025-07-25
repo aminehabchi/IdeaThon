@@ -85,6 +85,7 @@ func Insert_categories(ideathonID int, categorys []string) error {
 
 	return nil
 }
+
 func Get_categories_by_ideathon_ID(ideathonID int) ([]string, error) {
 	db := database.Get_DB()
 

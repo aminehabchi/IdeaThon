@@ -2,10 +2,11 @@ package auth
 
 import (
 	"errors"
-	"ideaThon/utils"
 	"net/http"
 	"regexp"
 	"strings"
+
+	"ideaThon/utils"
 )
 
 func Update_session(w http.ResponseWriter, id int) error {
@@ -57,7 +58,6 @@ func (u *User) Check_register_info() error {
 }
 
 func (u *User) Check_login_info() error {
-
 	u.Email = strings.TrimSpace(u.Email)
 	if u.Email == "" {
 		return errors.New("email is required")

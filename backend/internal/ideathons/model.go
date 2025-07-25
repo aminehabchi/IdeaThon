@@ -19,7 +19,7 @@ type Ideathons struct {
 
 type I_params struct {
 	Id        int      `json:"id,omitempty"`
-	User_id   bool     `json:"user_id,omitempty"`
+	User_id   int      `json:"user_id,omitempty"`
 	Category  []string `json:"category,omitempty"`
 	Search    string   `json:"search,omitempty"`
 	StartDate string   `json:"start_date,omitempty"`

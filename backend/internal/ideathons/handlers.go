@@ -30,6 +30,10 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if params.User_id == -1 {
+		params.User_id = user_id
+	}
+
 	query, args := Prepare_ideathon_query(params, user_id)
 	ideathons, err := Get_ideathons_Db(query, args)
 	if err != nil {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import ProfileComponent from "@/components/ProfileComp/profile";
 import { fetcher } from "@/lib/helpers";
@@ -18,10 +18,10 @@ export default function Profile() {
         async function fetchData() {
             setLoading(true);
             try {
-                const [ideathonsRes, profileRes] = await Promise.all([
+                const [ideathonsRes, profileRes, user] = await Promise.all([
                     fetcher({
                         url: `http://localhost:8080/api/ideathons/get`,
-                        data: { user_id: true },
+                        data: { user_id: -1 },
                         method: "POST",
                         returned_status: 200,
                     }),
@@ -42,8 +42,8 @@ export default function Profile() {
 
         fetchData();
     }, []);
-    console.log(ideathons);
-    
+
+
     return (
         <div className="min-h-screen bg-white">
             <DashboardNavbar />
