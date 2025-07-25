@@ -3,7 +3,7 @@ import React from "react";
 import { BlockRenderer } from "./BlockRenderer";
 
 export const DocumentContent = ({ data }) => {
-  console.log("Document content:", data);
+  console.log("---> Document content:", data.blocks);
 
   if (!data || !data.blocks || !Array.isArray(data.blocks)) {
     return <p className="text-center text-muted-foreground">No content available</p>;

@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 // import { Badge } from "@/components/ui/badge";
-import { IdeaBody } from "@/components/ideasComponent/ideaBody";
+// import { IdeaBody } from "@/components/ideasComponent/ideaBody";
 import { EntriesList } from "@/components/ideasComponent/ideaEntriesList";
 import { fetcher } from "@/lib/helpers";
 import { DocumentContent } from "./DocumentContent";
 import { DocumentBanner } from "./DocumentBanner";
 
 export function ProjectHeader({ id, parsedData }) {
-  console.log("parsedData-------->", parsedData);
+  // console.log("parsedData-------->", parsedData);
   
   const [activeTab, setActiveTab] = useState("project");
   const [ideathon, setIdeathon] = useState({});
@@ -69,7 +69,6 @@ export function ProjectHeader({ id, parsedData }) {
         {activeTab === "project" && (
           <>
             {/* Idea body */}
-
             <DocumentBanner parsedData={parsedData} />
             <DocumentContent data={parsedData} />
           </>

@@ -1,4 +1,4 @@
-import { getDaysLeft } from "@/lib/helpers";
+import { getDaysLeft } from "@/lib/utils";
 
 
 export default function Ideathon(idea) {

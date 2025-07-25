@@ -6,6 +6,7 @@ import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import Ideathon from "@/components/ideasComponent/ideathonCard";
 import Link from "next/link";
 import { fetcher } from "@/lib/helpers";
+import {getDaysLeft} from "@/lib/helpers";
 
 const Page = () => {
   const [scroll, setScroll] = useState(0);
