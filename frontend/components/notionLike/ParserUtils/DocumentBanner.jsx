@@ -142,7 +142,7 @@ export const DocumentBanner = ({ data }) => {
           </div>
           
           {/* Banner Image */}
-          {bannerImage && (
+          {/* {bannerImage && ( */}
             <div className="flex justify-center">
               <img 
                 src={bannerImage} 
@@ -154,11 +154,11 @@ export const DocumentBanner = ({ data }) => {
                 }}
               />
             </div>
-          )}
+          {/* )} */}
         </div>
         
         {/* Additional Stats Row */}
-        {(data.statistics || data.meta) && (
+        {/* {(data.statistics || data.meta) && (
           <div className="pt-6">
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm text-gray-500">
               {data.statistics?.views && (
@@ -199,7 +199,7 @@ export const DocumentBanner = ({ data }) => {
               )}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

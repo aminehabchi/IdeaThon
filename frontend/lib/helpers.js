@@ -103,17 +103,4 @@ export function timeAgo(dateString) {
   return `${years} year${years !== 1 ? "s" : ""} ago`;
 }
 
-export function getDaysLeft(dateString) {
-  const targetDate = new Date(dateString);
-  const now = new Date();
 
-  // Calculate the difference in milliseconds
-  const diff = targetDate - now;
-
-  if (diff <= 0) {
-    return "Ended";
-  }
-
-  const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-  return `${daysLeft} Day${daysLeft > 1 ? "s" : ""} left`;
-}

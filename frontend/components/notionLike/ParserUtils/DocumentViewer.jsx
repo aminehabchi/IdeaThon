@@ -1,16 +1,16 @@
 "use client";
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { DocumentParser } from "@/lib/utils";
+// import { DocumentParser } from "@/lib/utils";
 import { DocumentHeader } from "./DocumentHeader";
-import { DocumentBanner } from "./DocumentBanner";
-import { DocumentContent } from "./DocumentContent";
+// import { DocumentBanner } from "./DocumentBanner";
+// import { DocumentContent } from "./DocumentContent";
 import {ProjectHeader} from "./ideasBanner"
-
+import {extractDocumentData} from "@/lib/utils"
 export const DocumentViewer = ({ data }) => {
-  const parsedData = DocumentParser.parseDocument(data);
-
-  if (!parsedData) {
+  const extractedData = extractDocumentData(data);
+  
+  if (!extractedData) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <div>
@@ -26,7 +26,7 @@ export const DocumentViewer = ({ data }) => {
     <div className="bg-white">
       <DocumentHeader data={data} />
       {/* <DocumentBanner data={parsedData} /> */}
-      <ProjectHeader parsedData={parsedData} id={data?.id} />
+      <ProjectHeader parsedData={extractedData} id={data?.id} />
       {/* <DocumentContent blocks={parsedData.blocks} /> */}
     </div>
   );

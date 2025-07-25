@@ -515,9 +515,10 @@ export default function Page() {
               
               // Fetch data using the fetcher
               const response = await fetcher({
-                  url: `http://localhost:8080/api/ideathons/${ideathon_id}`,
-                  method: "GET",
+                  url: `http://localhost:8080/api/ideathons/get`,
+                  method: "POST",
                   token: null, // Add token if authentication is required
+                  data:{id:ideathon_id},
                   returned_status: 200,
               });
               
@@ -537,16 +538,16 @@ export default function Page() {
   }, [ideathon_id]);
 
   // Loading or Error state - Show IdeaLoader
-  // if (loading || error) {
-  //     return (
-  //         <>
-  //             <DashboardNavbar />
-  //             <div className="mt-[-100px]">
-  //               <IdeaLoader />
-  //             </div>
-  //         </>
-  //     );
-  // }
+  if (loading || error) {
+      return (
+          <>
+              <DashboardNavbar />
+              <div className="mt-[-100px]">
+                <IdeaLoader />
+              </div>
+          </>
+      );
+  }
 
   // No data state - Only shown when loading is complete and no data exists
   if (!data) {

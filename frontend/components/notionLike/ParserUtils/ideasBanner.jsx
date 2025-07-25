@@ -9,8 +9,11 @@ import { DocumentContent } from "./DocumentContent";
 import { DocumentBanner } from "./DocumentBanner";
 
 export function ProjectHeader({ id, parsedData }) {
+  console.log("parsedData-------->", parsedData);
+  
   const [activeTab, setActiveTab] = useState("project");
   const [ideathon, setIdeathon] = useState({});
+
   useEffect(() => {
     if (!id) return;
     console.log("-->", id);
@@ -67,7 +70,7 @@ export function ProjectHeader({ id, parsedData }) {
           <>
             {/* Idea body */}
 
-            <DocumentBanner data={parsedData} />
+            <DocumentBanner parsedData={parsedData} />
             <DocumentContent data={parsedData} />
           </>
         )}

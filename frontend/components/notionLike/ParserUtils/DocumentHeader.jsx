@@ -1,47 +1,75 @@
 "use client";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Unlock, Clock, Lock } from "lucide-react";
-import { DocumentParser } from "@/lib/utils";
 import Link from "next/link";
+import { extractDocumentData } from "@/lib/utils";
 
 export const DocumentHeader = ({ data }) => {
-  const daysLeft = DocumentParser.getDaysLeft(data.endDate);
-  console.log("--------------------->", data);
+  const extractedData = extractDocumentData(data);
+  const { 
+    item, 
+    owner, 
+    privacy, 
+    daysLeft, 
+    price, 
+    currency,
+  } = extractedData;
+  
+  // console.log("Extracted data:", extractedData);
+
   return (
     <nav className="border-b bg-gray-100 py-4 px-4 sm:px-8">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
+
+        {/* Left side: owner avatar/name, privacy badge, days left */}
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <img src={data?.avatar} alt="Avatar" className="w-6 h-6 rounded-2xl" />
-            <span className="font-medium text-gray-900">By {data?.name}</span>
+            <img 
+              src={owner.avatar} 
+              alt={`${owner.first_name} avatar`} 
+              className="w-6 h-6 rounded-2xl" 
+            />
+            <span className="font-medium text-gray-900">
+              By {owner.first_name} {owner.last_name}
+            </span>
           </div>
+
           <Badge
             variant="secondary"
             className="bg-gray-100 text-gray-600 hover:bg-gray-100 font-medium px-3 py-1 flex items-center"
           >
-            {data.privacy === "private" ? (
+            {privacy.toLowerCase() === "private" ? (
               <Lock className="w-3 h-3 mr-1" />
             ) : (
               <Unlock className="w-3 h-3 mr-1" />
             )}
-            {data.privacy}
-        </Badge>
-          {daysLeft !== null && (
+            {privacy}
+          </Badge>
+
+          {daysLeft !== null && (daysLeft === "Ended" || daysLeft === "Started") && (
             <div className="flex items-center gap-2 text-gray-600">
               <Clock className="w-4 h-4" />
-              <span className="text-sm font-medium">{daysLeft} Days Left</span>
+              <span className="text-sm font-medium">
+                {daysLeft}
+              </span>
             </div>
           )}
         </div>
+
+        {/* Right side: price/currency and Participate button */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-          <span className="text-xl sm:text-2xl font-bold text-gray-900">{data.price} $</span>
-          <Link href={`${data.id}/create`} className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-md w-full sm:w-auto">
+          <span className="text-xl sm:text-2xl font-bold text-gray-900">
+            {price} {currency}
+          </span>
+          <Link 
+            href={`/${item.id}/create`} 
+            className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-md w-full sm:w-auto"
+          >
             Participate
           </Link>
         </div>
       </div>
     </nav>
   );
-};
+}; 
