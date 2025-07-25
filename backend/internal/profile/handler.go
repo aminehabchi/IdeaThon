@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	middle "ideaThon/middlewares"
 	"ideaThon/utils"
@@ -18,19 +17,11 @@ func Get_profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile_id, err := strconv.Atoi(r.FormValue("profile_id"))
-	if err != nil || profile_id < 0 {
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid profile Id"))
+	profile_id, err := Get_profile_ID(r)
+	if err != nil {
+		log.Println("Get_Profile_id -> ", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
-	}
-
-	if profile_id == 0 {
-		userID, ok := r.Context().Value(middle.UserIDKey).(int)
-		if !ok {
-			utils.SendResponseStatus(w, http.StatusUnauthorized, errors.New("You don't have a profile"))
-			return
-		}
-		profile_id = userID
 	}
 
 	profile, err := Get_Profile_DB(profile_id)

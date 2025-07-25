@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func Prepare_ideathon_query(params I_params) (string, []any) {
+func Prepare_ideathon_query(params I_params, user_id int) (string, []any) {
 	query := `
 		SELECT 
 			ideathons.*, 
@@ -33,9 +33,9 @@ func Prepare_ideathon_query(params I_params) (string, []any) {
 		args = append(args, params.Id)
 	}
 
-	if params.User_id != 0 {
+	if params.User_id == true {
 		query += " AND ideathons.user_id = ?"
-		args = append(args, params.User_id)
+		args = append(args, user_id)
 	}
 
 	if params.Search != "" {

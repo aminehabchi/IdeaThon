@@ -12,12 +12,15 @@ import (
 )
 
 func Get_ideathons(w http.ResponseWriter, r *http.Request) {
-	// if r.Method != http.MethodGe {
+	// if r.Method != http.MethodGet {
 	// 	utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
 	// 	return
 	// }
 
-	// user_id := r.Context().Value(middle.UserIDKey).(int)
+	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
+	if !ok {
+		user_id = 0
+	}
 
 	var params I_params
 
@@ -27,8 +30,7 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query, args := Prepare_ideathon_query(params)
-	// fmt.Println(query)
+	query, args := Prepare_ideathon_query(params, user_id)
 	ideathons, err := Get_ideathons_Db(query, args)
 	if err != nil {
 		fmt.Println("Get_ideathons_Db", err)
