@@ -26,7 +26,7 @@ export const DocumentHeader = ({ data }) => {
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <img 
-              src={owner.avatar} 
+              src={`http://localhost:8080/api${owner.avatar}`}
               alt={`${owner.first_name} avatar`} 
               className="w-6 h-6 rounded-2xl" 
             />

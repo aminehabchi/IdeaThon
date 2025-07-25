@@ -10,7 +10,7 @@ import {
 import ReportIdeaPopup from './ideaReport';
 import { fetcher, timeAgo } from '@/lib/helpers';
 
-export function EntriesList({ id }) {
+export function EntriesList({id}) {
   const [entries, setEntries] = useState([]);
 
   useEffect(() => {
@@ -23,19 +23,21 @@ export function EntriesList({ id }) {
         token: null,
         returned_status: 200,
       });
-
+      
+      
+      console.log("entries data",data);
       data.map((d) => {
         d.description = JSON.parse(d.description)
       })
       setEntries(data);
-      console.log(data);
-
-      console.log(data[0].description.content.blocks[0].data.text);
-
+      // console.log(data[0].description.content.blocks[0].data.text);
     }
 
     fetch_entry();
   }, [])
+
+  console.log(entries);
+  
 
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -69,7 +71,7 @@ export function EntriesList({ id }) {
               {/* Header with title and more menu */}
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-medium text-gray-500">
-                  {entry.description.title}
+                  {entry.description.document.title}
                 </h3>
                 <DropdownMenu>
                   <DropdownMenuTrigger
@@ -110,15 +112,17 @@ export function EntriesList({ id }) {
 
               {/* Subtitle */}
               <h4
-                className="text-lg font-semibold text-gray-900 mb-3 leading-tight"
-                dangerouslySetInnerHTML={{ __html: entry.description?.content?.blocks?.[0]?.data?.text || "" }}
+                className="text-lg font-semibold text-gray-700 mb-3 leading-tight text-ellipsis overflow-hidden whitespace-nowrap"
+                dangerouslySetInnerHTML={{
+                  __html: entry.description.blocks?.[0]?.data?.text || ""
+                }}
               ></h4>
 
               {/* Description */}
               <p
                 className="text-sm text-gray-600 mb-4 leading-relaxed"
                 dangerouslySetInnerHTML={{
-                  __html: entry.description?.content?.blocks?.[1]?.data?.text || "",
+                  __html: entry.description.blocks?.[1]?.data?.text || ""
                 }}
               ></p>
 
@@ -127,7 +131,7 @@ export function EntriesList({ id }) {
                 <div className="flex items-center gap-2">
                   <img src="/belmaayo_avatar.png" alt="avatar"
                     className=" rounded-2xl w-6 h-6" />
-                  <span>mazaal</span>
+                  <span>{entry.description.document.author.name}</span> {/* working on it*/}
                 </div>
                 <span>{timeAgo(entry.created_at)}</span>
               </div>
@@ -150,13 +154,13 @@ export function EntriesList({ id }) {
                     className="rounded-2xl w-6 h-6"
                   />
                   <span className="ml-2 text-sm text-gray-600">
-                    {selectedEntry.author}
+                    {selectedEntry.description.document.author.name}
                   </span>
                 </div>
                 <span className="text-sm text-gray-400">•</span>
-                <span className="text-sm text-gray-600">{selectedEntry.timeAgo}</span>
+                <span className="text-sm text-gray-600">{timeAgo(selectedEntry.created_at)}</span>
                 <span className="text-sm text-gray-400">•</span>
-                <span className="text-sm text-gray-600">{selectedEntry.title}</span>
+                <span className="text-sm text-gray-600">{selectedEntry.description.document.title}</span>
                 <span className="text-sm text-gray-400">•</span>
                 <button className="cursor-pointer text-gray-400 hover:text-gray-600 text-sm px-3 py-1.5 rounded-lg flex items-center gap-2  transition-colors"
                   onClick={(e) => {
@@ -187,7 +191,7 @@ export function EntriesList({ id }) {
             <div className="p-4 sm:p-6">
               {/* Title */}
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-                Imagine the future of General robotics
+                {selectedEntry.description.document.title}
               </h1>
 
               {/* Solution Section */}
@@ -212,11 +216,11 @@ export function EntriesList({ id }) {
               {/* Image Section */}
               <div className="mb-4 sm:mb-6">
                 <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
-                  <img
-                    src={selectedEntry.imgPath}
-                    alt="entry banner"
-                    className="w-full h-full object-cover"
-                  />
+                 <img
+                  src={selectedEntry.banner || "/default-banner.jpg"}
+                  alt="entry banner"
+                  className="w-full h-full object-cover"
+                />
                 </div>
               </div>
             </div>

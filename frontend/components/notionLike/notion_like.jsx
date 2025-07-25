@@ -83,36 +83,48 @@ export  function ProfessionalEditor({ form }) {
               config: {
                 uploader: {
                   async uploadByFile(file) {
-                    // Simulate upload delay
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
-                    return {
-                      success: 1,
-                      file: {
-                        url: URL.createObjectURL(file),
-                      },
-                    };
+                    try {
+                      const base64 = await imageToBase64(file);
+                      return {
+                        success: 1,
+                        file: {
+                          url: base64, // base64 string
+                        },
+                      };
+                    } catch (err) {
+                      console.error("Image conversion failed:", err);
+                      toast.error("Image upload failed");
+                      return { success: 0 };
+                    }
                   },
                   async uploadByUrl(url) {
-                    return {
-                      success: 1,
-                      file: {
-                        url: url,
-                      },
-                    };
+                    try {
+                      const response = await fetch(url);
+                      const blob = await response.blob();
+                      const base64 = await imageToBase64(blob);
+                      return {
+                        success: 1,
+                        file: {
+                          url: base64,
+                        },
+                      };
+                    } catch (err) {
+                      console.error("Image URL conversion failed:", err);
+                      toast.error("Image upload by URL failed");
+                      return { success: 0 };
+                    }
                   },
                 },
                 placeholder: "Paste image URL or upload file",
                 captionPlaceholder: "Enter image caption",
                 buttonContent: "Select an image",
                 types: "image/*",
-                additionalRequestHeaders: {},
-                additionalRequestData: {},
-                field: "image",
                 withBorder: false,
                 withBackground: false,
                 stretched: false,
               },
             },
+
             embed: {
               class: Embed,
               config: {
@@ -516,7 +528,7 @@ export  function ProfessionalEditor({ form }) {
         // Table of contents
         tableOfContents: tableOfContents
       };
-
+    
       // Convert banner to base64 if exists
       let base64Banner = "";
       if (form.banner) {
@@ -546,6 +558,8 @@ export  function ProfessionalEditor({ form }) {
       };
 
       // Send to backend
+      console.log("Backend Payload:", backendPayload);
+      
       await fetcher({
         url: "http://localhost:8080/api/ideathons/add",
         method: "POST",

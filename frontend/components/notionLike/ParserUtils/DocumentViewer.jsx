@@ -7,8 +7,9 @@ import { DocumentHeader } from "./DocumentHeader";
 // import { DocumentContent } from "./DocumentContent";
 import {ProjectHeader} from "./ideasBanner"
 import {extractDocumentData} from "@/lib/utils"
-export const DocumentViewer = ({ data }) => {
+export const DocumentViewer = ({ data, id }) => {
   const extractedData = extractDocumentData(data);
+  // console.log("data viewer", id);
   
   if (!extractedData) {
     return (
@@ -26,7 +27,7 @@ export const DocumentViewer = ({ data }) => {
     <div className="bg-white">
       <DocumentHeader data={data} />
       {/* <DocumentBanner data={parsedData} /> */}
-      <ProjectHeader parsedData={extractedData} id={data?.id} />
+      <ProjectHeader parsedData={extractedData} id={id} />
       {/* <DocumentContent blocks={parsedData.blocks} /> */}
     </div>
   );

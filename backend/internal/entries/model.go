@@ -11,8 +11,8 @@ type Entries struct {
 }
 
 type Params struct {
-	User_id     int
-	Ideathon_id int
-	Entries_id  int
-	Offset      int
+	User_id     int `json:"user_id:omitempty"`
+	Ideathon_id int `json:"ideathon_id:omitempty"`
+	Entries_id  int `json:"entries_id:omitempty"`
+	Offset      int `json:"offset:omitempty"`
 }

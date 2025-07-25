@@ -8,16 +8,13 @@ import { fetcher } from "@/lib/helpers";
 import { DocumentContent } from "./DocumentContent";
 import { DocumentBanner } from "./DocumentBanner";
 
-export function ProjectHeader({ id, parsedData }) {
-  // console.log("parsedData-------->", parsedData);
-  
+export function ProjectHeader({parsedData, id }) {
+  //console.log("id from projectheader",id);
   const [activeTab, setActiveTab] = useState("project");
   const [ideathon, setIdeathon] = useState({});
 
   useEffect(() => {
     if (!id) return;
-    console.log("-->", id);
-    console.log("--->", Number(id));
     async function fetchIdeathon() {
       try {
         const data = await fetcher({
@@ -28,7 +25,6 @@ export function ProjectHeader({ id, parsedData }) {
           returned_status: 200,
         });
         setIdeathon(data);
-        console.log(data);
       } catch (err) {
         console.error("Error fetching ideathon:", err);
       }
@@ -73,7 +69,6 @@ export function ProjectHeader({ id, parsedData }) {
             <DocumentContent data={parsedData} />
           </>
         )}
-
         {activeTab === "entries" && <EntriesList id={id} />}
       </div>
     </div>

@@ -98,9 +98,13 @@ func Get_entries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id := r.Context().Value(middle.UserIDKey).(int)
+	// user_id := r.Context().Value(middle.UserIDKey).(int)
 
-	var params Params = Parse_form(r, user_id)
+	var params Params
+	if err := utils.Decode(r, &params); err != nil {
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid Request Body"))
+		return
+	}
 
 	query, args := Prepare_entries_query(params)
 
@@ -110,7 +114,6 @@ func Get_entries(w http.ResponseWriter, r *http.Request) {
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
-
 	err = utils.Encode(w, entries)
 	if err != nil {
 		fmt.Println("Encode", err)
