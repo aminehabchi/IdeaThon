@@ -24,13 +24,13 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS ideathons (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    description TEXT,
-    banner TEXT,
+    description TEXT DEFAULT '',
+    banner TEXT DEFAULT '',
     start_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    price INTEGER,
-    end_date DATETIME,
-    winner_id INTEGER,
-    privacy TEXT,
+    price INTEGER DEFAULT 0,
+    end_date DATETIME DEFAULT NULL,
+    winner_id INTEGER DEFAULT NULL,
+    privacy TEXT DEFAULT 'public',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

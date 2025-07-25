@@ -2,9 +2,11 @@ package profile
 
 import (
 	"net/http"
+
+	middle "ideaThon/middlewares"
 )
 
 func RegisterProfileRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/profile", ProfileHandler)
-	mux.HandleFunc("/api/updateprofile", UpdateProfile)
+	mux.Handle("/api/profile/get", middle.Auth(Get_profile))
+	mux.Handle("/api/updateprofile", middle.Auth(UpdateProfile))
 }

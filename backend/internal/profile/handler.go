@@ -2,22 +2,50 @@ package profile
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	middle "ideaThon/middlewares"
+	"log"
 	"net/http"
+	"strconv"
+
+	middle "ideaThon/middlewares"
+	"ideaThon/utils"
 )
 
-func ProfileHandler(w http.ResponseWriter, r *http.Request) {
-
-	userID := r.Context().Value(middle.UserIDKey).(int)
-	profile, err := FetchUserProfile(userID)
-	if err != nil {
-		http.Error(w, "Error fetching profile", http.StatusInternalServerError)
+func Get_profile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(profile)
+	profile_id, err := strconv.Atoi(r.FormValue("profile_id"))
+	if err != nil || profile_id < 0 {
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid profile Id"))
+		return
+	}
+
+	if profile_id == 0 {
+		userID, ok := r.Context().Value(middle.UserIDKey).(int)
+		if !ok {
+			utils.SendResponseStatus(w, http.StatusUnauthorized, errors.New("You don't have a profile"))
+			return
+		}
+		profile_id = userID
+	}
+
+	profile, err := Get_Profile_DB(profile_id)
+	if err != nil {
+		log.Println("Get_Profile_DB -> ", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, errors.New("Error fetching profile"))
+		return
+	}
+
+	err = utils.Encode(w, profile)
+	if err != nil {
+		log.Println("Encode -> ", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
 }
 
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {

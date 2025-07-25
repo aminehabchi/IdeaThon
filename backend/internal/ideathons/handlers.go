@@ -3,6 +3,7 @@ package ideathons
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -27,8 +28,8 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query, args := Prepare_ideathon_query(params)
-	ideathons, err := Get_ideathons_Db(query, args)
 	// fmt.Println(query)
+	ideathons, err := Get_ideathons_Db(query, args)
 	if err != nil {
 		fmt.Println("Get_ideathons_Db", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
@@ -37,7 +38,7 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 
 	err = utils.Encode(w, ideathons)
 	if err != nil {
-		fmt.Println("Encode", err)
+		log.Println("Encode", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}

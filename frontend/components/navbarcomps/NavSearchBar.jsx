@@ -41,38 +41,6 @@ export function SearchBar({ className = "", isMobile = false }) {
 
   const handleInputFocus = () => setIsOpen(true);
 
-  // const handleInputChange = async (event) => {
-  //   const query = event.target.value;
-  //   setSearchQuery(query);
-
-  //   if (query.trim() == "") {
-  //     setUsers([]);
-  //     setIdeathons([]);
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   try {
-  //       setLoading(true);
-
-  //       const data = await fetcher({
-  //         url: "http://localhost:8000/api/search",
-  //         method: "POST",
-  //         data: { query },
-  //         returned_status: 200,
-  //       });
-
-  //       setUsers(data.users || []);
-  //       setIdeathons(data.ideathons || []);
-  //   }catch (error) {
-  //       console.error("Search error:", error);
-  //       setUsers([]);
-  //       setIdeathons([]);
-  //   }finally{
-  //       setLoading(false);
-  //   }
-  // }
-
   const handleInputChange = (event) => {
     const query = event.target.value;
     setSearchQuery(query);
@@ -87,16 +55,16 @@ export function SearchBar({ className = "", isMobile = false }) {
         setLoading(false);
         return;
       }
-  
+
       try {
         setLoading(true);
         const data = await fetcher({
-          url: "http://localhost:8000/api/search",
+          url: "http://localhost:8080/api/ideathons/get",
           method: "POST",
-          data: { query: searchQuery },
+          data: { search: searchQuery },
           returned_status: 200,
         });
-  
+
         setUsers(data.users || []);
         setIdeathons(data.ideathons || []);
       } catch (error) {
@@ -107,10 +75,10 @@ export function SearchBar({ className = "", isMobile = false }) {
         setLoading(false)
       }
     }, 400)
-  
+
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
-  
+
 
   return (
     <div ref={searchRef} className={`relative ${className} w-full`}>

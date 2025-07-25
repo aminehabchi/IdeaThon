@@ -30,6 +30,21 @@ type ProfileResponse struct {
 	CreatedIdeathons []Ideathon `json:"created_ideathons"`
 	SubmittedEntries []Entry    `json:"submitted_entries"`
 }
+
+type Profile struct {
+	ID           int    `json:"id"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	Email        string `json:"email"`
+	Avatar       string `json:"avatar"`
+	PhoneNumber  string `json:"phone_number"`
+	Bio          string `json:"bio"`
+	Ideathons    int    `json:"ideathons"`
+	Entries      int    `json:"entries"`
+	Total_wins   int    `json:"total_wins"`
+	Total_prices int    `json:"total_prices"`
+}
+
 type UpdateProfileRequest struct {
 	Avatar      *string `json:"avatar,omitempty"`
 	FirstName   *string `json:"first_name,omitempty"`

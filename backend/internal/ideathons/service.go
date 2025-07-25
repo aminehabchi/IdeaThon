@@ -39,7 +39,7 @@ func Prepare_ideathon_query(params I_params) (string, []any) {
 	}
 
 	if params.Search != "" {
-		query += " AND (ideathons.title LIKE ? OR ideathons.description LIKE ?)"
+		query += " AND (ideathons.description LIKE ?)"
 		search := "%" + params.Search + "%"
 		args = append(args, search, search)
 	}
@@ -74,7 +74,6 @@ func Prepare_ideathon_query(params I_params) (string, []any) {
 }
 
 func (i *Ideathons) Check_ideathons_info() error {
-
 	if i.Price < 0 {
 		return errors.New("Price must be non-negative")
 	}
