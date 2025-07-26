@@ -240,7 +240,7 @@ export function Categories({ selectedCategory, onCategorySelect }) {
 
         {/* Selected Categories Summary */}
         {selectedCategory.length > 0 && showActiveFilters && (
-          <Card className="mt-2">
+          <Card className="mt-2 border-none shadow-none">
             <CardContent className="p-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

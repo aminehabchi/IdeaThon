@@ -613,47 +613,72 @@ export  function ProfessionalEditor({ form , apiUrl}) {
     return () => clearInterval(interval);
   }, [isReady, handleAutoSave]);
 
+      // Clear localStorage
+      function clearContent() {
+      localStorage.removeItem("editor-autosave");
+
+      // Clear title and subtitle state
+      setTitle("");
+      setSubtitle("");
+
+      // Clear editor content
+      if (editorRef.current?.clear) {
+        editorRef.current.clear();
+      }
+    }
+
   return (
-    <div className="max-w-4xl mx-auto bg-white">
+<div className="w-full max-w-7xl mx-auto bg-white">
       {/* Enhanced Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center space-x-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-6 py-4 border-b border-gray-200 gap-4 sm:gap-0">
+        {/* Left section with info items */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 lg:gap-6 w-full sm:w-auto">
           <div className="relative group">
             <button className="text-sm text-gray-600 hover:text-gray-800">
               Shortcuts
             </button>
             <EnhancedShortcuts />
           </div>
-          <span className="text-sm text-gray-500">Auto-save enabled</span>
-          <span className="text-sm text-gray-500">{wordCount} words</span>
-          <span className="text-sm text-gray-500">{Math.ceil(wordCount / 250)} min read</span>
+          <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">Auto-save enabled</span>
+          <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">{wordCount} words</span>
+          <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">{Math.ceil(wordCount / 250)} min read</span>
           {lastSaved && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-400 whitespace-nowrap hidden sm:inline">
               Last saved: {lastSaved.toLocaleTimeString()}
             </span>
           )}
         </div>
-        <button
-          onClick={handlePublish}
-          disabled={isPublishing || !isReady}
-          className="bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
-        >
-          {isPublishing ? "Publishing..." : "Publish"}
-        </button>
+        
+        {/* Right section with action buttons */}
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <button
+            onClick={handlePublish}
+            disabled={isPublishing || !isReady}
+            className="bg-gray-900 text-white px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm hover:bg-gray-800 disabled:opacity-50 cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
+          >
+            {isPublishing ? "Publishing..." : "Publish"}
+          </button>
+          <button
+            onClick={clearContent}
+            className="bg-gray-100 text-black px-3 sm:px-4 py-2  border rounded-md text-xs sm:text-sm hover:bg-gray-200 disabled:opacity-50 cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
+          >
+            Clear Content
+          </button>
+        </div>
       </div>
 
       {/* Editor Container */}
-      <div className="px-6 py-8">
+      <div className="px-3 sm:px-6 py-6 sm:py-8">
         {/* Title Input */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex items-start">
-            <div className="w-1 h-6 bg-gray-800 mr-4 mt-1 flex-shrink-0"></div>
+            <div className="w-1 h-4 sm:h-6 bg-gray-800 mr-2 sm:mr-4 mt-1 flex-shrink-0"></div>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Your compelling title goes here..."
-              className="text-2xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none w-full bg-transparent"
+              className="text-lg sm:text-2xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none w-full bg-transparent"
               style={{
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               }}
@@ -662,13 +687,13 @@ export  function ProfessionalEditor({ form , apiUrl}) {
         </div>
 
         {/* Subtitle Input */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <input
             type="text"
             value={subtitle}
             onChange={(e) => setSubtitle(e.target.value)}
             placeholder="Add a subtitle to provide more context..."
-            className="text-lg text-gray-600 placeholder-gray-400 border-none outline-none w-full bg-transparent ml-5"
+            className="text-base sm:text-lg text-gray-600 placeholder-gray-400 border-none outline-none w-full bg-transparent ml-3 sm:ml-5"
             style={{
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}
@@ -684,13 +709,13 @@ export  function ProfessionalEditor({ form , apiUrl}) {
 
         <div
           id="professional-editor"
-          className={`min-h-[400px] transition-opacity${
-            isReady ? "opacity-100 mr-30" : "opacity-50"
+          className={`min-h-[300px] sm:min-h-[400px] transition-opacity${
+            isReady ? "opacity-100" : "opacity-50"
           }`}
           style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            fontSize: "16px",
-            lineHeight: "1.6",
+            fontSize: "14px",
+            lineHeight: "1.5",
             color: "#374151",
           }}
         />
