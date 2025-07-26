@@ -49,7 +49,8 @@ export default function EditProfile() {
       try {
         const token = getToken();
         const data = await fetcher({
-          url: "http://localhost:8080/api/profile",
+          url: `http://localhost:8080/api/profile/get?profile_id=${0}`,
+          data: { user_id: -1 },
           method: "GET",
           token: token,
           returned_status: 200,
@@ -65,7 +66,7 @@ export default function EditProfile() {
           country: data.country || "",
           password: "", // optional
         });
-        setAvatarPreview(data.avatar || "/belmaayo_avatar.png");
+        setAvatarPreview(`http://localhost:8080/api${data.avatar}` || "/belmaayo_avatar.png");
       } catch (err) {
         console.error("Failed to fetch profile", err);
         toast.error("Failed to load profile data");
@@ -135,10 +136,7 @@ export default function EditProfile() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      // const token = getToken();
       const payload = {};
-
-      // Only include fields that have values
       if (form.firstName.trim()) payload.first_name = form.firstName.trim();
       if (form.lastName.trim()) payload.last_name = form.lastName.trim();
       if (form.email.trim()) payload.email = form.email.trim();
@@ -146,53 +144,34 @@ export default function EditProfile() {
       if (form.country) payload.country = form.country;
       if (form.bio.trim()) payload.bio = form.bio.trim();
       if (form.password.trim()) payload.password = form.password.trim();
-      console.log('payload', payload);
 
-
-      // Handle avatar file conversion
+      // Convert avatar file to base64 if present
       if (avatarFile) {
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          payload.avatar = reader.result;
-
-          // Send the update request with avatar
-          await fetcher({
-            url: "http://localhost:8080/api/updateprofile",
-            method: "PATCH",
-            data: payload,
-            // token: token,
-            returned_status: 200,
-          });
-
-          toast.success("Profile updated successfully!");
-
-          // Update local profile state
-          setProfile(prev => ({
-            ...prev,
-            ...payload,
-            avatar: reader.result
-          }));
-        };
-        reader.readAsDataURL(avatarFile);
-      } else {
-        // Send the update request without avatar
-        await fetcher({
-          url: "http://localhost:8080/api/updateprofile",
-          method: "PATCH",
-          data: payload,
-          // token: token,
-          returned_status: 200,
+        payload.avatar = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(avatarFile);
         });
-        console.log("datataaa", payload); 
+      }
 
+      // Send the update request
+      await fetcher({
+        url: "http://localhost:8080/api/updateprofile",
+        method: "PATCH",
+        data: payload,
+        returned_status: 200,
+      });
 
-        toast.success("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
 
-        // Update local profile state
-        setProfile(prev => ({
-          ...prev,
-          ...payload
-        }));
+      setProfile(prev => ({
+        ...prev,
+        ...payload,
+      }));
+
+      if (payload.avatar) {
+        setAvatarPreview(payload.avatar);
       }
     } catch (err) {
       console.error("Error updating profile", err);
@@ -201,6 +180,7 @@ export default function EditProfile() {
       setLoading(false);
     }
   };
+
 
   const getInitials = () => {
     const firstName = form.firstName || "";
