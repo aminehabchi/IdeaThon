@@ -6,20 +6,30 @@ import (
 )
 
 func Prepare_entries_query(params Params) (string, []any) {
-	query := "SELECT * FROM entries"
+	// Select entries columns plus user info
+	query := `
+        SELECT 
+            entries.*,
+			users.id,
+            users.first_name,
+            users.last_name,
+            users.avatar
+        FROM entries
+        INNER JOIN users ON entries.user_id = users.id
+    `
 	conditions := []string{}
 	args := []any{}
 
 	if params.User_id > 0 {
-		conditions = append(conditions, "user_id = ?")
+		conditions = append(conditions, "entries.user_id = ?")
 		args = append(args, params.User_id)
 	}
 	if params.Ideathon_id > 0 {
-		conditions = append(conditions, "ideathon_id = ?")
+		conditions = append(conditions, "entries.ideathon_id = ?")
 		args = append(args, params.Ideathon_id)
 	}
 	if params.Entries_id > 0 {
-		conditions = append(conditions, "id = ?")
+		conditions = append(conditions, "entries.id = ?")
 		args = append(args, params.Entries_id)
 	}
 
@@ -27,7 +37,7 @@ func Prepare_entries_query(params Params) (string, []any) {
 		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
-	query += " ORDER BY created_at DESC"
+	query += " ORDER BY entries.created_at DESC"
 
 	if params.Offset >= 0 {
 		query += " LIMIT 10 OFFSET ?"

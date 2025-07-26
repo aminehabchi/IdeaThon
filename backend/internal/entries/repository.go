@@ -25,6 +25,10 @@ func Get_entries_Db(query string, args []any) ([]Entries, error) {
 			&e.Banner,
 			&e.Is_win,
 			&e.Created_at,
+			&e.Owner.ID,
+			&e.Owner.FirstName,
+			&e.Owner.LastName,
+			&e.Owner.Avatar,
 		)
 		if err != nil {
 			return nil, err

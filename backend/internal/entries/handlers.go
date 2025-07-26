@@ -30,7 +30,6 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 	// 	utils.SendResponseStatus(w, http.StatusBadRequest, err)
 	// 	return
 	// }
-	fmt.Println(entrie.Ideathon_id)
 	entrie_id, err := Insert_entries(entrie)
 	if err != nil {
 		fmt.Println(err)

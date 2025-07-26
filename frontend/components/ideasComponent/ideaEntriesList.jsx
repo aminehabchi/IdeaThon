@@ -10,11 +10,11 @@ import {
 import ReportIdeaPopup from './ideaReport';
 import { fetcher, timeAgo } from '@/lib/helpers';
 
-import {DocumentContent} from "@/components/notionLike/ParserUtils/DocumentContent"
+import { DocumentContent } from "@/components/notionLike/ParserUtils/DocumentContent"
 
-export function EntriesList({id}) {
+export function EntriesList({ id }) {
   console.log("entries id", id);
-  
+
   const [entries, setEntries] = useState([]);
 
   useEffect(() => {
@@ -27,9 +27,9 @@ export function EntriesList({id}) {
         token: null,
         returned_status: 200,
       });
-      
-      
-      console.log("entries data 7777777",data);
+
+
+      console.log("entries data 7777777", data);
       data.map((d) => {
         d.description = JSON.parse(d.description)
       })
@@ -38,7 +38,7 @@ export function EntriesList({id}) {
     }
 
     fetch_entry();
-  }, [])  
+  }, [])
 
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -59,7 +59,7 @@ export function EntriesList({id}) {
     setIsReportOpen(true);
   };
   // console.log("entries------------->",entries);
-  
+
   return (
     <>
       <div className="mt-8 pt-8  border-gray-100">
@@ -87,10 +87,10 @@ export function EntriesList({id}) {
                   <DropdownMenuContent align="end" className="w-48"
                     onClick={(e) => e.stopPropagation()}
                   >
-                  <DropdownMenuItem className="cursor-pointer w-full flex items-center gap-2 whitespace-nowrap">
-                    <Trophy className="w-4 h-4" />
-                    Pick As a winner
-                  </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer w-full flex items-center gap-2 whitespace-nowrap">
+                      <Trophy className="w-4 h-4" />
+                      Pick As a winner
+                    </DropdownMenuItem>
 
 
                     {/* Report button */}
@@ -132,9 +132,11 @@ export function EntriesList({id}) {
               {/* Footer with author and time */}
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center gap-2">
-                  <img src="/belmaayo_avatar.png" alt="avatar"
+                  <img src={`http://localhost:8080/api/${entry.owner.avatar}`} alt="avatar"
                     className=" rounded-2xl w-6 h-6" />
-                  <span>{entry.description.document.author.name}</span> {/* working on it*/}
+                  <span> {entry?.owner?.first_name && entry?.owner?.last_name
+                    ? `${entry.owner.first_name} ${entry.owner.last_name}`
+                    : "author name"}</span> {/* working on it*/}
                 </div>
                 <span>{timeAgo(entry.created_at)}</span>
               </div>
@@ -145,55 +147,7 @@ export function EntriesList({id}) {
 
       {/* Modal Popup */}
       {selectedEntry && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className=" bg-white  rounded-lg w-full max-w-full sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center  justify-between gap-4 p-4 sm:p-6 border-b border-gray-200">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <div className="flex items-center gap-1">
-                  <img
-                    src="/belmaayo_avatar.png"
-                    alt="avatar"
-                    className="rounded-2xl w-6 h-6"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">
-                    {selectedEntry.description.document.author.name}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-400">•</span>
-                <span className="text-sm text-gray-600">{timeAgo(selectedEntry.created_at)}</span>
-                <span className="text-sm text-gray-400">•</span>
-                <span className="text-sm text-gray-600">{selectedEntry.description.document.title}</span>
-                <span className="text-sm text-gray-400">•</span>
-                <button className="cursor-pointer text-gray-400 hover:text-gray-600 text-sm px-3 py-1.5 rounded-lg flex items-center gap-2  transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation(); // prevent modal opening
-                    openReportPopup(true);
-                  }}
-                >
-                  <Flag className="w-4 h-4" />
-                  <span className="sm:inline">report</span>
-                </button>
-              </div>
-                
-              <div className="flex items-center justify-between sm:justify-end gap-3">
-                <button className="cursor-pointer bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
-                  <Trophy className="w-4 h-4" />
-                  <span className="sm:inline">Pick as a winner</span>
-                </button>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-             {/* it should display the content of the selected entry from the parser*/}
-            {/* Modal Content */}
-              <DocumentContent data={entries}/>
-          </div>
-        </div>
+        < EntryPopUp setSelectedEntry={setSelectedEntry} selectedEntry={selectedEntry} openReportPopup={openReportPopup} />
       )}
 
       {/* report popup */}
@@ -209,41 +163,97 @@ export function EntriesList({id}) {
   );
 }
 
+function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry }) {
+  console.log(`localhost:8080/api/${selectedEntry.owner.avatar}`);
+
+  return <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+    <div className=" bg-white  rounded-lg w-full max-w-full sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      {/* Modal Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center  justify-between gap-4 p-4 sm:p-6 border-b border-gray-200">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1">
+            <img
+              src={`http://localhost:8080/api/${selectedEntry.owner.avatar}`}
+              alt="avatar"
+              className="rounded-2xl w-6 h-6"
+            />
+            <span className="ml-2 text-sm text-gray-600">
+              {selectedEntry?.owner?.first_name && selectedEntry?.owner?.last_name
+                ? `${selectedEntry.owner.first_name} ${selectedEntry.owner.last_name}`
+                : "author name"}
+            </span>
+          </div>
+          <span className="text-sm text-gray-400">•</span>
+          <span className="text-sm text-gray-600">{timeAgo(selectedEntry?.created_at || "create at")}</span>
+          <span className="text-sm text-gray-400">•</span>
+          <span className="text-sm text-gray-600">{selectedEntry?.description?.document?.title || "title"}</span>
+          <span className="text-sm text-gray-400">•</span>
+          <button className="cursor-pointer text-gray-400 hover:text-gray-600 text-sm px-3 py-1.5 rounded-lg flex items-center gap-2  transition-colors"
+            onClick={(e) => {
+              e.stopPropagation(); // prevent modal opening
+              openReportPopup(true);
+            }}
+          >
+            <Flag className="w-4 h-4" />
+            <span className="sm:inline">report</span>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between sm:justify-end gap-3">
+          <button className="cursor-pointer bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
+            <Trophy className="w-4 h-4" />
+            <span className="sm:inline">Pick as a winner</span>
+          </button>
+          <button
+            onClick={() => setSelectedEntry(null)}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+      {/* it should display the content of the selected entry from the parser*/}
+      {/* Modal Content */}
+      <DocumentContent data={selectedEntry.description} />
+    </div>
+  </div>
+}
 
 
-            // <div className="p-4 sm:p-6">
-            //   {/* Title */}
-            //   <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-            //     {selectedEntry.description.document.title}
-            //   </h1>
 
-            //   {/* Solution Section */}
-            //   <div className="mb-6">
-            //     <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-            //       Solution
-            //     </h2>
-            //     <div className="space-y-3 sm:space-y-4 text-gray-700 text-sm leading-relaxed">
-            //       <p>
-            //         we are trying to build the next best thing and we want to have your
-            //         feedback about ... we are trying to build the next best thing and we
-            //         want to have your feedback about ...
-            //       </p>
-            //       <p>
-            //         we are trying to build the next best thing and we want to have your
-            //         feedback about ... we are trying to build the next best thing and we
-            //         want to have your feedback about ...
-            //       </p>
-            //     </div>
-            //   </div>
+// <div className="p-4 sm:p-6">
+//   {/* Title */}
+//   <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+//     {selectedEntry.description.document.title}
+//   </h1>
 
-            //   {/* Image Section */}
-            //   <div className="mb-4 sm:mb-6">
-            //     <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
-            //      <img
-            //       src={selectedEntry.banner || "/default-banner.jpg"}
-            //       alt="entry banner"
-            //       className="w-full h-full object-cover"
-            //     />
-            //     </div>
-            //   </div>
-            // </div>
+//   {/* Solution Section */}
+//   <div className="mb-6">
+//     <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+//       Solution
+//     </h2>
+//     <div className="space-y-3 sm:space-y-4 text-gray-700 text-sm leading-relaxed">
+//       <p>
+//         we are trying to build the next best thing and we want to have your
+//         feedback about ... we are trying to build the next best thing and we
+//         want to have your feedback about ...
+//       </p>
+//       <p>
+//         we are trying to build the next best thing and we want to have your
+//         feedback about ... we are trying to build the next best thing and we
+//         want to have your feedback about ...
+//       </p>
+//     </div>
+//   </div>
+
+//   {/* Image Section */}
+//   <div className="mb-4 sm:mb-6">
+//     <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
+//      <img
+//       src={selectedEntry.banner || "/default-banner.jpg"}
+//       alt="entry banner"
+//       className="w-full h-full object-cover"
+//     />
+//     </div>
+//   </div>
+// </div>
