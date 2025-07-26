@@ -12,10 +12,10 @@ import (
 )
 
 func Get_ideathons(w http.ResponseWriter, r *http.Request) {
-	// if r.Method != http.MethodGet {
-	// 	utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
-	// 	return
-	// }
+	if r.Method != http.MethodPost {
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+		return
+	}
 
 	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
 	if !ok {
@@ -35,9 +35,10 @@ func Get_ideathons(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query, args := Prepare_ideathon_query(params, user_id)
+
 	ideathons, err := Get_ideathons_Db(query, args)
 	if err != nil {
-		fmt.Println("Get_ideathons_Db", err)
+		log.Println("Get_ideathons_Db", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -70,7 +71,7 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 	// 	utils.SendResponseStatus(w, http.StatusBadRequest, err)
 	// 	return
 	// }
-	// fmt.Println("idea", ideathon)
+
 	ideathons_id, err := Insert_ideathons_info(ideathon)
 	if err != nil {
 		fmt.Println(err)

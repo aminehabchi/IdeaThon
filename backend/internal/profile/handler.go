@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,7 +21,11 @@ func Get_profile(w http.ResponseWriter, r *http.Request) {
 	profile_id, err := Get_profile_ID(r)
 	if err != nil {
 		log.Println("Get_Profile_id -> ", err)
-		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		if err == sql.ErrNoRows {
+			utils.SendResponseStatus(w, http.StatusNotFound, err)
+		} else {
+			utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		}
 		return
 	}
 

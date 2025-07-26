@@ -35,7 +35,7 @@ func Prepare_ideathon_query(params I_params, user_id int) (string, []any) {
 
 	if params.User_id > 0 {
 		query += " AND ideathons.user_id = ?"
-		args = append(args, user_id)
+		args = append(args, params.User_id)
 	}
 
 	if params.Search != "" {

@@ -6,7 +6,6 @@ import Link from "next/link";
 
 export function ProfileContent({ ideathons }) {
     const [activeTab, setActiveTab] = useState("ideathons");
-    console.log("---", ideathons);
 
     return (
         <section className="flex-1">
