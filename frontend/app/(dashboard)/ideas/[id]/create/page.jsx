@@ -7,7 +7,7 @@ import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 // import EntryForm from "@/components/entriy_form/create_entry";
 // import Editor from "@/components/entriy_form/entry_editor";
 // import {ProfessionalEditor} from "@/components/notionLike/notion_like"; // ProfessionalEditor
-import {ProfessionalEditor} from "@/components/notionLike/ProfessionalEditor"
+import {ProfessionalEditor} from "@/components/notionLike/notion_like"
 
 export default function Create_entry() {
     console.log("hello from create entry");

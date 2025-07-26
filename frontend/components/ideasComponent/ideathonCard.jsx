@@ -1,6 +1,5 @@
 import { getDaysLeft } from "@/lib/utils";
 
-
 export default function Ideathon(idea) {
   const { banner, owner, entries, privacy, category, price, end_date } = idea;
 
@@ -20,36 +19,35 @@ export default function Ideathon(idea) {
   }
 
   return (
-    <div className="w-full max-w-[700px] flex flex-col md:flex-row justify-between items-start p-4 rounded-xl shadow-md bg-white gap-4 cursor-pointer">
+    <div className="w-[320px] sm:w-[480px] md:w-[600px] lg:w-[700px] flex flex-col md:flex-row justify-between items-start p-4 rounded-xl shadow-md bg-white gap-4 cursor-pointer">
       {/* Left Section */}
-      <div className="flex gap-4 flex-1">
+      <div className="flex gap-4 flex-1 min-w-0">
         <img
           src={`${"http://localhost:8080/api" + banner}`}
           alt="cover"
           className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover flex-shrink-0"
         />
-        <div>
-          <h2 className="text-lg md:text-xl font-semibold text-black">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg md:text-xl font-semibold text-black truncate">
             {body?.document?.title || "No Title"}
           </h2>
-          <p className="text-sm text-gray-700 mt-1 leading-tight max-w-md">
-            {/* Use a short excerpt or fallback text */}
+          <p className="text-sm text-gray-700 mt-1 leading-tight line-clamp-2 break-words">
             {body?.document?.subtitle || "No SubTitle available."}
           </p>
-          <div className="flex flex-wrap items-center text-sm text-gray-500 mt-2 gap-2">
-            <span className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center text-sm text-gray-500 mt-2 gap-1 md:gap-2 min-w-0">
+            <span className="flex items-center gap-1 flex-shrink-0">
               <span className="text-pink-500">●</span>
-              <span className="font-semibold text-black">
+              <span className="font-semibold text-black truncate max-w-[100px] sm:max-w-[150px]">
                 By {owner?.first_name ?? ""} {owner?.last_name ?? ""}
               </span>
             </span>
-            <span>|</span>
-            <span>{entries | 0} Entries</span>
-            <span>|</span>
-            <span>{privacy}</span>
-            <span>|</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="flex-shrink-0 text-xs sm:text-sm">{entries || 0} Entries</span>
+            <span className="hidden sm:inline">|</span>
+            <span className="flex-shrink-0 text-xs sm:text-sm truncate max-w-[80px]">{privacy}</span>
+            <span className="hidden sm:inline">|</span>
             {/* Display category joined by comma */}
-            <span>
+            <span className="truncate max-w-[120px] sm:max-w-[200px] text-xs sm:text-sm">
               {category && category.length > 0
                 ? category.map((cat) => `#${cat}`).join("  ")
                 : "#NoCategory"}
@@ -59,11 +57,14 @@ export default function Ideathon(idea) {
       </div>
 
       {/* Right Section */}
-      <div className="flex flex-col items-end justify-between min-w-[80px] h-full self-stretch">
-        <div className="text-xl font-bold text-black">{price ?? 0}$</div>
-        <div className="text-sm text-gray-500">{getDaysLeft(end_date)}</div>
+      <div className="flex flex-col items-end justify-between min-w-[80px] h-full self-stretch flex-shrink-0">
+        <div className="text-lg md:text-xl font-bold text-black truncate max-w-[80px]">
+          {price ?? 0}$
+        </div>
+        <div className="text-xs md:text-sm text-gray-500 truncate max-w-[80px] text-right">
+          {getDaysLeft(end_date)}
+        </div>
       </div>
     </div>
   );
 }
-

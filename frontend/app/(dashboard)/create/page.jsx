@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import IdeathonForm from "@/components/ideasComponent/createIdea";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
-import Editor from "@/components/notionLike/notion_like";
+// import Editor from "@/components/notionLike/notion_like";
 import {ProfessionalEditor} from "@/components/notionLike/notion_like";
 
 function Create() {
@@ -18,7 +18,7 @@ function Create() {
           </h1>
           <IdeathonForm setForm={setForm} />
           {/* <Editor form={form} /> */}
-          <ProfessionalEditor form={form} />
+          <ProfessionalEditor form={form} apiUrl={"api/ideathons/add"} />
         </div>
       </main>
     </>

@@ -7,6 +7,8 @@ import { DocumentHeader } from "./DocumentHeader";
 // import { DocumentContent } from "./DocumentContent";
 import {ProjectHeader} from "./ideasBanner"
 import {extractDocumentData} from "@/lib/utils"
+
+
 export const DocumentViewer = ({ data, id }) => {
   const extractedData = extractDocumentData(data);
   // console.log("data viewer", id);

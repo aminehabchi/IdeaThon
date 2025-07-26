@@ -4,7 +4,7 @@ import { fetcher, imageToBase64 } from "@/lib/helpers.js";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
 
-export  function ProfessionalEditor({ form }) {
+export  function ProfessionalEditor({ form , apiUrl}) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -561,7 +561,7 @@ export  function ProfessionalEditor({ form }) {
       console.log("Backend Payload:", backendPayload);
       
       await fetcher({
-        url: "http://localhost:8080/api/ideathons/add",
+        url: `http://localhost:8080/${apiUrl}`,
         method: "POST",
         data: backendPayload,
         token: null,

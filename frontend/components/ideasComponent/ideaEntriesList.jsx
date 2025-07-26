@@ -10,7 +10,11 @@ import {
 import ReportIdeaPopup from './ideaReport';
 import { fetcher, timeAgo } from '@/lib/helpers';
 
+import {DocumentContent} from "@/components/notionLike/ParserUtils/DocumentContent"
+
 export function EntriesList({id}) {
+  console.log("entries id", id);
+  
   const [entries, setEntries] = useState([]);
 
   useEffect(() => {
@@ -25,7 +29,7 @@ export function EntriesList({id}) {
       });
       
       
-      console.log("entries data",data);
+      console.log("entries data 7777777",data);
       data.map((d) => {
         d.description = JSON.parse(d.description)
       })
@@ -34,10 +38,7 @@ export function EntriesList({id}) {
     }
 
     fetch_entry();
-  }, [])
-
-  console.log(entries);
-  
+  }, [])  
 
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -57,7 +58,8 @@ export function EntriesList({id}) {
     setReportTargetEntry(entry);
     setIsReportOpen(true);
   };
-
+  // console.log("entries------------->",entries);
+  
   return (
     <>
       <div className="mt-8 pt-8  border-gray-100">
@@ -85,10 +87,11 @@ export function EntriesList({id}) {
                   <DropdownMenuContent align="end" className="w-48"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <DropdownMenuItem className="flex items-center gap-2">
-                      <Trophy className="w-4 h-4" />
-                      Pick As a winner
-                    </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer w-full flex items-center gap-2 whitespace-nowrap">
+                    <Trophy className="w-4 h-4" />
+                    Pick As a winner
+                  </DropdownMenuItem>
+
 
                     {/* Report button */}
                     <DropdownMenuItem
@@ -143,7 +146,7 @@ export function EntriesList({id}) {
       {/* Modal Popup */}
       {selectedEntry && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-lg w-full max-w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className=" bg-white  rounded-lg w-full max-w-full sm:max-w-4xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex flex-col sm:flex-row sm:items-center  justify-between gap-4 p-4 sm:p-6 border-b border-gray-200">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -172,11 +175,11 @@ export function EntriesList({id}) {
                   <span className="sm:inline">report</span>
                 </button>
               </div>
-
+                
               <div className="flex items-center justify-between sm:justify-end gap-3">
                 <button className="cursor-pointer bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
                   <Trophy className="w-4 h-4" />
-                  <span className="sm:inline">Pick As a winner</span>
+                  <span className="sm:inline">Pick as a winner</span>
                 </button>
                 <button
                   onClick={closeModal}
@@ -186,44 +189,9 @@ export function EntriesList({id}) {
                 </button>
               </div>
             </div>
-
+             {/* it should display the content of the selected entry from the parser*/}
             {/* Modal Content */}
-            <div className="p-4 sm:p-6">
-              {/* Title */}
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-                {selectedEntry.description.document.title}
-              </h1>
-
-              {/* Solution Section */}
-              <div className="mb-6">
-                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-                  Solution
-                </h2>
-                <div className="space-y-3 sm:space-y-4 text-gray-700 text-sm leading-relaxed">
-                  <p>
-                    we are trying to build the next best thing and we want to have your
-                    feedback about ... we are trying to build the next best thing and we
-                    want to have your feedback about ...
-                  </p>
-                  <p>
-                    we are trying to build the next best thing and we want to have your
-                    feedback about ... we are trying to build the next best thing and we
-                    want to have your feedback about ...
-                  </p>
-                </div>
-              </div>
-
-              {/* Image Section */}
-              <div className="mb-4 sm:mb-6">
-                <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
-                 <img
-                  src={selectedEntry.banner || "/default-banner.jpg"}
-                  alt="entry banner"
-                  className="w-full h-full object-cover"
-                />
-                </div>
-              </div>
-            </div>
+              <DocumentContent data={entries}/>
           </div>
         </div>
       )}
@@ -240,3 +208,42 @@ export function EntriesList({id}) {
     </>
   );
 }
+
+
+
+            // <div className="p-4 sm:p-6">
+            //   {/* Title */}
+            //   <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+            //     {selectedEntry.description.document.title}
+            //   </h1>
+
+            //   {/* Solution Section */}
+            //   <div className="mb-6">
+            //     <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+            //       Solution
+            //     </h2>
+            //     <div className="space-y-3 sm:space-y-4 text-gray-700 text-sm leading-relaxed">
+            //       <p>
+            //         we are trying to build the next best thing and we want to have your
+            //         feedback about ... we are trying to build the next best thing and we
+            //         want to have your feedback about ...
+            //       </p>
+            //       <p>
+            //         we are trying to build the next best thing and we want to have your
+            //         feedback about ... we are trying to build the next best thing and we
+            //         want to have your feedback about ...
+            //       </p>
+            //     </div>
+            //   </div>
+
+            //   {/* Image Section */}
+            //   <div className="mb-4 sm:mb-6">
+            //     <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden">
+            //      <img
+            //       src={selectedEntry.banner || "/default-banner.jpg"}
+            //       alt="entry banner"
+            //       className="w-full h-full object-cover"
+            //     />
+            //     </div>
+            //   </div>
+            // </div>

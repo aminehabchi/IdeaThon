@@ -1,6 +1,13 @@
+import { memo } from "react";
 import EnhancedShortcuts from "./EnhancedShortcuts";
 
-export default function EditorHeader({ wordCount, lastSaved, isPublishing, isReady, onPublish }) {
+const EditorHeader = memo(function EditorHeader({ 
+  wordCount, 
+  lastSaved, 
+  isPublishing, 
+  isReady, 
+  onPublish 
+}) {
   return (
     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
       <div className="flex items-center space-x-6">
@@ -28,4 +35,6 @@ export default function EditorHeader({ wordCount, lastSaved, isPublishing, isRea
       </button>
     </div>
   );
-}
+});
+
+export default EditorHeader;

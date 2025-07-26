@@ -1,18 +1,18 @@
 "use client";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, memo } from "react";
 // import { fetcher, imageToBase64 } from "@/lib/helpers";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
-import EditorHeader from "./EditorComps.jsx/EditorHeader";
-import TitleInput from "./EditorComps.jsx/TitleInput";
-import SubtitleInput from "./EditorComps.jsx/SubtitleInput";
-import EditorCore from "./EditorComps.jsx/EditorCore";
-import { useEditorConfig } from "./EditorComps.jsx/EditorHooks/useEditorConfig";
-import { useWordCount } from "./EditorComps.jsx/EditorHooks/useWordCount";
-import { useAutoSave } from "./EditorComps.jsx/EditorHooks/useAutoSave";
-import { usePublisher } from "./EditorComps.jsx/EditorHooks/usePublisher";
+import EditorHeader from "./EditorComps/EditorHeader";
+import TitleInput from "./EditorComps/TitleInput";
+import SubtitleInput from "./EditorComps/SubtitleInput";
+import EditorCore from "./EditorComps/EditorCore";
+import { useEditorConfig } from "./EditorComps/EditorHooks/useEditorConfig";
+import { useWordCount } from "./EditorComps/EditorHooks/useWordCount";
+import { useAutoSave } from "./EditorComps/EditorHooks/useAutoSave";
+import { usePublisher } from "./EditorComps/EditorHooks/usePublisher";
 
-export function ProfessionalEditor({ form, apiUrl }) {
+export const ProfessionalEditor = memo(function ProfessionalEditor({ form, apiUrl }) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -25,6 +25,15 @@ export function ProfessionalEditor({ form, apiUrl }) {
   const { wordCount, updateWordCount } = useWordCount(editorRef);
   const { handleAutoSave } = useAutoSave(editorRef, isReady, title, subtitle, setLastSaved);
   const { handlePublish } = usePublisher(editorRef, title, subtitle, wordCount, form, router, setIsPublishing, apiUrl);
+
+  // Memoize callbacks to prevent unnecessary re-renders
+  const handleTitleChange = useCallback((newTitle) => {
+    setTitle(newTitle);
+  }, []);
+
+  const handleSubtitleChange = useCallback((newSubtitle) => {
+    setSubtitle(newSubtitle);
+  }, []);
 
   // Initialize Editor
   useEffect(() => {
@@ -99,12 +108,12 @@ export function ProfessionalEditor({ form, apiUrl }) {
       <div className="px-6 py-8">
         <TitleInput
           title={title}
-          onTitleChange={setTitle}
+          onTitleChange={handleTitleChange}
         />
 
         <SubtitleInput
           subtitle={subtitle}
-          onSubtitleChange={setSubtitle}
+          onSubtitleChange={handleSubtitleChange}
         />
 
         <EditorCore
@@ -115,4 +124,4 @@ export function ProfessionalEditor({ form, apiUrl }) {
       <Toaster position="bottom-right" />
     </div>
   );
-}
+});

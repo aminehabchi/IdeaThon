@@ -18,7 +18,10 @@ import {
 // import { Textarea } from "@/components/ui/textarea";
 import { Flag } from "lucide-react";
 
-export default function ReportIdeaPopup({ isOpen, onClose, entryId = "34343", entryNumber = "5" }) {
+export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber }) {
+
+  console.log("data from entiresssss 888", data);
+  
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
 
