@@ -11,6 +11,7 @@ import { TableBlock } from "./TableBlock";
 import { EmbedBlock } from "./EmbedBlock";
 import { UnsupportedBlock } from "./UnsupportedBlock";
 import { RawBlock } from "./RawBlock";
+import { WarningBlock } from "./WarningBlock";
 
 export const BlockRenderer = ({ block }) => {
   const blockComponents = {
@@ -24,6 +25,7 @@ export const BlockRenderer = ({ block }) => {
     table: TableBlock,
     raw: RawBlock,
     embed: EmbedBlock,
+    warning: WarningBlock,
   };
 
   const Component = blockComponents[block.type] || UnsupportedBlock;
