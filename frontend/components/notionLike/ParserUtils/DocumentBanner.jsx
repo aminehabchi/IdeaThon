@@ -73,13 +73,13 @@ const getBannerImage = () => {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 border-b-2 border-gray-200 pb-8">
           <div className="lg:max-w-2xl text-center lg:text-left">
             {/* Title */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight break-all hyphens-auto">
               {title}
             </h1>
             
             {/* Subtitle */}
             {subtitle && (
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+              <p className="text-xl text-gray-600 mb-6 leading-relaxed break-all hyphens-auto">
                 {subtitle}
               </p>
             )}
@@ -96,9 +96,9 @@ const getBannerImage = () => {
                     />
                   )}
                   <div className="text-left">
-                    <p className="font-medium text-gray-900">{author.name}</p>
+                    <p className="font-medium text-gray-900 break-all hyphens-auto">{author.name}</p>
                     {author.bio && (
-                      <p className="text-sm text-gray-500">{author.bio}</p>
+                      <p className="text-sm text-gray-500 break-all hyphens-auto">{author.bio}</p>
                     )}
                   </div>
                 </div>
@@ -107,18 +107,18 @@ const getBannerImage = () => {
               {/* Publication Date and Reading Time */}
               <div className="flex items-center gap-4 text-sm text-gray-500">
                 {publishedDate && (
-                  <span>{formatDate(publishedDate)}</span>
+                  <span className="break-all">{formatDate(publishedDate)}</span>
                 )}
                 {meta.readingTime && (
                   <>
                     <span>•</span>
-                    <span>{meta.readingTime} min read</span>
+                    <span className="break-all">{meta.readingTime} min read</span>
                   </>
                 )}
                 {meta.wordCount && (
                   <>
                     <span>•</span>
-                    <span>{meta.wordCount.toLocaleString()} words</span>
+                    <span className="break-all">{meta.wordCount.toLocaleString()} words</span>
                   </>
                 )}
               </div>
@@ -131,7 +131,7 @@ const getBannerImage = () => {
                   <Badge
                     key={idx}
                     variant="secondary"
-                    className="text-sm font-medium px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-100 rounded-2xl"
+                    className="text-sm font-medium px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-100 rounded-2xl break-all hyphens-auto"
                   >
                     #{cat}
                   </Badge>

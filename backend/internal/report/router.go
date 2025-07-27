@@ -1,9 +1,12 @@
 package report
 
-import "net/http"
+import (
+	"net/http"
+	middle "ideaThon/middlewares"
+)
 
 func Routes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/report/add", Add_report)
-	mux.HandleFunc("/api/report/get", Get_report)
+	mux.Handle("/api/report/add", middle.Auth((Add_report)))
+	mux.Handle("/api/report/get", middle.Auth((Get_report)))
 }
 

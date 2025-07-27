@@ -40,7 +40,7 @@ const Page = () => {
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
       />
-      <div className="flex flex-col items-center justify-center gap-8 mt-8">
+      <div className="flex flex-col items-center justify-center gap-8 mt-8 p-6 mt-[-20px]">
         {ideathons?.map((idea) => (
           <Link key={idea.id} href={`/ideas/${idea.id}`}>
             <Ideathon {...idea} />

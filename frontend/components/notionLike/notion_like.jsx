@@ -583,14 +583,15 @@ export  function ProfessionalEditor({ form , apiUrl}) {
 
   // Load autosaved content on mount
   useEffect(() => {
-    const loadAutosave = () => {
+    const loadAutosave = async () => {
       try {
         const autosave = JSON.parse(localStorage.getItem('editor-autosave') || '{}');
         if (autosave.title) setTitle(autosave.title);
         if (autosave.subtitle) setSubtitle(autosave.subtitle);
         
         if (autosave.content && editorRef.current && isReady) {
-          editorRef.current.render(autosave.content);
+          // Fixed: Use blocks.render() instead of render()
+          await editorRef.current.blocks.render(autosave.content);
         }
       } catch (error) {
         console.error("Failed to load autosave:", error);
@@ -613,19 +614,19 @@ export  function ProfessionalEditor({ form , apiUrl}) {
     return () => clearInterval(interval);
   }, [isReady, handleAutoSave]);
 
-      // Clear localStorage
-      function clearContent() {
-      localStorage.removeItem("editor-autosave");
+  // Clear localStorage
+  async function clearContent() {
+    localStorage.removeItem("editor-autosave");
 
-      // Clear title and subtitle state
-      setTitle("");
-      setSubtitle("");
+    // Clear title and subtitle state
+    setTitle("");
+    setSubtitle("");
 
-      // Clear editor content
-      if (editorRef.current?.clear) {
-        editorRef.current.clear();
-      }
+    // Clear editor content - Fixed: Use blocks.clear() instead of clear()
+    if (editorRef.current?.blocks?.clear) {
+      await editorRef.current.blocks.clear();
     }
+  }
 
   return (
 <div className="w-full max-w-7xl mx-auto bg-white">
