@@ -1,13 +1,16 @@
 package report
 
-import database "ideaThon/config"
+import (
+	"strings"
+	database "ideaThon/config"
+)
 
 func Insert_report_info(report Report) (int, error) {
 	db := database.Get_DB()
 
 	query := `
 		INSERT INTO report (user_id, type_id, type, issue, description)
-		VALUES (?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?)
 	`
 
 	result, err := db.Exec(
@@ -16,7 +19,7 @@ func Insert_report_info(report Report) (int, error) {
 		report.Type_id,
 		report.Type,
 		report.Issue,
-		report.Description,
+		strings.TrimSpace(report.Description),
 	)
 	if err != nil {
 		return 0, err

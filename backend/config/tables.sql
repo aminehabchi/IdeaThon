@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS report (
     user_id INTEGER NOT NULL,
     type_id INTEGER DEFAULT 0,
     type TEXT NOT NULL CHECK(type IN ('generale', 'ideathon', 'entrie')),
-    issue TEXT NOT NULL,
+    issue TEXT NOT NULL CHECK(issue IN ('spam', 'harassment', 'misinformation', 'other', 'copyright', 'inappropriate','illegal')),
     description TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

@@ -2,7 +2,6 @@ package report
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -12,7 +11,7 @@ import (
 
 func Add_report(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method not allowed"))
 		return
 	}
 
@@ -20,11 +19,11 @@ func Add_report(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if err = utils.Decode(r, &report); err != nil {
-		log.Println("Decode", err)
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
+		// log.Println("Decode", err)
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
-	fmt.Println(report)
+	// fmt.Println(report)
 	report.User_id = r.Context().Value(middle.UserIDKey).(int)
 
 	if err = report.Check_report_info(); err != nil {
