@@ -1,11 +1,49 @@
 package profile
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
 	"ideaThon/config"
 )
+
+func Get_Users_DB(search string) ([]Profile, error) {
+	var profiles []Profile
+
+	search = "%" + search + "%"
+
+	query := `
+		SELECT 
+			u.id,
+			u.first_name,
+			u.last_name,
+			u.email,
+			u.avatar
+		FROM users u
+		WHERE u.first_name LIKE ? OR u.last_name LIKE ?;
+	`
+
+	rows, err := config.DATABASE.Query(query, search, search)
+	if err != nil {
+		return nil, fmt.Errorf("query error: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var p Profile
+		if err := rows.Scan(&p.ID, &p.FirstName, &p.LastName, &p.Email, &p.Avatar); err != nil {
+			return nil, fmt.Errorf("scan error: %w", err)
+		}
+		profiles = append(profiles, p)
+	}
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	return profiles, nil
+}
 
 func Get_Profile_DB(profile_id int) (Profile, error) {
 	var p Profile

@@ -12,6 +12,27 @@ import (
 	"ideaThon/utils"
 )
 
+func Srearsh_profile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+		return
+	}
+
+	Users, err := Get_Users_DB(r.FormValue("searsh"))
+	if err != nil {
+		log.Println("Get_Users_DB -> ", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, errors.New("Error fetching profile"))
+		return
+	}
+
+	err = utils.Encode(w, Users)
+	if err != nil {
+		log.Println("Encode -> ", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+}
+
 func Get_profile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
@@ -50,13 +71,7 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// userID, err := utils.Get_id_from_session(r.Header.Get("token"))
 	userID := r.Context().Value(middle.UserIDKey).(int)
-
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusUnauthorized)
-	// 	return
-	// }
 
 	var req UpdateProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

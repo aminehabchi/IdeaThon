@@ -41,7 +41,7 @@ func Prepare_ideathon_query(params I_params, user_id int) (string, []any) {
 	if params.Search != "" {
 		query += " AND (ideathons.description LIKE ?)"
 		search := "%" + params.Search + "%"
-		args = append(args, search, search)
+		args = append(args, search)
 	}
 
 	if params.StartDate != "" {

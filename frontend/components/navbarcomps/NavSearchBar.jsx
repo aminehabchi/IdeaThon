@@ -1,9 +1,10 @@
 "use client";
-
+import Link from 'next/link';
 import { useState, useRef, useEffect } from "react";
 import { Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetcher } from "@/lib/helpers";
+import { getDaysLeft } from "@/lib/utils";
 
 export function SearchBar({ className = "", isMobile = false }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,33 +49,54 @@ export function SearchBar({ className = "", isMobile = false }) {
   }
 
   useEffect(() => {
-    const delayDebounce = setTimeout(async () => {
-      if (searchQuery.trim() === "") {
-        setUsers([]);
-        setIdeathons([]);
-        setLoading(false);
-        return;
-      }
+    const delayDebounce = setTimeout(() => {
+      const fetchResults = async () => {
+        if (searchQuery.trim() === "") {
+          setUsers([]);
+          setIdeathons([]);
+          setLoading(false);
+          return;
+        }
 
-      try {
-        setLoading(true);
-        const data = await fetcher({
-          url: "http://localhost:8080/api/ideathons/get",
-          method: "POST",
-          data: { search: searchQuery },
-          returned_status: 200,
-        });
+        try {
+          setLoading(true);
 
-        setUsers(data.users || []);
-        setIdeathons(data.ideathons || []);
-      } catch (error) {
-        console.error("Search error:", error);
-        setUsers([]);
-        setIdeathons([]);
-      } finally {
-        setLoading(false)
-      }
-    }, 400)
+          const [ideathons, users] = await Promise.all([
+            fetcher({
+              url: "http://localhost:8080/api/ideathons/get",
+              method: "POST",
+              data: { search: searchQuery },
+              returned_status: 200,
+            }),
+            fetcher({
+              url: `http://localhost:8080/api/profile/searsh?searsh=${encodeURIComponent(searchQuery)}`,
+              method: "GET",
+              returned_status: 200,
+            }),
+          ]);
+
+          const parsedIdeathons = (ideathons || []).map(idea => {
+            try {
+              idea.description = JSON.parse(idea.description);
+            } catch (e) {
+              console.warn("Failed to parse description:", idea.description);
+            }
+            return idea;
+          });
+
+          setUsers(users || []);
+          setIdeathons(parsedIdeathons);
+        } catch (error) {
+          console.error("Search error:", error);
+          setUsers([]);
+          setIdeathons([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchResults();
+    }, 400);
 
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
@@ -124,19 +146,21 @@ export function SearchBar({ className = "", isMobile = false }) {
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Users</h3>
                   <div className="space-y-2">
                     {users.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
-                      >
-                        <img
-                          src={user.avatar || "/default_avatar.png"}
-                          alt={`${user.first_name} ${user.last_name}`}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {user.first_name} {user.last_name}
-                        </p>
-                      </div>
+                      <Link key={user.id} href={`/profile/${user.id}` || "/default_avatar.png"}>
+                        <div
+                          className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                        >
+                          <img
+                            src={`http://localhost:8080/api${user.avatar}` || "/default_avatar.png"}
+                            alt={`${user.first_name} ${user.last_name}`}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {user.first_name} {user.last_name}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate max-w-xs">{user.email}</p>
+                        </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -147,18 +171,20 @@ export function SearchBar({ className = "", isMobile = false }) {
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Ideathons</h3>
                   <div className="space-y-2">
                     {ideathons.map((idea) => (
-                      <div
-                        key={idea.id}
-                        className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
-                      >
-                        <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400">
-                          🧠
+                      <Link key={idea.id} href={`/ideas/${idea.id}`}>
+                        <div
+                          className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                        >
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xs text-gray-400">
+                            🧠
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 truncate">{idea?.description?.document?.title || "Untitled"}</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">{idea?.description?.document?.subtitle || ""}</p>
+                            <p className="text-xs text-gray-500">{getDaysLeft(idea?.end_date)}</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 truncate">{idea.description}</p>
-                          <p className="text-xs text-gray-500">Ends on {idea.end_date}</p>
-                        </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>

@@ -1,48 +1,17 @@
 package profile
 
-type Ideathon struct {
-	ID          int    `json:"id"`
-	Description string `json:"description"`
-	Banner      string `json:"banner"`
-	StartDate   string `json:"start_date"`
-	Price       int    `json:"price"`
-	EndDate     string `json:"end_date"`
-	Winner_id   *int   `json:"winner_id"`
-	Privacy     string `json:"privacy"`
-}
-
-type Entry struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	IdeathonID  int    `json:"ideathon_id"`
-	CreatedAt   string `json:"created_at"`
-}
-
-type ProfileResponse struct {
-	ID               int        `json:"id"`
-	FirstName        string     `json:"first_name"`
-	LastName         string     `json:"last_name"`
-	Email            string     `json:"email"`
-	Avatar           string     `json:"avatar"`
-	PhoneNumber      string     `json:"phone_number"`
-	Bio              string     `json:"bio"`
-	CreatedIdeathons []Ideathon `json:"created_ideathons"`
-	SubmittedEntries []Entry    `json:"submitted_entries"`
-}
-
 type Profile struct {
 	ID           int    `json:"id"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 	Email        string `json:"email"`
 	Avatar       string `json:"avatar"`
-	PhoneNumber  string `json:"phone_number"`
-	Bio          string `json:"bio"`
-	Ideathons    int    `json:"ideathons"`
-	Entries      int    `json:"entries"`
-	Total_wins   int    `json:"total_wins"`
-	Total_prices int    `json:"total_prices"`
+	PhoneNumber  string `json:"phone_number,omitempty"`
+	Bio          string `json:"bio,omitempty"`
+	Ideathons    int    `json:"ideathons,omitempty"`
+	Entries      int    `json:"entries,omitempty"`
+	Total_wins   int    `json:"total_wins,omitempty"`
+	Total_prices int    `json:"total_prices,omitempty"`
 }
 
 type UpdateProfileRequest struct {
