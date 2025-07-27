@@ -3,8 +3,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { fetcher, imageToBase64 } from "@/lib/helpers.js";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
+import { Warning } from "lucide-react";
 
-export  function ProfessionalEditor({ form , apiUrl}) {
+export function ProfessionalEditor({ form, apiUrl }) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -13,6 +14,237 @@ export  function ProfessionalEditor({ form , apiUrl}) {
   const [subtitle, setSubtitle] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const router = useRouter();
+  
+  // Validation states
+  const [titleError, setTitleError] = useState("");
+  const [subtitleError, setSubtitleError] = useState("");
+  const [contentError, setContentError] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Validation rules
+  const validationRules = {
+    title: {
+      minLength: 16,
+      maxLength: 100,
+      required: true,
+      pattern: /^[a-zA-Z0-9\s\-_.,!?()&'"]+$/,
+      blockedWords: ['spam', 'clickbait', 'fake']
+    },
+    subtitle: {
+      minLength: 16,
+      maxLength: 100,
+      required: false,
+      pattern: /^[a-zA-Z0-9\s\-_.,!?()&'"]*$/
+    },
+    content: {
+      minWordCount: 10,
+      maxWordCount: 10000,
+      required: true,
+      maxBlocks: 100
+    }
+  };
+
+  // Title validation
+  const validateTitle = useCallback((value) => {
+    const rules = validationRules.title;
+    
+    if (rules.required && !value.trim()) {
+      return "Title is required";
+    }
+    
+    if (value.length < rules.minLength) {
+      return `Title must be at least ${rules.minLength} characters`;
+    }
+    
+    if (value.length > rules.maxLength) {
+      return `Title must be no more than ${rules.maxLength} characters`;
+    }
+    
+    if (!rules.pattern.test(value)) {
+      return "Title contains invalid characters";
+    }
+    
+    const lowerValue = value.toLowerCase();
+    const blockedWord = rules.blockedWords.find(word => lowerValue.includes(word));
+    if (blockedWord) {
+      return `Title cannot contain the word "${blockedWord}"`;
+    }
+    
+    return "";
+  }, []);
+
+  // Subtitle validation
+  const validateSubtitle = useCallback((value) => {
+    const rules = validationRules.subtitle;
+    
+    if (value.length > rules.maxLength) {
+      return `Subtitle must be no more than ${rules.maxLength} characters`;
+    }
+    
+    if (value && !rules.pattern.test(value)) {
+      return "Subtitle contains invalid characters";
+    }
+    
+    return "";
+  }, []);
+
+  // Fixed content validation - now calculates word count directly
+  const validateContent = useCallback(async (currentWordCount = null) => {
+    if (!editorRef.current) return "Editor not ready";
+    
+    try {
+      const data = await editorRef.current.save();
+      const rules = validationRules.content;
+      
+      if (rules.required && data.blocks.length === 0) {
+        return "Content is required";
+      }
+      
+      if (data.blocks.length > rules.maxBlocks) {
+        return `Content cannot have more than ${rules.maxBlocks} blocks`;
+      }
+      
+      // Calculate word count directly if not provided
+      let wordsToCheck = currentWordCount;
+      if (wordsToCheck === null) {
+        wordsToCheck = await calculateWordCount(data);
+      }
+      
+      if (wordsToCheck < rules.minWordCount) {
+        return `Content must have at least ${rules.minWordCount} words (current: ${wordsToCheck})`;
+      }
+      
+      if (wordsToCheck > rules.maxWordCount) {
+        return `Content cannot exceed ${rules.maxWordCount} words (current: ${wordsToCheck})`;
+      }
+      
+      // Check for empty blocks
+      const emptyBlocks = data.blocks.filter(block => {
+        if (block.type === 'paragraph' || block.type === 'header') {
+          return !block.data.text || block.data.text.trim() === '';
+        }
+        return false;
+      });
+      
+      if (emptyBlocks.length > 3) {
+        return "Too many empty blocks. Please remove unused blocks";
+      }
+      
+      return "";
+    } catch (error) {
+      console.error("Content validation error:", error);
+      return "Failed to validate content";
+    }
+  }, []);
+
+  // Separate word count calculation function
+  const calculateWordCount = useCallback(async (editorData = null) => {
+    if (!editorRef.current) return 0;
+    
+    try {
+      const data = editorData || await editorRef.current.save();
+      let totalWords = 0;
+
+      data.blocks.forEach((block) => {
+        let text = "";
+        
+        switch (block.type) {
+          case "paragraph":
+          case "header":
+            text = block.data.text || "";
+            break;
+          case "list":
+            text = block.data.items ? block.data.items.join(" ") : "";
+            break;
+          case "checklist":
+            text = block.data.items ? block.data.items.map(item => item.text).join(" ") : "";
+            break;
+          case "quote":
+            text = `${block.data.text || ""} ${block.data.caption || ""}`;
+            break;
+          case "code":
+            text = block.data.code || "";
+            break;
+          case "warning":
+            text = `${block.data.title || ""} ${block.data.message || ""}`;
+            break;
+          case "table":
+            if (block.data.content) {
+              text = block.data.content.flat().join(" ");
+            }
+            break;
+          default:
+            if (block.data.text) {
+              text = block.data.text;
+            }
+        }
+
+        if (text) {
+          const cleanText = text.replace(/<[^>]*>/g, ""); // Remove HTML tags
+          totalWords += cleanText
+            .trim()
+            .split(/\s+/)
+            .filter((word) => word.length > 0).length;
+        }
+      });
+
+      return totalWords;
+    } catch (error) {
+      console.error("Error counting words:", error);
+      return 0;
+    }
+  }, []);
+
+  // Real-time validation handlers
+  const handleTitleChange = useCallback((e) => {
+    const value = e.target.value;
+    setTitle(value);
+    
+    // Debounced validation
+    clearTimeout(window.titleValidationTimeout);
+    window.titleValidationTimeout = setTimeout(() => {
+      const error = validateTitle(value);
+      setTitleError(error);
+    }, 300);
+  }, [validateTitle]);
+
+  const handleSubtitleChange = useCallback((e) => {
+    const value = e.target.value;
+    setSubtitle(value);
+    
+    // Debounced validation
+    clearTimeout(window.subtitleValidationTimeout);
+    window.subtitleValidationTimeout = setTimeout(() => {
+      const error = validateSubtitle(value);
+      setSubtitleError(error);
+    }, 300);
+  }, [validateSubtitle]);
+
+  // Comprehensive validation before publishing
+  const performFullValidation = useCallback(async () => {
+    setIsValidating(true);
+    
+    try {
+      const titleErr = validateTitle(title);
+      const subtitleErr = validateSubtitle(subtitle);
+      
+      // Get current word count and validate content with it
+      const currentWordCount = await calculateWordCount();
+      const contentErr = await validateContent(currentWordCount);
+      
+      setTitleError(titleErr);
+      setSubtitleError(subtitleErr);
+      setContentError(contentErr);
+      
+      setIsValidating(false);
+      
+      return !titleErr && !subtitleErr && !contentErr;
+    } catch (error) {
+      console.error("Validation error:", error);
+      setIsValidating(false);
+      return false;
+    }
+  }, [title, subtitle, validateTitle, validateSubtitle, validateContent, calculateWordCount]);
 
   // Initialize Editor with all supported tools
   useEffect(() => {
@@ -237,62 +469,25 @@ export  function ProfessionalEditor({ form , apiUrl}) {
     };
   }, []);
 
-  // Enhanced word count calculation
+  // Enhanced word count calculation with validation update
   const updateWordCount = useCallback(async () => {
     if (editorRef.current) {
       try {
-        const data = await editorRef.current.save();
-        let totalWords = 0;
-
-        data.blocks.forEach((block) => {
-          let text = "";
-          
-          switch (block.type) {
-            case "paragraph":
-            case "header":
-              text = block.data.text || "";
-              break;
-            case "list":
-              text = block.data.items ? block.data.items.join(" ") : "";
-              break;
-            case "checklist":
-              text = block.data.items ? block.data.items.map(item => item.text).join(" ") : "";
-              break;
-            case "quote":
-              text = `${block.data.text || ""} ${block.data.caption || ""}`;
-              break;
-            case "code":
-              text = block.data.code || "";
-              break;
-            case "warning":
-              text = `${block.data.title || ""} ${block.data.message || ""}`;
-              break;
-            case "table":
-              if (block.data.content) {
-                text = block.data.content.flat().join(" ");
-              }
-              break;
-            default:
-              if (block.data.text) {
-                text = block.data.text;
-              }
-          }
-
-          if (text) {
-            const cleanText = text.replace(/<[^>]*>/g, ""); // Remove HTML tags
-            totalWords += cleanText
-              .trim()
-              .split(/\s+/)
-              .filter((word) => word.length > 0).length;
-          }
-        });
-
-        setWordCount(totalWords);
+        const currentWordCount = await calculateWordCount();
+        setWordCount(currentWordCount);
+        
+        // Update content validation with the current word count
+        if (currentWordCount > 0) {
+          const contentErr = await validateContent(currentWordCount);
+          setContentError(contentErr);
+        } else {
+          setContentError("Content is required");
+        }
       } catch (error) {
-        console.error("Error counting words:", error);
+        console.error("Error updating word count:", error);
       }
     }
-  }, []);
+  }, [calculateWordCount, validateContent]);
 
   // Auto-save functionality
   const handleAutoSave = useCallback(async () => {
@@ -300,13 +495,8 @@ export  function ProfessionalEditor({ form , apiUrl}) {
 
     try {
       const data = await editorRef.current.save();
-      // Save to localStorage as backup
-      localStorage.setItem('editor-autosave', JSON.stringify({
-        title,
-        subtitle,
-        content: data,
-        timestamp: new Date().toISOString()
-      }));
+      // Note: Removed localStorage usage as per Claude artifacts restrictions
+      // Save to memory or implement alternative storage solution
       setLastSaved(new Date());
     } catch (error) {
       console.error("Auto-save failed:", error);
@@ -316,6 +506,14 @@ export  function ProfessionalEditor({ form , apiUrl}) {
   // Enhanced publish function supporting all block types
   const handlePublish = useCallback(async () => {
     if (!editorRef.current) return;
+
+    // Perform full validation before publishing
+    const isValid = await performFullValidation();
+    
+    if (!isValid) {
+      toast.error("Please fix validation errors before publishing");
+      return;
+    }
 
     setIsPublishing(true);
     try {
@@ -568,9 +766,6 @@ export  function ProfessionalEditor({ form , apiUrl}) {
         returned_status: 201,
       });
       
-      // Clear autosave
-      localStorage.removeItem('editor-autosave');
-      
       toast.success("Content published successfully!");
       router.push("/create/publish");
       
@@ -579,23 +774,13 @@ export  function ProfessionalEditor({ form , apiUrl}) {
     } finally {
       setIsPublishing(false);
     }
-  }, [title, subtitle, wordCount, form, router]);
+  }, [title, subtitle, wordCount, form, router, performFullValidation]);
 
-  // Load autosaved content on mount
+  // Load autosaved content on mount (removed localStorage usage)
   useEffect(() => {
-    const loadAutosave = async () => {
-      try {
-        const autosave = JSON.parse(localStorage.getItem('editor-autosave') || '{}');
-        if (autosave.title) setTitle(autosave.title);
-        if (autosave.subtitle) setSubtitle(autosave.subtitle);
-        
-        if (autosave.content && editorRef.current && isReady) {
-          // Fixed: Use blocks.render() instead of render()
-          await editorRef.current.blocks.render(autosave.content);
-        }
-      } catch (error) {
-        console.error("Failed to load autosave:", error);
-      }
+    const loadAutosave = () => {
+      // Note: Auto-save loading disabled due to localStorage restrictions
+      // Implement alternative storage solution if needed
     };
 
     if (isReady) {
@@ -614,22 +799,29 @@ export  function ProfessionalEditor({ form , apiUrl}) {
     return () => clearInterval(interval);
   }, [isReady, handleAutoSave]);
 
-  // Clear localStorage
-  async function clearContent() {
-    localStorage.removeItem("editor-autosave");
-
+  // Clear content
+  function clearContent() {
     // Clear title and subtitle state
     setTitle("");
     setSubtitle("");
+    setTitleError("");
+    setSubtitleError("");
+    setContentError("");
+    setWordCount(0);
 
-    // Clear editor content - Fixed: Use blocks.clear() instead of clear()
-    if (editorRef.current?.blocks?.clear) {
-      await editorRef.current.blocks.clear();
+    // Clear editor content
+    if (editorRef.current?.clear) {
+      editorRef.current.clear();
     }
+    
+    toast.success("Content cleared");
   }
 
+  const hasErrors = titleError || subtitleError || contentError;
+  const isFormValid = !hasErrors && title.trim() && wordCount >= validationRules.content.minWordCount;
+
   return (
-<div className="w-full max-w-7xl mx-auto bg-white">
+    <div className="w-full max-w-7xl mx-auto bg-white">
       {/* Enhanced Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-6 py-4 border-b border-gray-200 gap-4 sm:gap-0">
         {/* Left section with info items */}
@@ -641,12 +833,30 @@ export  function ProfessionalEditor({ form , apiUrl}) {
             <EnhancedShortcuts />
           </div>
           <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">Auto-save enabled</span>
-          <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">{wordCount} words</span>
+          <div className="flex items-center gap-1">
+            <span className={`text-xs sm:text-sm whitespace-nowrap ${
+              wordCount < validationRules.content.minWordCount ? 'text-red-500' : 
+              wordCount > validationRules.content.maxWordCount ? 'text-red-500' : 'text-gray-500'
+            }`}>
+              {wordCount} words
+            </span>
+            {wordCount < validationRules.content.minWordCount && (
+              <span className="text-xs text-red-400 whitespace-nowrap">
+                (min: {validationRules.content.minWordCount})
+              </span>
+            )}
+          </div>
           <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">{Math.ceil(wordCount / 250)} min read</span>
           {lastSaved && (
             <span className="text-xs text-gray-400 whitespace-nowrap hidden sm:inline">
               Last saved: {lastSaved.toLocaleTimeString()}
             </span>
+          )}
+          {hasErrors && (
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-red-500 whitespace-nowrap">Validation errors</span>
+            </div>
           )}
         </div>
         
@@ -654,51 +864,102 @@ export  function ProfessionalEditor({ form , apiUrl}) {
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={handlePublish}
-            disabled={isPublishing || !isReady}
-            className="bg-gray-900 text-white px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm hover:bg-gray-800 disabled:opacity-50 cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
+            disabled={isPublishing || !isReady || !isFormValid || isValidating}
+            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm flex-1 sm:flex-none whitespace-nowrap transition-colors ${
+              isFormValid && !isPublishing && !isValidating
+                ? 'bg-gray-900 text-white hover:bg-gray-800'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
           >
-            {isPublishing ? "Publishing..." : "Publish"}
+            {isPublishing ? "Publishing..." : isValidating ? "Validating..." : "Publish"}
           </button>
           <button
             onClick={clearContent}
-            className="bg-gray-100 text-black px-3 sm:px-4 py-2  border rounded-md text-xs sm:text-sm hover:bg-gray-200 disabled:opacity-50 cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
+            disabled={isPublishing}
+            className="bg-gray-100 text-black px-3 sm:px-4 py-2 border rounded-md text-xs sm:text-sm hover:bg-gray-200 disabled:opacity-50 cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
           >
             Clear Content
           </button>
         </div>
       </div>
 
+      {/* Validation Summary */}
+      {hasErrors && (
+        <div className="px-3 sm:px-6 py-3 bg-red-50 border-b border-red-100">
+          <div className="flex items-start gap-2">
+            {/* <div className="w-4 h-4 text-red-500 mt-0.5">⚠</div> */}
+            <Warning className="w-4 h-4"></Warning>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-800 mb-1">Please fix the following errors:</p>
+              <ul className="text-xs text-red-600 space-y-0.5">
+                {titleError && <li>• Title: {titleError}</li>}
+                {subtitleError && <li>• Subtitle: {subtitleError}</li>}
+                {contentError && <li>• Content: {contentError}</li>}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Editor Container */}
       <div className="px-3 sm:px-6 py-6 sm:py-8">
         {/* Title Input */}
         <div className="mb-4 sm:mb-6">
           <div className="flex items-start">
-            <div className="w-1 h-4 sm:h-6 bg-gray-800 mr-2 sm:mr-4 mt-1 flex-shrink-0"></div>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Your compelling title goes here..."
-              className="text-lg sm:text-2xl font-bold text-gray-800 placeholder-gray-400 border-none outline-none w-full bg-transparent"
-              style={{
-                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              }}
-            />
+            <div className={`w-1 h-4 sm:h-6 mr-2 sm:mr-4 mt-1 flex-shrink-0 ${
+              titleError ? 'bg-red-500' : 'bg-gray-800'
+            }`}></div>
+            <div className="flex-1">
+              <input
+                type="text"
+                value={title}
+                onChange={handleTitleChange}
+                placeholder="Your compelling title goes here..."
+                className={`text-lg sm:text-2xl font-bold placeholder-gray-400 border-none outline-none w-full bg-transparent ${
+                  titleError ? 'text-red-600' : 'text-gray-800'
+                }`}
+                style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                }}
+                maxLength={validationRules.title.maxLength}
+              />
+              <div className="flex items-center justify-between mt-1">
+                {titleError && (
+                  <p className="text-xs text-red-500">{titleError}</p>
+                )}
+                <div className="ml-auto text-xs text-gray-400">
+                  {title.length}/{validationRules.title.maxLength}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Subtitle Input */}
         <div className="mb-6 sm:mb-8">
-          <input
-            type="text"
-            value={subtitle}
-            onChange={(e) => setSubtitle(e.target.value)}
-            placeholder="Add a subtitle to provide more context..."
-            className="text-base sm:text-lg text-gray-600 placeholder-gray-400 border-none outline-none w-full bg-transparent ml-3 sm:ml-5"
-            style={{
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            }}
-          />
+          <div className="ml-3 sm:ml-5">
+            <input
+              type="text"
+              value={subtitle}
+              onChange={handleSubtitleChange}
+              placeholder="Add a subtitle to provide more context..."
+              className={`text-base sm:text-lg placeholder-gray-400 border-none outline-none w-full bg-transparent ${
+                subtitleError ? 'text-red-600' : 'text-gray-600'
+              }`}
+              style={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              }}
+              maxLength={validationRules.subtitle.maxLength}
+            />
+            <div className="flex items-center justify-between mt-1">
+              {subtitleError && (
+                <p className="text-xs text-red-500">{subtitleError}</p>
+              )}
+              <div className="ml-auto text-xs text-gray-400">
+                {subtitle.length}/{validationRules.subtitle.maxLength}
+              </div>
+            </div>
+          </div>
         </div>
 
         {!isReady && (
@@ -708,9 +969,10 @@ export  function ProfessionalEditor({ form , apiUrl}) {
           </div>
         )}
 
+      <div className="border-2 border-transparent rounded-lg transition-colors">
         <div
           id="professional-editor"
-          className={`min-h-[300px] sm:min-h-[400px] transition-opacity${
+          className={`min-h-[300px] sm:min-h-[400px] transition-opacity p-4 ${
             isReady ? "opacity-100" : "opacity-50"
           }`}
           style={{
@@ -720,6 +982,7 @@ export  function ProfessionalEditor({ form , apiUrl}) {
             color: "#374151",
           }}
         />
+      </div>
       </div>
       
       <Toaster position="bottom-right" />

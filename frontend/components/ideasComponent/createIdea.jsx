@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Calendar, ChevronDown, Upload, X } from 'lucide-react';
+import { Calendar, ChevronDown, Upload, X, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { CalendarShad } from '@/components/ui/calendar';
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; // ✅ Correct import from shadcn
+import { Label } from "@/components/ui/label";
 
 // Predefined allowed categories
 const allowedCategories = [
@@ -39,7 +39,18 @@ const PopoverContent = ({ children, open, className = "" }) => {
   );
 };
 
-export default function IdeathonForm({setForm}) {
+// Error Message Component
+const ErrorMessage = ({ message }) => {
+  if (!message) return null;
+  return (
+    <div className="flex items-center mt-1 text-sm text-red-600">
+      <AlertCircle className="h-4 w-4 mr-1" />
+      {message}
+    </div>
+  );
+};
+
+export default function IdeathonForm({ setForm }) {
   const [endDate, setEndDate] = useState(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [privacy, setPrivacy] = useState('Select Privacy');
@@ -52,15 +63,100 @@ export default function IdeathonForm({setForm}) {
   const [bannerImage, setBannerImage] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
 
+  // Validation states
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  // Validation functions
+  const validateEndDate = (date) => {
+    if (!date) return "End date is required";
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return "End date cannot be in the past";
+    const maxDate = new Date();
+    maxDate.setFullYear(maxDate.getFullYear() + 2);
+    if (date > maxDate) return "End date cannot be more than 2 years from now";
+    return null;
+  };
+
+  const validateCategories = (cats) => {
+    if (cats.length === 0) return "At least one category is required";
+    if (cats.length > 5) return "Maximum 5 categories allowed";
+    return null;
+  };
+
+  const validatePrice = (priceValue, type) => {
+    if (type === 'Paid') {
+      if (priceValue < 0) return "Price cannot be negative";
+      if (priceValue > 10000) return "Price cannot exceed $10,000";
+      if (priceValue === 0) return "Paid events must have a price greater than $0";
+    }
+    return null;
+  };
+
+  const validatePrivacy = (privacyValue) => {
+    if (privacyValue === 'Select Privacy') return "Please select a privacy option";
+    return null;
+  };
+
+  const validateBanner = (image) => {
+    // Banner is now optional, so only validate if an image is provided
+    if (!image) return null;
+    
+    // Check file size (max 5MB)
+    if (image.size > 5 * 1024 * 1024) return "Banner image must be less than 5MB";
+    
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(image.type)) {
+      return "Banner must be a valid image file (JPEG, PNG, GIF, or WebP)";
+    }
+    
+    return null;
+  };
+
+  // Validation runner
+  const runValidation = () => {
+    const newErrors = {};
+    
+    const dateError = validateEndDate(endDate);
+    if (dateError) newErrors.endDate = dateError;
+
+    const categoryError = validateCategories(categories);
+    if (categoryError) newErrors.categories = categoryError;
+
+    const priceError = validatePrice(price, priceType);
+    if (priceError) newErrors.price = priceError;
+
+    const privacyError = validatePrivacy(privacy);
+    if (privacyError) newErrors.privacy = privacyError;
+
+    const bannerError = validateBanner(bannerImage);
+    if (bannerError) newErrors.banner = bannerError;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Mark field as touched
+  const markAsTouched = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
   useEffect(() => {
+    if (Object.keys(touched).length > 0) {
+      runValidation();
+    }
+    
     setForm({
       endDate,
       categories,
-      price,
+      price: priceType === 'Free' ? 0 : price,
       privacy,
-      banner: bannerImage
-    })
-  }, [endDate, categories, price,privacy, bannerImage])
+      banner: bannerImage,
+      isValid: runValidation()
+    });
+  }, [endDate, categories, price, privacy, bannerImage, priceType, touched]);
 
   const handleCategoryKeyPress = (e) => {
     if (e.key === 'Enter' && categoryInput.trim()) {
@@ -69,15 +165,17 @@ export default function IdeathonForm({setForm}) {
       if (!categories.includes(input) && allowedCategories.includes(input)) {
         setCategories([...categories, input]);
         setCategoryInput('');
+        markAsTouched('categories');
       }
     }
   };
 
   const addCategory = (category) => {
-    if (!categories.includes(category)) {
+    if (!categories.includes(category) && categories.length < 5) {
       setCategories([...categories, category]);
       setCategoryInput('');
       setShowCategorySuggestions(false);
+      markAsTouched('categories');
     }
   };
 
@@ -93,6 +191,7 @@ export default function IdeathonForm({setForm}) {
 
   const removeCategory = (cat) => {
     setCategories(categories.filter(c => c !== cat));
+    markAsTouched('categories');
   };
 
   const handleImageUpload = (e) => {
@@ -102,6 +201,7 @@ export default function IdeathonForm({setForm}) {
       const reader = new FileReader();
       reader.onloadend = () => setBannerPreview(reader.result);
       reader.readAsDataURL(file);
+      markAsTouched('banner');
     }
   };
 
@@ -112,16 +212,50 @@ export default function IdeathonForm({setForm}) {
     }
   };
 
+  const handleDateSelect = (date) => {
+    setEndDate(date);
+    setDatePickerOpen(false);
+    markAsTouched('endDate');
+  };
+
+  const handlePrivacySelect = (opt) => {
+    setPrivacy(opt);
+    setPrivacyOpen(false);
+    markAsTouched('privacy');
+  };
+
+  const handlePriceChange = (e) => {
+    const value = Number(e.target.value);
+    setPrice(value);
+    markAsTouched('price');
+  };
+
+  const handlePriceTypeChange = (e) => {
+    const newType = e.target.value;
+    setPriceType(newType);
+    if (newType === 'Free') {
+      setPrice(0);
+    }
+    markAsTouched('price');
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white border-b-2">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           {/* Date Picker */}
           <div>
-            <Label className="block text-sm font-medium text-gray-900 mb-2">Date</Label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">
+              Date <span className="text-red-500">*</span>
+            </Label>
             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
               <PopoverTrigger>
-                <Button variant="outline" className="w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50">
+                <Button 
+                  variant="outline" 
+                  className={`w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 ${
+                    errors.endDate && touched.endDate ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''
+                  }`}
+                >
                   <Calendar className="mr-2 h-4 w-4 text-gray-400" />
                   {endDate ? endDate.toLocaleDateString() : "Pick End Date"}
                 </Button>
@@ -130,19 +264,19 @@ export default function IdeathonForm({setForm}) {
                 <CalendarShad
                   mode="single"
                   selected={endDate}
-                  onSelect={(date) => {
-                    setEndDate(date);
-                    setDatePickerOpen(false);
-                  }}
+                  onSelect={handleDateSelect}
                   initialFocus
                 />
               </PopoverContent>
             </Popover>
+            <ErrorMessage message={touched.endDate ? errors.endDate : null} />
           </div>
 
           {/* Categories */}
           <div>
-            <Label className="block text-sm font-medium text-gray-900 mb-2">Categories</Label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">
+              Categories <span className="text-red-500">*</span>
+            </Label>
             <div className="space-y-3">
               {categories.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -167,11 +301,19 @@ export default function IdeathonForm({setForm}) {
                   value={categoryInput}
                   onChange={handleCategoryInputChange}
                   onKeyPress={handleCategoryKeyPress}
-                  onFocus={() => setShowCategorySuggestions(true)}
+                  onFocus={() => {
+                    setShowCategorySuggestions(true);
+                    markAsTouched('categories');
+                  }}
                   onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 200)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1  focus:border-transparent"
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:border-transparent ${
+                    errors.categories && touched.categories 
+                      ? 'border-red-300 focus:ring-red-200' 
+                      : 'border-gray-200 focus:ring-blue-200'
+                  }`}
+                  disabled={categories.length >= 5}
                 />
-                {showCategorySuggestions && (
+                {showCategorySuggestions && categories.length < 5 && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-30 max-h-60 overflow-y-auto">
                     {getFilteredSuggestions().length > 0 ? (
                       getFilteredSuggestions().map((category, i) => (
@@ -192,41 +334,60 @@ export default function IdeathonForm({setForm}) {
                   </div>
                 )}
               </div>
-              <p className="text-xs text-gray-400">
+              <p className={`text-xs ${categories.length >= 5 ? 'text-red-500' : 'text-gray-400'}`}>
                 {categories.length === 0
                   ? "Click on the input field to see all available categories"
-                  : `${categories.length} categories selected. Type to search for more.`}
+                  : `${categories.length}/5 categories selected. ${categories.length >= 5 ? 'Maximum reached.' : 'Type to search for more.'}`}
               </p>
             </div>
+            <ErrorMessage message={touched.categories ? errors.categories : null} />
           </div>
 
           {/* Price Section */}
           <div>
-            <Label className="block text-sm font-medium text-gray-900 mb-3">Price</Label>
+            <Label className="block text-sm font-medium text-gray-900 mb-3">
+              Price <span className="text-red-500">*</span>
+            </Label>
             <div className="flex items-center space-x-4">
               <Label className="flex items-center">
-                <input type="radio" value="Paid" checked={priceType === 'Paid'} onChange={(e) => setPriceType(e.target.value)} className="h-4 w-4" />
+                <input 
+                  type="radio" 
+                  value="Paid" 
+                  checked={priceType === 'Paid'} 
+                  onChange={handlePriceTypeChange} 
+                  className="h-4 w-4" 
+                />
                 <span className="ml-2 text-sm">Paid</span>
               </Label>
               <Label className="flex items-center">
-                <input type="radio" value="Free" checked={priceType === 'Free'} onChange={(e) => setPriceType(e.target.value)} className="h-4 w-4" />
+                <input 
+                  type="radio" 
+                  value="Free" 
+                  checked={priceType === 'Free'} 
+                  onChange={handlePriceTypeChange} 
+                  className="h-4 w-4" 
+                />
                 <span className="ml-2 text-sm">Free</span>
               </Label>
               {priceType === 'Paid' && (
-                <>
-                  {/* <Label className="block text-sm font-medium text-gray-900">Amount</Label> */}
-                  <Input
-                    id="price"
-                    type="number"
-                    min={0}
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-24"
-                  />
-                </>
+                <Input
+                  id="price"
+                  type="number"
+                  min={0}
+                  max={10000}
+                  step="0.01"
+                  value={price}
+                  onChange={handlePriceChange}
+                  className={`w-32 ${
+                    errors.price && touched.price 
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
+                      : ''
+                  }`}
+                  placeholder="0.00"
+                />
               )}
-
             </div>
+            <ErrorMessage message={touched.price ? errors.price : null} />
           </div>
         </div>
 
@@ -234,12 +395,21 @@ export default function IdeathonForm({setForm}) {
         <div className="space-y-6">
           {/* Privacy */}
           <div>
-            <Label className="block text-sm font-medium text-gray-900 mb-2">Privacy</Label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">
+              Privacy <span className="text-red-500">*</span>
+            </Label>
             <div className="relative">
               <Button
                 variant="outline"
-                onClick={() => setPrivacyOpen(!privacyOpen)}
-                className="w-full justify-between font-normal"
+                onClick={() => {
+                  setPrivacyOpen(!privacyOpen);
+                  markAsTouched('privacy');
+                }}
+                className={`w-full justify-between font-normal ${
+                  errors.privacy && touched.privacy 
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
+                    : ''
+                }`}
               >
                 <span className={privacy === 'Select Privacy' ? 'text-gray-500' : 'text-gray-900'}>
                   {privacy}
@@ -251,7 +421,7 @@ export default function IdeathonForm({setForm}) {
                   {['Public', 'Private'].map(opt => (
                     <button
                       key={opt}
-                      onClick={() => { setPrivacy(opt); setPrivacyOpen(false); }}
+                      onClick={() => handlePrivacySelect(opt)}
                       className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
                       type="button"
                     >
@@ -264,19 +434,28 @@ export default function IdeathonForm({setForm}) {
                 </div>
               )}
             </div>
+            <ErrorMessage message={touched.privacy ? errors.privacy : null} />
           </div>
 
           {/* Banner Upload */}
           <div>
-            <Label className="block text-sm font-medium text-gray-900 mb-2">Banner</Label>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">
+              Banner
+            </Label>
             <div className="relative">
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                 onChange={handleImageUpload}
                 className="absolute inset-0 opacity-0 z-10 cursor-pointer"
               />
-              <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${bannerPreview ? 'border-gray-300' : 'border-gray-200 hover:border-gray-400'}`}>
+              <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+                errors.banner && touched.banner 
+                  ? 'border-red-300' 
+                  : bannerPreview 
+                    ? 'border-gray-300' 
+                    : 'border-gray-200 hover:border-gray-400'
+              }`}>
                 {bannerPreview ? (
                   <>
                     <img src={bannerPreview} alt="Banner" className="max-w-full max-h-48 mx-auto rounded-lg object-cover" />
@@ -285,15 +464,32 @@ export default function IdeathonForm({setForm}) {
                 ) : (
                   <>
                     <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-500">Upload Banner Image</p>
+                    <p className="text-sm text-gray-500">Upload Banner Image (Optional)</p>
                     <p className="text-xs text-gray-400 mt-1">Click or drag and drop</p>
+                    <p className="text-xs text-gray-400 mt-1">JPEG, PNG, GIF, WebP (max 5MB)</p>
                   </>
                 )}
               </div>
             </div>
+            <ErrorMessage message={touched.banner ? errors.banner : null} />
           </div>
         </div>
       </div>
+
+      {/* Validation Summary */}
+      {Object.keys(errors).length > 0 && Object.keys(touched).length > 0 && (
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center">
+            <AlertCircle className="h-4 w-4 text-red-600 mr-2" />
+            <span className="text-sm font-medium text-red-800">Please fix the following errors:</span>
+          </div>
+          <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
+            {Object.values(errors).map((error, i) => (
+              <li key={i}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
