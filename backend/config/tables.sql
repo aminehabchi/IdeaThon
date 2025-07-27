@@ -66,8 +66,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS report (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    ideathon_id INTEGER NOT NULL,
-    entrie_id INTEGER NOT NULL,
+    type_id INTEGER DEFAULT 0,
     type TEXT NOT NULL CHECK(type IN ('generale', 'ideathon', 'entrie')),
     issue TEXT NOT NULL,
     description TEXT NOT NULL,
