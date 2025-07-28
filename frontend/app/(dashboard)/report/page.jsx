@@ -6,34 +6,106 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Bug, AlertTriangle, HelpCircle, MessageSquare, Send, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Bug, AlertTriangle, HelpCircle, MessageSquare, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
+import { fetcher } from "@/lib/helpers";
 
 export default function ReportPage() {
   const [formData, setFormData] = useState({
     subject: "",
     category: "",
-    priority: "",
     description: "",
     email: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState("");
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Subject validation
+    if (!formData.subject.trim()) {
+      newErrors.subject = "Subject is required";
+    } else if (formData.subject.trim().length < 5) {
+      newErrors.subject = "Subject must be at least 5 characters long";
+    } else if (formData.subject.trim().length > 100) {
+      newErrors.subject = "Subject must be less than 100 characters";
+    }
+
+    // Category validation
+    if (!formData.category) {
+      newErrors.category = "Please select an issue type";
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email.trim())) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Description validation
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    } else if (formData.description.trim().length < 20) {
+      newErrors.description = "Description must be at least 20 characters long";
+    } else if (formData.description.trim().length > 2000) {
+      newErrors.description = "Description must be less than 2000 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError("");
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setSubmitted(true);
+    try {
+      // Prepare data according to your database schema
+      const reportData = {
+        subject: formData.subject.trim(),
+        issue: formData.category, // Maps to the issue field in DB
+        type: "generale", // Fixed type for this form
+        description: formData.description.trim(),
+        email: formData.email.trim().toLowerCase()
+      };
+
+      await fetcher({
+        url: "http://localhost:8080/api/report/add",
+        method: "POST",
+        data: reportData,
+        token: null,
+        returned_status: 201,
+      });
+
+      // If fetcher doesn't throw an error, submission was successful
+      setSubmitted(true);
+    } catch (error) {
+      // The fetcher function already shows toast.error, so we just set our local error
+      console.error("Error submitting report:", error);
+      setSubmitError(error.message || "Failed to submit report. Please try again or contact support directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const reportCategories = [
@@ -41,13 +113,6 @@ export default function ReportPage() {
     { value: "feature", label: "Feature Request", icon: MessageSquare, color: "bg-blue-100 text-blue-800" },
     { value: "security", label: "Security Issue", icon: AlertTriangle, color: "bg-orange-100 text-orange-800" },
     { value: "general", label: "General Inquiry", icon: HelpCircle, color: "bg-gray-100 text-gray-800" }
-  ];
-
-  const priorities = [
-    { value: "low", label: "Low", color: "bg-green-100 text-green-800" },
-    { value: "medium", label: "Medium", color: "bg-yellow-100 text-yellow-800" },
-    { value: "high", label: "High", color: "bg-orange-100 text-orange-800" },
-    { value: "urgent", label: "Urgent", color: "bg-red-100 text-red-800" }
   ];
 
   if (submitted) {
@@ -71,10 +136,11 @@ export default function ReportPage() {
                 setFormData({
                   subject: "",
                   category: "",
-                  priority: "",
                   description: "",
                   email: ""
                 });
+                setErrors({});
+                setSubmitError("");
               }}>
                 Submit Another Report
               </Button>
@@ -118,6 +184,13 @@ export default function ReportPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {submitError && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-sm">{submitError}</span>
+                  </div>
+                )}
+                
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Subject */}
                   <div className="space-y-2">
@@ -127,49 +200,48 @@ export default function ReportPage() {
                       placeholder="Brief description of the issue"
                       value={formData.subject}
                       onChange={(e) => handleInputChange("subject", e.target.value)}
+                      className={errors.subject ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
                       required
                     />
+                    {errors.subject && (
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.subject}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500">{formData.subject.length}/100 characters</p>
                   </div>
 
-                  {/* Category and Priority Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Category *</Label>
-                      <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {reportCategories.map((category) => {
-                            const Icon = category.icon;
-                            return (
-                              <SelectItem key={category.value} value={category.value}>
-                                <div className="flex items-center gap-2">
-                                  <Icon className="w-4 h-4" />
-                                  {category.label}
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="priority">Priority *</Label>
-                      <Select value={formData.priority} onValueChange={(value) => handleInputChange("priority", value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {priorities.map((priority) => (
-                            <SelectItem key={priority.value} value={priority.value}>
-                              {priority.label}
+                  {/* Category */}
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Issue Type *</Label>
+                    <Select 
+                      value={formData.category} 
+                      onValueChange={(value) => handleInputChange("category", value)}
+                    >
+                      <SelectTrigger className={errors.category ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {reportCategories.map((category) => {
+                          const Icon = category.icon;
+                          return (
+                            <SelectItem key={category.value} value={category.value}>
+                              <div className="flex items-center gap-2">
+                                <Icon className="w-4 h-4" />
+                                {category.label}
+                              </div>
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    {errors.category && (
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.category}
+                      </p>
+                    )}
                   </div>
 
                   {/* Email */}
@@ -181,8 +253,15 @@ export default function ReportPage() {
                       placeholder="your.email@example.com"
                       value={formData.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
+                      className={errors.email ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
                       required
                     />
+                    {errors.email && (
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.email}
+                      </p>
+                    )}
                     <p className="text-sm text-gray-500">
                       We'll use this to follow up on your report.
                     </p>
@@ -194,11 +273,18 @@ export default function ReportPage() {
                     <Textarea
                       id="description"
                       placeholder="Please describe the issue in detail. Include steps to reproduce, expected behavior, and any error messages..."
-                      className="min-h-[120px]"
+                      className={`min-h-[120px] ${errors.description ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                       value={formData.description}
                       onChange={(e) => handleInputChange("description", e.target.value)}
                       required
                     />
+                    {errors.description && (
+                      <p className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.description}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-500">{formData.description.length}/2000 characters</p>
                   </div>
 
                   {/* Submit Button */}

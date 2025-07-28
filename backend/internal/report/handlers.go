@@ -19,7 +19,7 @@ func Add_report(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if err = utils.Decode(r, &report); err != nil {
-		// log.Println("Decode", err)
+		 log.Println("Decode", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}

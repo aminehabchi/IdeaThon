@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Toaster, toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,7 @@ import { Flag } from "lucide-react";
 import { fetcher } from "@/lib/helpers";
 
 export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber }) {
-  console.log("entryId from report", entryId);
+  //console.log("entryId from report", entryId);
   
   const [issue, setIssueType] = useState("");
   const [description, setDescription] = useState("");
@@ -28,12 +29,12 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
 
   const handleSubmit = async () => {
     if (!issue) {
-      alert("Please select an issue type");
+       toast.error("Please select an issue type");
       return;
     }
 
     if (!description.trim()) {
-      alert("Please provide a description");
+      toast.error("Please provide a description");
       return;
     }
 
@@ -44,13 +45,13 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
       const reportData = {
         type_id: entryId, // The entry ID being reported
         issue: issue, // The selected issue type
-        type: "entry", // Specify that this is an entry report
+        type: "entrie", // Specify that this is an entry report
         description: description.trim() // The description from textarea
         // user_id will likely be set by the backend from authentication
         // created_at will be set by the backend
       };
 
-      console.log("Submitting report:", reportData);
+      //console.log("Submitting report:", reportData);
 
       const response = await fetcher({
         url: "http://localhost:8080/api/report/add",
@@ -60,7 +61,7 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
         returned_status: 201
       });
 
-      console.log("Report submitted successfully:", response);
+      //console.log("Report submitted successfully:", response);
       
       // Reset form and close
       setIssueType("");
@@ -68,11 +69,11 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
       onClose();
       
       // Optional: Show success message
-      alert("Report submitted successfully");
+      toast.success("Report submitted successfully");
       
     } catch (error) {
       console.error("Error submitting report:", error);
-      alert("Failed to submit report. Please try again.");
+      toast.error("Failed to submit report.desctiption must be at least 20 characters.");
     } finally {
       setIsSubmitting(false);
     }

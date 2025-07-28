@@ -67,8 +67,10 @@ CREATE TABLE IF NOT EXISTS report (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     type_id INTEGER DEFAULT 0,
+    email TEXT NOT NULL  DEFAULT '',
+    subject TEXT NOT NULL DEFAULT '',
     type TEXT NOT NULL CHECK(type IN ('generale', 'ideathon', 'entrie')),
-    issue TEXT NOT NULL CHECK(issue IN ('spam', 'harassment', 'misinformation', 'other', 'copyright', 'inappropriate','illegal')),
+    issue TEXT NOT NULL CHECK(issue IN ('spam', 'harassment', 'misinformation', 'other', 'copyright', 'inappropriate','illegal', 'bug', 'feature', 'security','general')),
     description TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

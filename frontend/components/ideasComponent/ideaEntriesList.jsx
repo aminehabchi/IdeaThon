@@ -12,6 +12,7 @@ import ReportIdeaPopup from './ideaReport';
 import { fetcher, timeAgo } from '@/lib/helpers';
 import {IdeaLoader} from "@/components/ui/cosloader"
 import { DocumentContent } from "@/components/notionLike/ParserUtils/DocumentContent"
+import { Toaster } from 'sonner';
 
 export function EntriesList({ id }) {
   const [entries, setEntries] = useState([]);
@@ -244,6 +245,7 @@ export function EntriesList({ id }) {
           entryId={reportTargetEntry.id}
         />
       )}
+      <Toaster position="bottom-right"></Toaster>
     </>
   );
 }
