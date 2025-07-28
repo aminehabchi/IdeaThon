@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { fetcher, imageToBase64 } from "@/lib/helpers.js";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
-import { Warning } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+
 
 export function ProfessionalEditor({ form, apiUrl }) {
   const editorRef = useRef(null);
@@ -888,7 +889,7 @@ export function ProfessionalEditor({ form, apiUrl }) {
         <div className="px-3 sm:px-6 py-3 bg-red-50 border-b border-red-100">
           <div className="flex items-start gap-2">
             {/* <div className="w-4 h-4 text-red-500 mt-0.5">⚠</div> */}
-            <Warning className="w-4 h-4"></Warning>
+            <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-medium text-red-800 mb-1">Please fix the following errors:</p>
               <ul className="text-xs text-red-600 space-y-0.5">
