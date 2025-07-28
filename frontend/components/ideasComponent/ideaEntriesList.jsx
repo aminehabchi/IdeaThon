@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, MoreVertical, Trophy, Flag, Trash2, FileX, Loader2 } from 'lucide-react';
+import { X, MoreVertical, Trophy, Flag,Edit, Trash2, FileX } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,7 +60,7 @@ export function EntriesList({ id }) {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTargetEntry, setReportTargetEntry] = useState(null);
 
-  console.log("entries", entries);
+  // console.log("entries", entries);
   
   const openModal = (entry) => {
     setSelectedEntry(entry);
@@ -181,6 +181,12 @@ export function EntriesList({ id }) {
                       <Trash2 className="w-4 h-4" />
                       Delete
                     </DropdownMenuItem>
+
+                    <DropdownMenuItem className="flex items-center gap-2 text-black">
+                      <Edit className="w-4 h-4" />
+                      Update
+                    </DropdownMenuItem>
+
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

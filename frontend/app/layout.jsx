@@ -1,5 +1,5 @@
-// app/layout.tsx or app/layout.js
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext"; // adjust the path if needed
 
 export const metadata = {
   title: "ValIdea",
@@ -9,8 +9,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body cz-shortcut-listen="true">
-        {children}
+      <body  cz-shortcut-listen="true">
+        <AuthProvider> 
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
