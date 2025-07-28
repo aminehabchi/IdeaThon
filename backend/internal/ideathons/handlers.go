@@ -127,8 +127,9 @@ func Update_ideathons(w http.ResponseWriter, r *http.Request) {
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
 		return
 	}
-
+	// fmt.Println("----->",ideathon)
 	if err = ideathon.Check_ideathons_info(); err != nil {
+		// fmt.Println(err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
 		return
 	}

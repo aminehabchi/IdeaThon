@@ -3,7 +3,6 @@ package ideathons
 import (
 	"errors"
 	"strings"
-	"time"
 )
 
 func Prepare_ideathon_query(params I_params, user_id int) (string, []any) {
@@ -78,20 +77,20 @@ func (i *Ideathons) Check_ideathons_info() error {
 		return errors.New("Price must be non-negative")
 	}
 
-	layout := "2006-01-02"
-	startDate, err := time.Parse(layout, i.Start_date)
-	if err != nil {
-		return errors.New("Invalid start date format (expected YYYY-MM-DD)")
-	}
+	// layout := "2006-01-02"
+	// startDate, err := time.Parse(layout, i.Start_date)
+	// if err != nil {
+	// 	return errors.New("Invalid start date format (expected YYYY-MM-DD)")
+	// }
 
-	endDate, err := time.Parse(layout, i.End_date)
-	if err != nil {
-		return errors.New("Invalid end date format (expected YYYY-MM-DD)")
-	}
+	// endDate, err := time.Parse(layout, i.End_date)
+	// if err != nil {
+	// 	return errors.New("Invalid end date format (expected YYYY-MM-DD)")
+	// }
 
-	if startDate.After(endDate) {
-		return errors.New("Start date must be before end date")
-	}
+	// if startDate.After(endDate) {
+	// 	return errors.New("Start date must be before end date")
+	// }
 
 	return nil
 }

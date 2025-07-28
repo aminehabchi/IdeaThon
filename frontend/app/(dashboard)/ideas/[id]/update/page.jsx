@@ -49,11 +49,11 @@ function Update() {
 
             try {
                 await fetcher({
-                    url: `http://localhost:8080/api/ideathons/add`,
-                    method: "POST",
+                    url: `http://localhost:8080/api/ideathons/update`,
+                    method: "PUT",
                     data: backendPayload,
                     token: null,
-                    returned_status: 201,
+                    returned_status: 204,
                 });
 
                 toast.success("Ideathon published successfully!");
