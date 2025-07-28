@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
 import { AlertTriangle } from "lucide-react";
 
-
 export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon }) {
   const editorRef = useRef(null);
   const router = useRouter();
@@ -16,25 +15,16 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
-  useEffect(() => {
-    if (!ideathon || !ideathon.description) return;
+  const [contentLoaded, setContentLoaded] = useState(false);
+  const hasRenderedRef = useRef(false);
+  const editorInitializedRef = useRef(false);
+  const isLoadingContentRef = useRef(false);
 
-    const obj = JSON.parse(ideathon.description);
-    setTitle(obj.document?.title);
-    setSubtitle(obj.document?.subtitle);
-    setWordCount(obj?.meta?.wordCount);
-    console.log(obj);
-
-    editorRef.current.render({ blocks: obj.blocks });
-
-  }, [ideathon]);
   // Validation states
   const [titleError, setTitleError] = useState("");
   const [subtitleError, setSubtitleError] = useState("");
   const [contentError, setContentError] = useState("");
   const [isValidating, setIsValidating] = useState(false);
-
-
 
   // Validation rules
   const validationRules = {
@@ -59,214 +49,10 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
     }
   };
 
-  // Title validation
-  const validateTitle = useCallback((value) => {
-    const rules = validationRules.title;
-
-    if (rules.required && !value.trim()) {
-      return "Title is required";
-    }
-
-    if (value.length < rules.minLength) {
-      return `Title must be at least ${rules.minLength} characters`;
-    }
-
-    if (value.length > rules.maxLength) {
-      return `Title must be no more than ${rules.maxLength} characters`;
-    }
-
-    if (!rules.pattern.test(value)) {
-      return "Title contains invalid characters";
-    }
-
-    const lowerValue = value.toLowerCase();
-    const blockedWord = rules.blockedWords.find(word => lowerValue.includes(word));
-    if (blockedWord) {
-      return `Title cannot contain the word "${blockedWord}"`;
-    }
-
-    return "";
-  }, []);
-
-  // Subtitle validation
-  const validateSubtitle = useCallback((value) => {
-    const rules = validationRules.subtitle;
-
-    if (value.length > rules.maxLength) {
-      return `Subtitle must be no more than ${rules.maxLength} characters`;
-    }
-
-    if (value && !rules.pattern.test(value)) {
-      return "Subtitle contains invalid characters";
-    }
-
-    return "";
-  }, []);
-
-  // Fixed content validation - now calculates word count directly
-  const validateContent = useCallback(async (currentWordCount = null) => {
-    if (!editorRef.current) return "Editor not ready";
-
-    try {
-      const data = await editorRef.current.save();
-      const rules = validationRules.content;
-
-      if (rules.required && data.blocks.length === 0) {
-        return "Content is required";
-      }
-
-      if (data.blocks.length > rules.maxBlocks) {
-        return `Content cannot have more than ${rules.maxBlocks} blocks`;
-      }
-
-      // Calculate word count directly if not provided
-      let wordsToCheck = currentWordCount;
-      if (wordsToCheck === null) {
-        wordsToCheck = await calculateWordCount(data);
-      }
-
-      if (wordsToCheck < rules.minWordCount) {
-        return `Content must have at least ${rules.minWordCount} words (current: ${wordsToCheck})`;
-      }
-
-      if (wordsToCheck > rules.maxWordCount) {
-        return `Content cannot exceed ${rules.maxWordCount} words (current: ${wordsToCheck})`;
-      }
-
-      // Check for empty blocks
-      const emptyBlocks = data.blocks.filter(block => {
-        if (block.type === 'paragraph' || block.type === 'header') {
-          return !block.data.text || block.data.text.trim() === '';
-        }
-        return false;
-      });
-
-      if (emptyBlocks.length > 3) {
-        return "Too many empty blocks. Please remove unused blocks";
-      }
-
-      return "";
-    } catch (error) {
-      console.error("Content validation error:", error);
-      return "Failed to validate content";
-    }
-  }, []);
-
-  // Separate word count calculation function
-  const calculateWordCount = useCallback(async (editorData = null) => {
-    if (!editorRef.current) return 0;
-
-    try {
-
-      const data = editorData || await editorRef.current.save();
-
-      console.log("zzzzz", data);
-
-      let totalWords = 0;
-
-      data.blocks.forEach((block) => {
-        let text = "";
-
-        switch (block.type) {
-          case "paragraph":
-          case "header":
-            text = block.data.text || "";
-            break;
-          case "list":
-            text = block.data.items ? block.data.items.join(" ") : "";
-            break;
-          case "checklist":
-            text = block.data.items ? block.data.items.map(item => item.text).join(" ") : "";
-            break;
-          case "quote":
-            text = `${block.data.text || ""} ${block.data.caption || ""}`;
-            break;
-          case "code":
-            text = block.data.code || "";
-            break;
-          case "warning":
-            text = `${block.data.title || ""} ${block.data.message || ""}`;
-            break;
-          case "table":
-            if (block.data.content) {
-              text = block.data.content.flat().join(" ");
-            }
-            break;
-          default:
-            if (block.data.text) {
-              text = block.data.text;
-            }
-        }
-
-        if (text) {
-          const cleanText = text.replace(/<[^>]*>/g, ""); // Remove HTML tags
-          totalWords += cleanText
-            .trim()
-            .split(/\s+/)
-            .filter((word) => word.length > 0).length;
-        }
-      });
-
-      return totalWords;
-    } catch (error) {
-      console.error("Error counting words:", error);
-      return 0;
-    }
-  }, []);
-
-  // Real-time validation handlers
-  const handleTitleChange = useCallback((e) => {
-    const value = e.target.value;
-    setTitle(value);
-
-    // Debounced validation
-    clearTimeout(window.titleValidationTimeout);
-    window.titleValidationTimeout = setTimeout(() => {
-      const error = validateTitle(value);
-      setTitleError(error);
-    }, 300);
-  }, [validateTitle]);
-
-  const handleSubtitleChange = useCallback((e) => {
-    const value = e.target.value;
-    setSubtitle(value);
-
-    // Debounced validation
-    clearTimeout(window.subtitleValidationTimeout);
-    window.subtitleValidationTimeout = setTimeout(() => {
-      const error = validateSubtitle(value);
-      setSubtitleError(error);
-    }, 300);
-  }, [validateSubtitle]);
-
-  // Comprehensive validation before publishing
-  const performFullValidation = useCallback(async () => {
-    setIsValidating(true);
-
-    try {
-      const titleErr = validateTitle(title);
-      const subtitleErr = validateSubtitle(subtitle);
-
-      // Get current word count and validate content with it
-      const currentWordCount = await calculateWordCount();
-      const contentErr = await validateContent(currentWordCount);
-
-      setTitleError(titleErr);
-      setSubtitleError(subtitleErr);
-      setContentError(contentErr);
-
-      setIsValidating(false);
-
-      return !titleErr && !subtitleErr && !contentErr;
-    } catch (error) {
-      console.error("Validation error:", error);
-      setIsValidating(false);
-      return false;
-    }
-  }, [title, subtitle, validateTitle, validateSubtitle, validateContent, calculateWordCount]);
-
-  // Initialize Editor with all supported tools
+  // Initialize Editor - Fixed to prevent re-initialization
   useEffect(() => {
+    if (editorInitializedRef.current) return;
+
     let editor;
 
     const loadEditor = async () => {
@@ -339,7 +125,7 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
                       return {
                         success: 1,
                         file: {
-                          url: base64, // base64 string
+                          url: base64,
                         },
                       };
                     } catch (err) {
@@ -446,7 +232,7 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
             linkTool: {
               class: LinkTool,
               config: {
-                endpoint: "/api/fetchUrl", // Your endpoint for url data fetching
+                endpoint: "/api/fetchUrl",
               },
             },
 
@@ -461,12 +247,16 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
             },
           },
           onChange: async () => {
-            await updateWordCount();
-            await handleAutoSave();
+            // Only trigger onChange after initial content is loaded and not during loading
+            if (contentLoaded && !isLoadingContentRef.current) {
+              await updateWordCount();
+              await handleAutoSave();
+            }
           },
           onReady: () => {
-            setIsReady(true);
             console.log("Enhanced Editor is ready!");
+            setIsReady(true);
+            editorInitializedRef.current = true;
           },
         });
 
@@ -476,21 +266,316 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
       }
     };
 
-    if (!editorRef.current) {
-      loadEditor();
-    }
+    loadEditor();
 
     return () => {
       if (editorRef.current?.destroy) {
         editorRef.current.destroy();
         editorRef.current = null;
+        editorInitializedRef.current = false;
+        setIsReady(false);
+        setContentLoaded(false);
+        hasRenderedRef.current = false;
       }
     };
+  }, []); // Empty dependency array to prevent re-initialization
+
+  // Load content when ideathon data is available and editor is ready - Fixed timing
+  useEffect(() => {
+    if (!ideathon?.description || !isReady || !editorRef.current || hasRenderedRef.current || isLoadingContentRef.current) {
+      return;
+    }
+
+    const loadContent = async () => {
+      isLoadingContentRef.current = true;
+      hasRenderedRef.current = true;
+
+      try {
+        const obj = JSON.parse(ideathon.description);
+        console.log("Parsed content:", obj);
+
+        // Set metadata first
+        setTitle(obj.document?.title || "");
+        setSubtitle(obj.document?.subtitle || "");
+        setWordCount(obj?.meta?.wordCount || 0);
+
+        if (obj.blocks && obj.blocks.length > 0) {
+          console.log("Rendering blocks:", obj.blocks);
+
+          // Wait a bit longer for editor to be fully ready
+          await new Promise(resolve => setTimeout(resolve, 200));
+
+          // Clear editor first to ensure clean state
+          if (editorRef.current?.clear) {
+            await editorRef.current.clear();
+          }
+
+          // Render content
+          if (editorRef.current?.render) {
+            await editorRef.current.render({ blocks: obj.blocks });
+            console.log("Content rendered successfully");
+            
+            // Update word count after rendering
+            setTimeout(async () => {
+              await updateWordCount();
+              setContentLoaded(true);
+              isLoadingContentRef.current = false;
+            }, 100);
+          }
+        } else {
+          setContentLoaded(true);
+          isLoadingContentRef.current = false;
+        }
+      } catch (error) {
+        console.error("Error parsing or rendering content:", error);
+        await tryFallbackRender(obj?.blocks || []);
+      }
+    };
+
+    loadContent();
+  }, [ideathon?.description, isReady]);
+
+  // Fallback rendering method
+  const tryFallbackRender = useCallback(async (blocks) => {
+    if (!editorRef.current || !blocks.length) {
+      setContentLoaded(true);
+      isLoadingContentRef.current = false;
+      return;
+    }
+    
+    try {
+      console.log("Attempting fallback render");
+      
+      // Clear editor first
+      await editorRef.current.clear();
+      
+      // Try to insert blocks one by one
+      for (const block of blocks) {
+        try {
+          await editorRef.current.blocks.insert(block.type, block.data);
+        } catch (blockError) {
+          console.warn(`Failed to insert block of type ${block.type}:`, blockError);
+        }
+      }
+      
+      setTimeout(async () => {
+        await updateWordCount();
+        setContentLoaded(true);
+        isLoadingContentRef.current = false;
+      }, 100);
+    } catch (error) {
+      console.error("Fallback render failed:", error);
+      setContentLoaded(true);
+      isLoadingContentRef.current = false;
+    }
   }, []);
+
+  // Title validation
+  const validateTitle = useCallback((value) => {
+    const rules = validationRules.title;
+
+    if (rules.required && !value.trim()) {
+      return "Title is required";
+    }
+
+    if (value.length < rules.minLength) {
+      return `Title must be at least ${rules.minLength} characters`;
+    }
+
+    if (value.length > rules.maxLength) {
+      return `Title must be no more than ${rules.maxLength} characters`;
+    }
+
+    if (!rules.pattern.test(value)) {
+      return "Title contains invalid characters";
+    }
+
+    const lowerValue = value.toLowerCase();
+    const blockedWord = rules.blockedWords.find(word => lowerValue.includes(word));
+    if (blockedWord) {
+      return `Title cannot contain the word "${blockedWord}"`;
+    }
+
+    return "";
+  }, []);
+
+  // Subtitle validation
+  const validateSubtitle = useCallback((value) => {
+    const rules = validationRules.subtitle;
+
+    if (value.length > rules.maxLength) {
+      return `Subtitle must be no more than ${rules.maxLength} characters`;
+    }
+
+    if (value && !rules.pattern.test(value)) {
+      return "Subtitle contains invalid characters";
+    }
+
+    return "";
+  }, []);
+
+  // Fixed content validation - now calculates word count directly
+  const validateContent = useCallback(async (currentWordCount = null) => {
+    if (!editorRef.current) return "Editor not ready";
+
+    try {
+      const data = await editorRef.current.save();
+      const rules = validationRules.content;
+
+      if (rules.required && data.blocks.length === 0) {
+        return "Content is required";
+      }
+
+      if (data.blocks.length > rules.maxBlocks) {
+        return `Content cannot have more than ${rules.maxBlocks} blocks`;
+      }
+
+      // Calculate word count directly if not provided
+      let wordsToCheck = currentWordCount;
+      if (wordsToCheck === null) {
+        wordsToCheck = await calculateWordCount(data);
+      }
+
+      if (wordsToCheck < rules.minWordCount) {
+        return `Content must have at least ${rules.minWordCount} words (current: ${wordsToCheck})`;
+      }
+
+      if (wordsToCheck > rules.maxWordCount) {
+        return `Content cannot exceed ${rules.maxWordCount} words (current: ${wordsToCheck})`;
+      }
+
+      // Check for empty blocks
+      const emptyBlocks = data.blocks.filter(block => {
+        if (block.type === 'paragraph' || block.type === 'header') {
+          return !block.data.text || block.data.text.trim() === '';
+        }
+        return false;
+      });
+
+      if (emptyBlocks.length > 3) {
+        return "Too many empty blocks. Please remove unused blocks";
+      }
+
+      return "";
+    } catch (error) {
+      console.error("Content validation error:", error);
+      return "Failed to validate content";
+    }
+  }, []);
+
+  // Separate word count calculation function
+  const calculateWordCount = useCallback(async (editorData = null) => {
+    if (!editorRef.current) return 0;
+
+    try {
+      const data = editorData || await editorRef.current.save();
+      
+      let totalWords = 0;
+
+      data.blocks.forEach((block) => {
+        let text = "";
+
+        switch (block.type) {
+          case "paragraph":
+          case "header":
+            text = block.data.text || "";
+            break;
+          case "list":
+            text = block.data.items ? block.data.items.join(" ") : "";
+            break;
+          case "checklist":
+            text = block.data.items ? block.data.items.map(item => item.text).join(" ") : "";
+            break;
+          case "quote":
+            text = `${block.data.text || ""} ${block.data.caption || ""}`;
+            break;
+          case "code":
+            text = block.data.code || "";
+            break;
+          case "warning":
+            text = `${block.data.title || ""} ${block.data.message || ""}`;
+            break;
+          case "table":
+            if (block.data.content) {
+              text = block.data.content.flat().join(" ");
+            }
+            break;
+          default:
+            if (block.data.text) {
+              text = block.data.text;
+            }
+        }
+
+        if (text) {
+          const cleanText = text.replace(/<[^>]*>/g, ""); // Remove HTML tags
+          totalWords += cleanText
+            .trim()
+            .split(/\s+/)
+            .filter((word) => word.length > 0).length;
+        }
+      });
+
+      return totalWords;
+    } catch (error) {
+      console.error("Error counting words:", error);
+      return 0;
+    }
+  }, []);
+
+  // Real-time validation handlers
+  const handleTitleChange = useCallback((e) => {
+    const value = e.target.value;
+    setTitle(value);
+
+    // Debounced validation
+    clearTimeout(window.titleValidationTimeout);
+    window.titleValidationTimeout = setTimeout(() => {
+      const error = validateTitle(value);
+      setTitleError(error);
+    }, 300);
+  }, [validateTitle]);
+
+  const handleSubtitleChange = useCallback((e) => {
+    const value = e.target.value;
+    setSubtitle(value);
+
+    // Debounced validation
+    clearTimeout(window.subtitleValidationTimeout);
+    window.subtitleValidationTimeout = setTimeout(() => {
+      const error = validateSubtitle(value);
+      setSubtitleError(error);
+    }, 300);
+  }, [validateSubtitle]);
+
+  // Comprehensive validation before publishing
+  const performFullValidation = useCallback(async () => {
+    setIsValidating(true);
+
+    try {
+      const titleErr = validateTitle(title);
+      const subtitleErr = validateSubtitle(subtitle);
+
+      // Get current word count and validate content with it
+      const currentWordCount = await calculateWordCount();
+      const contentErr = await validateContent(currentWordCount);
+
+      setTitleError(titleErr);
+      setSubtitleError(subtitleErr);
+      setContentError(contentErr);
+
+      setIsValidating(false);
+
+      return !titleErr && !subtitleErr && !contentErr;
+    } catch (error) {
+      console.error("Validation error:", error);
+      setIsValidating(false);
+      return false;
+    }
+  }, [title, subtitle, validateTitle, validateSubtitle, validateContent, calculateWordCount]);
 
   // Enhanced word count calculation with validation update
   const updateWordCount = useCallback(async () => {
-    if (editorRef.current) {
+    if (editorRef.current && !isLoadingContentRef.current) {
       try {
         const currentWordCount = await calculateWordCount();
         setWordCount(currentWordCount);
@@ -510,19 +595,17 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
 
   // Auto-save functionality
   const handleAutoSave = useCallback(async () => {
-    if (!editorRef.current || !isReady) return;
+    if (!editorRef.current || !isReady || !contentLoaded || isLoadingContentRef.current) return;
 
     try {
       const data = await editorRef.current.save();
-      console.log(data);
+      console.log("Auto-saved data:", data);
 
-      // Note: Removed localStorage usage as per Claude artifacts restrictions
-      // Save to memory or implement alternative storage solution
       setLastSaved(new Date());
     } catch (error) {
       console.error("Auto-save failed:", error);
     }
-  }, [title, subtitle, isReady]);
+  }, [title, subtitle, isReady, contentLoaded]);
 
   // Enhanced publish function supporting all block types
   const handlePublish = useCallback(async () => {
@@ -652,13 +735,8 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
           slug: (title || "untitled").toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
           language: "en",
           version: "1.0.0",
-          // featuredImage: form.banner ? {
-          //   url: form.banner,
-          //   alt: "Featured image",
-          //   caption: ""
-          // } : null,
           author: {
-            id: "user_001", // TODO: Replace with actual user data
+            id: "user_001",
             name: "Author Name",
             avatar: "/default-avatar.png",
             bio: "Content creator"
@@ -679,12 +757,10 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         },
 
         // Categories and tags
-        // categories: form.categories || [],
-        tags: [], // Could be extracted from content or user input
+        tags: [],
 
         // Settings
         settings: {
-          // privacy: form.privacy || "public",
           password: null,
           allowComments: true,
           allowSharing: true,
@@ -692,46 +768,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
           showTableOfContents: tableOfContents.length > 0,
           enableAnalytics: true
         },
-
-        // Pricing
-        // pricing: {
-        //   type: form.price > 0 ? "paid" : "free",
-        //   price: parseInt(form.price, 10) || 0,
-        //   currency: "USD",
-        //   discount: null
-        // },
-
-        // Schedule
-        // schedule: {
-        //   publishAt: new Date().toISOString(),
-        //   unpublishAt: form.endDate || null,
-        //   featured: {
-        //     enabled: false,
-        //     startDate: form.startDate || new Date().toISOString(),
-        //     endDate: form.endDate || null
-        //   }
-        // },
-
-        // // Statistics
-        // statistics: {
-        //   blockCount: editorData.blocks.length,
-        //   wordCount: wordCount,
-        //   readingTime: readingTime,
-        //   views: 0,
-        //   likes: 0,
-        //   shares: 0,
-        //   comments: 0,
-        //   blockTypes: blockTypes
-        // },
-
-        // SEO
-        // seo: {
-        //   metaTitle: title || "Untitled",
-        //   metaDescription: subtitle || `Learn about ${title}`,
-        //   keywords: form.categories || [],
-        //   ogImage: form.banner || null,
-        //   canonicalUrl: ""
-        // },
 
         // Enhanced blocks
         blocks: editorData.blocks.map((block, index) => ({
@@ -748,11 +784,8 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         tableOfContents: tableOfContents
       };
 
-
-      setEditorContent(enhancedData)
-      setIsPublish(true)
-      // toast.success("Content published successfully!");
-      // router.push("/create/publish");
+      setEditorContent(enhancedData);
+      setIsPublish(true);
 
     } catch (error) {
       toast.error(error.message);
@@ -761,28 +794,16 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
     }
   }, [title, subtitle, wordCount, router, performFullValidation]);
 
-  // Load autosaved content on mount (removed localStorage usage)
+  // Auto-save every 10 seconds (only after content is loaded)
   useEffect(() => {
-    const loadAutosave = () => {
-      // Note: Auto-save loading disabled due to localStorage restrictions
-      // Implement alternative storage solution if needed
-    };
-
-    if (isReady) {
-      loadAutosave();
-    }
-  }, [isReady]);
-
-  // Auto-save every 10 seconds
-  useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || !contentLoaded) return;
 
     const interval = setInterval(() => {
       handleAutoSave();
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [isReady, handleAutoSave]);
+  }, [isReady, contentLoaded, handleAutoSave]);
 
   // Clear content
   function clearContent() {
@@ -793,10 +814,15 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
     setSubtitleError("");
     setContentError("");
     setWordCount(0);
+    setContentLoaded(false);
+    hasRenderedRef.current = false;
+    isLoadingContentRef.current = false;
 
     // Clear editor content
     if (editorRef.current?.clear) {
-      editorRef.current.clear();
+      editorRef.current.clear().then(() => {
+        setContentLoaded(true);
+      });
     }
 
     toast.success("Content cleared");
@@ -870,7 +896,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
       {hasErrors && (
         <div className="px-3 sm:px-6 py-3 bg-red-50 border-b border-red-100">
           <div className="flex items-start gap-2">
-            {/* <div className="w-4 h-4 text-red-500 mt-0.5">⚠</div> */}
             <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-medium text-red-800 mb-1">Please fix the following errors:</p>
@@ -946,6 +971,13 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
           <div className="flex items-center space-x-2 text-gray-400 mb-4">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400" />
             <span className="text-sm">Loading enhanced editor...</span>
+          </div>
+        )}
+
+        {isLoadingContentRef.current && (
+          <div className="flex items-center space-x-2 text-blue-600 mb-4">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600" />
+            <span className="text-sm">Loading content...</span>
           </div>
         )}
 
