@@ -64,11 +64,11 @@ func Prepare_ideathon_query(params I_params, user_id int) (string, []any) {
 		query += " AND ideathons_categories.category IN (" + strings.Join(placeholders, ",") + ")"
 	}
 
-	query += " ORDER BY ideathons.start_date DESC"
+	query += " ORDER BY ideathons.id DESC"
 
-	// Pagination (OFFSET)
-	query += " LIMIT 10 OFFSET ?"
-	args = append(args, params.Offset)
+	// // Pagination (OFFSET)
+	// query += " LIMIT 10 OFFSET ?"
+	// args = append(args, params.Offset)
 
 	return query, args
 }

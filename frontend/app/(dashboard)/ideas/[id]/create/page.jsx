@@ -1,21 +1,56 @@
 "use client"
 
-import { usePathname } from 'next/navigation';
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ProfessionalEditor } from "@/components/notionLike/notion_like";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
-// import EntryForm from "@/components/entriy_form/create_entry";
-// import Editor from "@/components/entriy_form/entry_editor";
-// import {ProfessionalEditor} from "@/components/notionLike/notion_like"; // ProfessionalEditor
-import {ProfessionalEditor} from "@/components/notionLike/notion_like"
+import { toast, Toaster } from "sonner";
+import { usePathname } from "next/navigation";
+import { fetcher } from "@/lib/helpers";
 
 export default function Create_entry() {
-    console.log("hello from create entry");
+
 
     const pathname = usePathname();
-    let ideathon_id = Number(pathname.split("/")[2])
-    console.log(ideathon_id);
-    // const [form, setForm] = useState({});
+    const [editorContent, setEditorContent] = useState("");
+    const [isPublish, setIsPublish] = useState(false);
+    const router = useRouter();
+    useEffect(() => {
+        if (!isPublish) return;
+
+        const publishData = async () => {
+            let ideathon_id = pathname.split("/")[2];
+            console.log("-->", ideathon_id);
+
+            const backendPayload = {
+                ideathon_id: Number(ideathon_id),
+                description: JSON.stringify(editorContent),
+            };
+
+            try {
+                await fetcher({
+                    url: `http://localhost:8080/api/entries/add`,
+                    method: "POST",
+                    data: backendPayload,
+                    token: null,
+                    returned_status: 201,
+                });
+
+                toast.success("entry published successfully!");
+                let redirect_path = pathname.replace("/create", "")
+                router.push(redirect_path);
+            } catch (error) {
+                toast.error("Failed to publish ideathon.");
+                console.error("Publishing error:", error);
+            } finally {
+                setIsPublish(false);
+            }
+        };
+
+        publishData();
+    }, [isPublish]);
+
     return (
         <>
             <DashboardNavbar />
@@ -24,9 +59,8 @@ export default function Create_entry() {
                     <h1 className="text-xl font-bold text-black mb-[-20px] ml-[20px]">
                         Create a New Entry
                     </h1>
-                    {/* <EntryForm setForm={setForm} /> */}
-                    {/* <ProfessionalEditor form={null} /> */}
-                    <ProfessionalEditor form={null} apiUrl={"api/entries/add"} />
+                    <ProfessionalEditor setIsPublish={setIsPublish}
+                        setEditorContent={setEditorContent} />
                 </div>
             </main>
         </>)

@@ -16,11 +16,11 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id := r.Context().Value(middle.UserIDKey).(int)
-
 	var err error
 	var entrie Entries
-	entrie.User_id = user_id
+
+	entrie.User_id = r.Context().Value(middle.UserIDKey).(int)
+
 	if err = utils.Decode(r, &entrie); err != nil {
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
@@ -30,6 +30,7 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 	// 	utils.SendResponseStatus(w, http.StatusBadRequest, err)
 	// 	return
 	// }
+
 	entrie_id, err := Insert_entries(entrie)
 	if err != nil {
 		fmt.Println(err)
