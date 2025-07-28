@@ -19,7 +19,7 @@ export default function Ideathon(idea) {
   }
 
   return (
-        <div className="w-[320px] sm:w-[480px] md:w-[600px] lg:w-[1000px] flex flex-col md:flex-row justify-between items-start p-4 rounded-xl shadow-md bg-white gap-4 cursor-pointer">
+        <div className="w-[320px] sm:w-[480px] md:w-[600px] lg:w-[800px] flex flex-col md:flex-row justify-between items-start p-4 rounded-xl shadow-md bg-white gap-4 cursor-pointer">
           {/* Left Section */}
           <div className="flex gap-4 flex-1 min-w-0">
             <img

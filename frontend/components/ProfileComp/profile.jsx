@@ -1,77 +1,138 @@
-
 import Link from "next/link";
-import { Button } from "../ui/button";
-import { Pen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Pen, MapPin, Phone, Trophy, Target, Award, Users } from "lucide-react";
 
 export default function ProfileComponent({ profile }) {
-
-    let avatar = "http://localhost:8080/api" + profile?.avatar
+    let avatar = "http://localhost:8080/api" + profile?.avatar;
 
     return (
-
         <div className="max-w-7xl mx-auto flex px-4 pt-8">
             {/* Left Sidebar */}
-            <aside className="w-full max-w-[260px] p-6  mr-6 border-r border-gray-200">
-                <div className="flex flex-col gap-6 ">
-                    {/* Avatar and Name */}
-                    <div className="flex flex-col  items-center text-center">
-                        <img
-                            src={avatar || "/avatar-default.svg"}
-                            alt="avatar"
-                            className="w-24 h-24 rounded-full border-2 border-gray-300 object-cover mb-4"
-                        />
-                        <h2 className="text-lg font-semibold">{profile?.first_name}</h2>
-                        <h2 className="text-lg font-semibold">{profile?.last_name}</h2>
-                        <p className="text-sm text-gray-500">{profile?.location}</p>
-                    </div>
+            <aside className="w-full max-w-[260px] mr-6">
+                <Card className="h-fit">
+                    <CardContent className="p-6">
+                        <div className="flex flex-col gap-6">
+                            {/* Avatar and Name */}
+                            <div className="flex flex-col items-center text-center">
+                                <Avatar className="w-24 h-24 border-2 border-gray-300 mb-4">
+                                    <AvatarImage 
+                                        src={avatar || "/avatar-default.svg"} 
+                                        alt="avatar"
+                                        className="object-cover"
+                                    />
+                                    <AvatarFallback className="text-lg">
+                                        {profile?.first_name?.[0]}{profile?.last_name?.[0]}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="space-y-1">
+                                    <h2 className="text-lg font-semibold">
+                                        {profile?.first_name} {profile?.last_name}
+                                    </h2>
+                                    {profile?.location && (
+                                        <div className="flex items-center justify-center text-sm text-muted-foreground">
+                                            <MapPin className="w-3 h-3 mr-1" />
+                                            {profile.location}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
-                    {/* Bio */}
-                    <div>
-                        <h2 className="text-lg font-semibold">Bio</h2>
-                        <p className="text-sm text-gray-500 break-words">
-                            {profile?.bio || "No bio available."}
-                        </p>
-                        <p className="text-gray-500 mt-2">Phone : {profile?.phone_number || "No Phone Number"}</p>
-                    </div>
+                            <Separator />
 
-                    {/* Stats */}
-                    <div className="text-sm space-y-4">
-                        <div>
-                            <p className="text-gray-500">Total Ideathons : {profile?.ideathons || 0}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500">Total entries : {profile?.entries || 0}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500">Total prize : {profile?.total_prices || 0}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500">Total Ideathons that win : {profile?.total_wins || 0}</p>
-                        </div>
-                        {profile?.links ? <div>
-                            <p className="text-gray-500">On the web</p>
-                            <ul className="text-blue-500 space-y-1">
-                                {profile?.links?.map((link, i) => (
-                                    <li key={i}>
-                                        <a href={link.url} target="_blank" rel="noreferrer">
-                                            {link.label}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div> : null}
-                    </div>
+                            {/* Bio */}
+                            <div className="space-y-3">
+                                <h3 className="text-lg font-semibold">Bio</h3>
+                                <p className="text-sm text-muted-foreground break-words">
+                                    {profile?.bio || "No bio available."}
+                                </p>
+                                {profile?.phone_number && (
+                                    <div className="flex items-center text-sm text-muted-foreground">
+                                        <Phone className="w-3 h-3 mr-2" />
+                                        {profile.phone_number}
+                                    </div>
+                                )}
+                            </div>
 
-                    {/* Edit Profile Button */}
-                    <Link href="/profile/edit">
-                        <Button className="cursor-pointer w-full  hover:bg-gray-800 flex items-center justify-center space-x-1">
-                            <Pen className="w-4 h-4" />
-                            <span>Edit Profile</span>
-                        </Button>
-                    </Link>
-                </div>
+                            <Separator />
+
+                            {/* Stats */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold">Statistics</h3>
+                                <div className="grid grid-cols-1 gap-3">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center text-muted-foreground">
+                                            <Users className="w-4 h-4 mr-2" />
+                                            Total Ideathons
+                                        </div>
+                                        <Badge variant="secondary">{profile?.ideathons || 0}</Badge>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center text-muted-foreground">
+                                            <Target className="w-4 h-4 mr-2" />
+                                            Total entries
+                                        </div>
+                                        <Badge variant="secondary">{profile?.entries || 0}</Badge>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center text-muted-foreground">
+                                            <Trophy className="w-4 h-4 mr-2" />
+                                            Total prize
+                                        </div>
+                                        <Badge variant="secondary">{profile?.total_prices || 0}</Badge>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center text-muted-foreground">
+                                            <Award className="w-4 h-4 mr-2" />
+                                            Total wins
+                                        </div>
+                                        <Badge variant="secondary">{profile?.total_wins || 0}</Badge>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Links */}
+                            {profile?.links && profile.links.length > 0 && (
+                                <>
+                                    <Separator />
+                                    <div className="space-y-3">
+                                        <h3 className="text-lg font-semibold">On the web</h3>
+                                        <div className="space-y-2">
+                                            {profile.links.map((link, i) => (
+                                                <a
+                                                    key={i}
+                                                    href={link.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="block text-sm text-primary hover:underline"
+                                                >
+                                                    {link.label}
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            <Separator />
+
+                            {/* Edit Profile Button */}
+                            <Link href="/profile/edit">
+                                <Button className="w-full" variant="default">
+                                    <Pen className="w-4 h-4 mr-2" />
+                                    Edit Profile
+                                </Button>
+                            </Link>
+                        </div>
+                    </CardContent>
+                </Card>
             </aside>
         </div>
-
     );
 }
