@@ -7,7 +7,7 @@ import { toast, Toaster } from "sonner";
 import { AlertTriangle } from "lucide-react";
 
 
-export function ProfessionalEditor({ setIsPublish, setEditorContent }) {
+export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon }) {
   const editorRef = useRef(null);
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
@@ -16,13 +16,25 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent }) {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  useEffect(() => {
+    if (!ideathon || !ideathon.description) return;
 
+    const obj = JSON.parse(ideathon.description);
+    setTitle(obj.document?.title);
+    setSubtitle(obj.document?.subtitle);
+    setWordCount(obj?.meta?.wordCount);
+    console.log(obj);
 
+    editorRef.current.render({ blocks: obj.blocks });
+
+  }, [ideathon]);
   // Validation states
   const [titleError, setTitleError] = useState("");
   const [subtitleError, setSubtitleError] = useState("");
   const [contentError, setContentError] = useState("");
   const [isValidating, setIsValidating] = useState(false);
+
+
 
   // Validation rules
   const validationRules = {
@@ -145,7 +157,11 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent }) {
     if (!editorRef.current) return 0;
 
     try {
+
       const data = editorData || await editorRef.current.save();
+
+      console.log("zzzzz", data);
+
       let totalWords = 0;
 
       data.blocks.forEach((block) => {
@@ -498,6 +514,8 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent }) {
 
     try {
       const data = await editorRef.current.save();
+      console.log(data);
+
       // Note: Removed localStorage usage as per Claude artifacts restrictions
       // Save to memory or implement alternative storage solution
       setLastSaved(new Date());

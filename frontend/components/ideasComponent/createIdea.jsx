@@ -50,7 +50,7 @@ const ErrorMessage = ({ message }) => {
   );
 };
 
-export default function IdeathonForm({ setForm }) {
+export default function IdeathonForm({ setForm, ideathon }) {
   const [endDate, setEndDate] = useState(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [privacy, setPrivacy] = useState('Select Privacy');
@@ -62,6 +62,19 @@ export default function IdeathonForm({ setForm }) {
   const [price, setPrice] = useState(0);
   const [bannerImage, setBannerImage] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
+
+  useEffect(() => {
+    if (!ideathon) return;
+
+    setEndDate(ideathon.end_date ? new Date(ideathon.end_date) : undefined);
+    setPrivacy(ideathon.privacy || 'Select Privacy');
+    setCategories(ideathon.category || []);
+    setPrice(ideathon.price || 0);
+    setBannerPreview(ideathon.banner || null);
+
+    // Optionally:
+    setPriceType(ideathon.price > 0 ? 'Paid' : 'Free');
+  }, [ideathon]);
 
   // Validation states
   const [errors, setErrors] = useState({});
@@ -102,23 +115,23 @@ export default function IdeathonForm({ setForm }) {
   const validateBanner = (image) => {
     // Banner is now optional, so only validate if an image is provided
     if (!image) return null;
-    
+
     // Check file size (max 5MB)
     if (image.size > 5 * 1024 * 1024) return "Banner image must be less than 5MB";
-    
+
     // Check file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(image.type)) {
       return "Banner must be a valid image file (JPEG, PNG, GIF, or WebP)";
     }
-    
+
     return null;
   };
 
   // Validation runner
   const runValidation = () => {
     const newErrors = {};
-    
+
     const dateError = validateEndDate(endDate);
     if (dateError) newErrors.endDate = dateError;
 
@@ -147,7 +160,7 @@ export default function IdeathonForm({ setForm }) {
     if (Object.keys(touched).length > 0) {
       runValidation();
     }
-    
+
     setForm({
       endDate,
       categories,
@@ -250,11 +263,10 @@ export default function IdeathonForm({ setForm }) {
             </Label>
             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
               <PopoverTrigger>
-                <Button 
-                  variant="outline" 
-                  className={`w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 ${
-                    errors.endDate && touched.endDate ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''
-                  }`}
+                <Button
+                  variant="outline"
+                  className={`w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 ${errors.endDate && touched.endDate ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''
+                    }`}
                 >
                   <Calendar className="mr-2 h-4 w-4 text-gray-400" />
                   {endDate ? endDate.toLocaleDateString() : "Pick End Date"}
@@ -306,11 +318,10 @@ export default function IdeathonForm({ setForm }) {
                     markAsTouched('categories');
                   }}
                   onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 200)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:border-transparent ${
-                    errors.categories && touched.categories 
-                      ? 'border-red-300 focus:ring-red-200' 
-                      : 'border-gray-200 focus:ring-blue-200'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:border-transparent ${errors.categories && touched.categories
+                    ? 'border-red-300 focus:ring-red-200'
+                    : 'border-gray-200 focus:ring-blue-200'
+                    }`}
                   disabled={categories.length >= 5}
                 />
                 {showCategorySuggestions && categories.length < 5 && (
@@ -350,22 +361,22 @@ export default function IdeathonForm({ setForm }) {
             </Label>
             <div className="flex items-center space-x-4">
               <Label className="flex items-center">
-                <input 
-                  type="radio" 
-                  value="Paid" 
-                  checked={priceType === 'Paid'} 
-                  onChange={handlePriceTypeChange} 
-                  className="h-4 w-4" 
+                <input
+                  type="radio"
+                  value="Paid"
+                  checked={priceType === 'Paid'}
+                  onChange={handlePriceTypeChange}
+                  className="h-4 w-4"
                 />
                 <span className="ml-2 text-sm">Paid</span>
               </Label>
               <Label className="flex items-center">
-                <input 
-                  type="radio" 
-                  value="Free" 
-                  checked={priceType === 'Free'} 
-                  onChange={handlePriceTypeChange} 
-                  className="h-4 w-4" 
+                <input
+                  type="radio"
+                  value="Free"
+                  checked={priceType === 'Free'}
+                  onChange={handlePriceTypeChange}
+                  className="h-4 w-4"
                 />
                 <span className="ml-2 text-sm">Free</span>
               </Label>
@@ -378,11 +389,10 @@ export default function IdeathonForm({ setForm }) {
                   step="0.01"
                   value={price}
                   onChange={handlePriceChange}
-                  className={`w-32 ${
-                    errors.price && touched.price 
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
-                      : ''
-                  }`}
+                  className={`w-32 ${errors.price && touched.price
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                    : ''
+                    }`}
                   placeholder="0.00"
                 />
               )}
@@ -405,11 +415,10 @@ export default function IdeathonForm({ setForm }) {
                   setPrivacyOpen(!privacyOpen);
                   markAsTouched('privacy');
                 }}
-                className={`w-full justify-between font-normal ${
-                  errors.privacy && touched.privacy 
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200' 
-                    : ''
-                }`}
+                className={`w-full justify-between font-normal ${errors.privacy && touched.privacy
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                  : ''
+                  }`}
               >
                 <span className={privacy === 'Select Privacy' ? 'text-gray-500' : 'text-gray-900'}>
                   {privacy}
@@ -449,16 +458,15 @@ export default function IdeathonForm({ setForm }) {
                 onChange={handleImageUpload}
                 className="absolute inset-0 opacity-0 z-10 cursor-pointer"
               />
-              <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                errors.banner && touched.banner 
-                  ? 'border-red-300' 
-                  : bannerPreview 
-                    ? 'border-gray-300' 
-                    : 'border-gray-200 hover:border-gray-400'
-              }`}>
+              <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${errors.banner && touched.banner
+                ? 'border-red-300'
+                : bannerPreview
+                  ? 'border-gray-300'
+                  : 'border-gray-200 hover:border-gray-400'
+                }`}>
                 {bannerPreview ? (
                   <>
-                    <img src={bannerPreview} alt="Banner" className="max-w-full max-h-48 mx-auto rounded-lg object-cover" />
+                    <img src={`http://localhost:8080/api${bannerPreview}`} alt="Banner" className="max-w-full max-h-48 mx-auto rounded-lg object-cover" />
                     <div className="mt-2 text-sm text-gray-500">Click to change image</div>
                   </>
                 ) : (
