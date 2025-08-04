@@ -56,6 +56,11 @@ export async function fetcher({
       window.location.href = "/login"; // or use Router.push if in React component
       return; // prevent further execution
     }
+    // Handle 403 Forbidden globally
+    if (response.status === 403 && typeof window !== "undefined") {
+      window.location.href = "/ideas"; // or use Router.push if in React component
+      return; // prevent further execution
+    }
 
     // If status doesn't match expected, throw error
     if (response.status !== returned_status) {

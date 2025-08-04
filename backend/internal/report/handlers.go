@@ -19,11 +19,10 @@ func Add_report(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if err = utils.Decode(r, &report); err != nil {
-		 log.Println("Decode", err)
+		log.Println("Decode", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
-	// fmt.Println(report)
 	report.User_id = r.Context().Value(middle.UserIDKey).(int)
 
 	if err = report.Check_report_info(); err != nil {
@@ -43,4 +42,33 @@ func Add_report(w http.ResponseWriter, r *http.Request) {
 }
 
 func Get_report(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method not allowed"))
+		return
+	}
+
+	var filter Filter
+	var err error
+
+	if err = utils.Decode(r, &filter); err != nil {
+		log.Println("Decode", err)
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
+		return
+	}
+
+	query, args := Prepare_report_query(filter)
+
+	reports, err := GetReports(query, args)
+	if err != nil {
+		log.Println("GetReports", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = utils.Encode(w, reports)
+	if err != nil {
+		log.Println("Encode", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
 }

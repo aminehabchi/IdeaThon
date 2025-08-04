@@ -19,13 +19,6 @@ func Setup_DB() error {
 		return fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// Enable foreign keys
-	_, err = DATABASE.Exec("PRAGMA foreign_keys = ON;")
-	if err != nil {
-		DATABASE.Close()
-		return fmt.Errorf("failed to enable foreign keys: %w", err)
-	}
-
 	// Read SQL file containing schema (tables.sql)
 	schema, err := os.ReadFile("../config/tables.sql")
 	if err != nil {

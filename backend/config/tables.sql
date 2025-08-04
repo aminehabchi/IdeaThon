@@ -3,6 +3,7 @@ PRAGMA foreign_keys = ON;
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role TEXT NOT NULL CHECK(role IN ('admin', 'user')) DEFAULT 'user',
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
@@ -11,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone_number TEXT,
     bio TEXT,
     country TEXT DEFAULT NULL,
+    is_banned INTEGER DEFAULT 0 CHECK(is_banned IN (0, 1)),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -72,6 +74,7 @@ CREATE TABLE IF NOT EXISTS report (
     type TEXT NOT NULL CHECK(type IN ('generale', 'ideathon', 'entrie')),
     issue TEXT NOT NULL CHECK(issue IN ('spam', 'harassment', 'misinformation', 'other', 'copyright', 'inappropriate','illegal', 'bug', 'feature', 'security','general')),
     description TEXT NOT NULL,
+    is_solved INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

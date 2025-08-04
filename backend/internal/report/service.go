@@ -5,6 +5,70 @@ import (
 	"strings"
 )
 
+func Prepare_report_query(filter Filter) (string, []any) {
+	query := `
+		SELECT
+			id, user_id, type_id, email, subject, type, issue, description, is_solved, created_at
+		FROM report
+		WHERE 1=1
+	`
+	args := []any{}
+
+	if filter.Id != 0 {
+		query += " AND id = ?"
+		args = append(args, filter.Id)
+	}
+
+	if filter.User_id != 0 {
+		query += " AND user_id = ?"
+		args = append(args, filter.User_id)
+	}
+
+	if filter.Type_id != 0 {
+		query += " AND type_id = ?"
+		args = append(args, filter.Type_id)
+	}
+
+	if filter.Issue != "" {
+		query += " AND issue = ?"
+		args = append(args, filter.Issue)
+	}
+
+	if filter.Type != "" {
+		query += " AND type = ?"
+		args = append(args, filter.Type)
+	}
+
+	if filter.Search != "" {
+		// Search in subject and description fields for example
+		searchTerm := "%" + filter.Search + "%"
+		query += " AND (subject LIKE ? OR description LIKE ?)"
+		args = append(args, searchTerm, searchTerm)
+	}
+
+	query += " AND is_solved = ?"
+	if filter.Is_solved {
+		args = append(args, 1)
+	} else {
+		args = append(args, 0)
+	}
+
+	// Optional sorting by allowed columns
+	allowedSortFields := map[string]bool{
+		"created_at": true,
+		"id":         true,
+		"user_id":    true,
+	}
+
+	sortBy := "created_at DESC" // default
+	if filter.Sort_by != "" && allowedSortFields[filter.Sort_by] {
+		sortBy = filter.Sort_by + " DESC"
+	}
+	query += " ORDER BY " + sortBy
+
+	return query, args
+}
+
 func (r *Report) Check_report_info() error {
 	// Trim spaces from issue and description
 	r.Issue = strings.TrimSpace(r.Issue)
@@ -22,8 +86,8 @@ func (r *Report) Check_report_info() error {
 		"illegal":        true,
 		"bug":            true,
 		"feature":        true,
-		"security": 	  true,
-		"general": 		  true,
+		"security":       true,
+		"general":        true,
 	}
 
 	if r.Issue == "" {

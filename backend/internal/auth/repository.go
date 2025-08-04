@@ -11,7 +11,7 @@ func Get_my_Info(userID int) (User, error) {
 	var user User
 	db := database.Get_DB()
 
-	query := "SELECT id, first_name, last_name, email, avatar FROM users WHERE id = ?"
+	query := "SELECT id, first_name, last_name, email, avatar,role,is_banned FROM users WHERE id = ?"
 
 	err := db.QueryRow(query, userID).Scan(
 		&user.ID,
@@ -19,6 +19,8 @@ func Get_my_Info(userID int) (User, error) {
 		&user.LastName,
 		&user.Email,
 		&user.Avatar,
+		&user.Role,
+		&user.Is_banned,
 	)
 
 	return user, err

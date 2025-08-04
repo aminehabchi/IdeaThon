@@ -2,17 +2,20 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { fetcher } from "@/lib/helpers"; // update this path if needed
+import { usePathname } from "next/navigation";
 
 const AuthContext = createContext({
   user: null,
   loading: true,
 });
 
-export const AuthProvider = ({ children }) => {    
+export const AuthProvider = ({ children }) => {
+  const pathname = usePathname();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (pathname === "/login" || pathname === "/register") return
     const loadUser = async () => {
       try {
         const data = await fetcher({
@@ -29,9 +32,9 @@ export const AuthProvider = ({ children }) => {
       }
     };
     console.log("user", user);
-    
+
     loadUser();
-  }, []);
+  }, [pathname]);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

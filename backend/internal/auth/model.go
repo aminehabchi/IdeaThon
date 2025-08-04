@@ -9,4 +9,6 @@ type User struct {
 	Avatar      string `json:"avatar,omitempty"`
 	PhoneNumber string `json:"phone_number,omitempty"`
 	Bio         string `json:"bio,omitempty"`
+	Role        string `json:"role,omitempty"`
+	Is_banned   int    `json:"is_banned,omitempty"`
 }
