@@ -34,7 +34,7 @@ func Prepare_report_query(filter Filter) (string, []any) {
 		args = append(args, filter.Issue)
 	}
 
-	if filter.Type != "" {
+	if filter.Type != "" && filter.Type != "All" {
 		query += " AND type = ?"
 		args = append(args, filter.Type)
 	}
@@ -45,12 +45,14 @@ func Prepare_report_query(filter Filter) (string, []any) {
 		query += " AND (subject LIKE ? OR description LIKE ?)"
 		args = append(args, searchTerm, searchTerm)
 	}
-
-	query += " AND is_solved = ?"
-	if filter.Is_solved {
-		args = append(args, 1)
-	} else {
-		args = append(args, 0)
+	
+	if filter.Is_solved != "" {
+		query += " AND is_solved = ?"
+		if filter.Is_solved == "true" {
+			args = append(args, 1)
+		} else {
+			args = append(args, 0)
+		}
 	}
 
 	// Optional sorting by allowed columns

@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- Reports table
 CREATE TABLE IF NOT EXISTS report (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
+    user_id INTEGER,
     type_id INTEGER DEFAULT 0,
     email TEXT NOT NULL  DEFAULT '',
     subject TEXT NOT NULL DEFAULT '',

@@ -9,6 +9,23 @@ import (
 	"ideaThon/utils"
 )
 
+func Get_Info(w http.ResponseWriter, r *http.Request) {
+	info, err := Get_info()
+	if err != nil {
+		log.Println("Get_info ", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+	info.Content_removed = -1
+
+	err = utils.Encode(w, info)
+	if err != nil {
+		log.Println("Encode", err)
+		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
+		return
+	}
+}
+
 func Add_report(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method not allowed"))

@@ -13,6 +13,13 @@ type Report struct {
 	Is_solved   bool   `json:"is_solved,omitempty"`
 }
 
+type Info struct {
+	Total_reports   int `json:"total_reports"`
+	Pending_reports int `json:"pending_reports"`
+	Users_banned    int `json:"users_banned"`
+	Content_removed int `json:"content_removed"`
+}
+
 type Filter struct {
 	Id        int    `json:"id,omitempty"`
 	User_id   int    `json:"user_id,omitempty"`
@@ -21,5 +28,5 @@ type Filter struct {
 	Type      string `json:"type,omitempty"`
 	Search    string `json:"search,omitempty"`
 	Sort_by   string `json:"sort_by,omitempty"`
-	Is_solved bool   `json:"is_solved,omitempty"`
+	Is_solved string `json:"is_solved,omitempty"`
 }

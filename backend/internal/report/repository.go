@@ -3,13 +3,23 @@ package report
 import (
 	"strings"
 
-	database "ideaThon/config"
+	"ideaThon/config"
 )
 
-func GetReports(query string, args []any) ([]Report, error) {
-	db := database.Get_DB()
+func Get_info() (Info, error) {
+	var info Info
+	query := `
+			SELECT 
+		(SELECT COUNT(*) FROM report) AS total_reports,
+		(SELECT COUNT(*) FROM report WHERE is_solved = 0) AS pending_reports,
+		(SELECT COUNT(*) FROM users WHERE is_banned = 1) AS banned_users;`
 
-	rows, err := db.Query(query, args...)
+	err := config.Get_DB().QueryRow(query).Scan(&info.Total_reports, &info.Pending_reports, &info.Users_banned)
+	return info, err
+}
+
+func GetReports(query string, args []any) ([]Report, error) {
+	rows, err := config.Get_DB().Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +59,7 @@ func GetReports(query string, args []any) ([]Report, error) {
 }
 
 func Insert_report_info(report Report) (int, error) {
-	db := database.Get_DB()
+	db := config.Get_DB()
 
 	query := `
 		INSERT INTO report (user_id, type_id, email, subject ,  type, issue, description)
