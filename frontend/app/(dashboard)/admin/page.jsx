@@ -17,22 +17,80 @@ import {
   Flag,
   Clock
 } from 'lucide-react';
-import { fetcher } from '@/lib/helpers';
 
+import { fetcher, timeAgo } from '@/lib/helpers';
+const statsData = [
+  {
+    title: "Total reports",
+    value: "0",
+    icon: AlertTriangle,
+    bgColor: "bg-red-100"
+  },
+  {
+    title: "Pending reports",
+    value: "0",
+    icon: Clock,
+    bgColor: "bg-yellow-100"
+  },
+  {
+    title: "Users banned",
+    value: "0",
+    icon: Ban,
+    bgColor: "bg-orange-100"
+  },
+  {
+    title: "Content removed",
+    value: "0",
+    icon: Trash2,
+    bgColor: "bg-purple-100"
+  }
+];
 export default function ReportsManagementDashboard() {
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [reports, setreports] = useState([])
+
+  useEffect(() => {
+    async function fetchInfo() {
+      try {
+        let s = selectedFilter
+        if (s == "All") {
+          s = ""
+        }
+        const data = await fetcher({
+          url: `http://localhost:8080/api/report/info`,
+          method: "POST",
+          token: null,
+          returned_status: 200,
+        });
+        console.log("Info data:", data);
+        statsData[0].value = data.total_reports
+        statsData[1].value = data.pending_reports
+        statsData[2].value = data.users_banned
+        statsData[3].value = data.content_removed
+      } catch (error) {
+        console.error("Failed to fetch reports:", error);
+      }
+    }
+
+    fetchInfo();
+  }, []);
 
   useEffect(() => {
     async function fetchReports() {
       try {
+        let s = selectedFilter
+        if (s == "All") {
+          s = ""
+        }
         const data = await fetcher({
           url: `http://localhost:8080/api/report/get`,
           method: "POST",
           token: null,
-          data: selectedFilter,  // send the entire filter
+          data: { type: s },  // send the entire filter
           returned_status: 200,
         });
         console.log("Reports data:", data);
+        setreports(data)
       } catch (error) {
         console.error("Failed to fetch reports:", error);
       }
@@ -41,159 +99,13 @@ export default function ReportsManagementDashboard() {
     fetchReports();
   }, [selectedFilter]);
 
-  const statsData = [
-    {
-      title: "Total reports",
-      value: "1502",
-      icon: AlertTriangle,
-      bgColor: "bg-red-100"
-    },
-    {
-      title: "Pending reports",
-      value: "1,525",
-      icon: Clock,
-      bgColor: "bg-yellow-100"
-    },
-    {
-      title: "Users banned",
-      value: "150",
-      icon: Ban,
-      bgColor: "bg-orange-100"
-    },
-    {
-      title: "Content removed",
-      value: "342",
-      icon: Trash2,
-      bgColor: "bg-purple-100"
-    }
-  ];
-
-  const reportsData = [
-    {
-      id: "#192541",
-      reporter: "Esther Howard",
-      initials: "EH",
-      email: "esther.howard@email.com",
-      subject: "Inappropriate content in idea submission",
-      type: "ideathon",
-      issue: "inappropriate",
-      description: "This user posted offensive content in their idea submission that violates community guidelines",
-      created_at: "2 hours ago",
-      checked: false
-    },
-    {
-      id: "#192540",
-      reporter: "David Miller",
-      initials: "DM",
-      email: "david.miller@email.com",
-      subject: "Spam messages in comments",
-      type: "generale",
-      issue: "spam",
-      description: "User is sending spam messages repeatedly in idea comments",
-      created_at: "5 hours ago",
-      checked: false
-    },
-    {
-      id: "#192539",
-      reporter: "James Moore",
-      initials: "JM",
-      email: "james.moore@email.com",
-      subject: "Harassment in ideathon discussion",
-      type: "ideathon",
-      issue: "harassment",
-      description: "User is harassing other participants during ideathon sessions",
-      created_at: "1 day ago",
-      checked: true
-    },
-    {
-      id: "#192538",
-      reporter: "Robert Anderson",
-      initials: "RA",
-      email: "robert.anderson@email.com",
-      subject: "Copyright violation in entry",
-      type: "entrie",
-      issue: "copyright",
-      description: "Entry contains copyrighted material without permission",
-      created_at: "1 day ago",
-      checked: false
-    },
-    {
-      id: "#192537",
-      reporter: "Jessica Martinez",
-      initials: "JM",
-      email: "jessica.martinez@email.com",
-      subject: "Misinformation in idea description",
-      type: "ideathon",
-      issue: "misinformation",
-      description: "Idea contains false claims and misleading information",
-      created_at: "2 days ago",
-      checked: false
-    },
-    {
-      id: "#192536",
-      reporter: "William Jackson",
-      initials: "WJ",
-      email: "william.jackson@email.com",
-      subject: "Security vulnerability report",
-      type: "generale",
-      issue: "security",
-      description: "Found potential security issue in the platform",
-      created_at: "2 days ago",
-      checked: false
-    },
-    {
-      id: "#192535",
-      reporter: "Christopher Harris",
-      initials: "CH",
-      email: "christopher.harris@email.com",
-      subject: "Feature request for better moderation",
-      type: "generale",
-      issue: "feature",
-      description: "Requesting better moderation tools for community management",
-      created_at: "3 days ago",
-      checked: true
-    },
-    {
-      id: "#192534",
-      reporter: "Marcus Kenter",
-      initials: "MK",
-      email: "marcus.kenter@email.com",
-      subject: "Bug in entry submission",
-      type: "entrie",
-      issue: "bug",
-      description: "Unable to submit entry due to technical issue",
-      created_at: "3 days ago",
-      checked: false
-    },
-    {
-      id: "#192533",
-      reporter: "Joshua Thompson",
-      initials: "JT",
-      email: "joshua.thompson@email.com",
-      subject: "Illegal content shared",
-      type: "ideathon",
-      issue: "illegal",
-      description: "User shared illegal content during ideathon presentation",
-      created_at: "4 days ago",
-      checked: false
-    },
-    {
-      id: "#192532",
-      reporter: "Mason Martin",
-      initials: "MM",
-      email: "mason.martin@email.com",
-      subject: "General inquiry about platform rules",
-      type: "generale",
-      issue: "general",
-      description: "Question about community guidelines and platform policies",
-      created_at: "5 days ago",
-      checked: true
-    }
-  ];
 
   const filterOptions = ["All", "generale", "ideathon", "entrie"];
 
   const getInitialsColor = (initials) => {
+    if (!initials) {
+      initials = "CH"
+    }
     const colors = [
       "bg-blue-500",
       "bg-green-500",
@@ -354,31 +266,32 @@ export default function ReportsManagementDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {reportsData.map((report, index) => (
+                    {reports?.map((report, index) => (
+
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="py-4 px-6">
                           <Checkbox
-                            checked={report.checked}
+                            checked={report.is_solved}
                           />
                         </td>
                         <td className="py-4 px-6">
                           <div>
                             <span className="text-sm font-medium text-gray-900">
-                              {report.id}
+                              #{report.id}
                             </span>
                             <p className="text-xs text-gray-500 mt-1">
-                              {report.created_at}
+                              {timeAgo(report.created_at)}
                             </p>
                           </div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center space-x-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium ${getInitialsColor(report.initials)}`}>
-                              {report.initials}
+                              {report.initials | "none"}
                             </div>
                             <div>
                               <span className="text-sm text-gray-900 block">
-                                {report.reporter}
+                                {report.reporter || "none"}
                               </span>
                               <span className="text-xs text-gray-500">
                                 {report.email}
