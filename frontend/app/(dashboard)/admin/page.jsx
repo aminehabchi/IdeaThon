@@ -45,6 +45,92 @@ const statsData = [
     bgColor: "bg-purple-100"
   }
 ];
+
+const getInitialsColor = (initials) => {
+  if (!initials) {
+    initials = "CH"
+  }
+  const colors = [
+    "bg-blue-500",
+    "bg-green-500",
+    "bg-purple-500",
+    "bg-orange-500",
+    "bg-pink-500",
+    "bg-indigo-500"
+  ];
+  return colors[initials.charCodeAt(0) % colors.length];
+};
+
+const getTypeColor = (type) => {
+  const colors = {
+    "generale": "bg-blue-100 text-blue-800",
+    "ideathon": "bg-green-100 text-green-800",
+    "entrie": "bg-purple-100 text-purple-800"
+  };
+  return colors[type] || "bg-gray-100 text-gray-800";
+};
+
+const getIssueColor = (issue) => {
+  const severityColors = {
+    "spam": "bg-yellow-100 text-yellow-800",
+    "harassment": "bg-red-100 text-red-800",
+    "misinformation": "bg-orange-100 text-orange-800",
+    "inappropriate": "bg-red-100 text-red-800",
+    "copyright": "bg-pink-100 text-pink-800",
+    "illegal": "bg-red-100 text-red-800",
+    "security": "bg-red-100 text-red-800",
+    "bug": "bg-blue-100 text-blue-800",
+    "feature": "bg-green-100 text-green-800",
+    "general": "bg-gray-100 text-gray-800",
+    "other": "bg-gray-100 text-gray-800"
+  };
+  return severityColors[issue] || "bg-gray-100 text-gray-800";
+};
+
+const getActionButtons = (type, issue) => {
+  const isCritical = ['harassment', 'illegal', 'inappropriate', 'security'].includes(issue);
+
+  return (
+    <div className="flex space-x-2">
+      <Button
+        size="sm"
+        variant="outline"
+        className="text-blue-700 border-blue-300 hover:bg-blue-50"
+      >
+        <Eye className="h-3 w-3 mr-1" />
+        Review
+      </Button>
+      {isCritical && (
+        <>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-orange-700 border-orange-300 hover:bg-orange-50"
+          >
+            <Ban className="h-3 w-3 mr-1" />
+            Ban User
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-red-700 border-red-300 hover:bg-red-50"
+          >
+            <Trash2 className="h-3 w-3 mr-1" />
+            Delete
+          </Button>
+        </>
+      )}
+    </div>
+  );
+};
+
+async function toggle_solved_status(id) {
+  await fetcher({
+    url: `http://localhost:8080/api/report/solve?report_id=${id}`,
+    method: "GET",
+    returned_status: 200,
+  });
+}
 export default function ReportsManagementDashboard() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [reports, setreports] = useState([])
@@ -100,85 +186,9 @@ export default function ReportsManagementDashboard() {
   }, [selectedFilter]);
 
 
+
   const filterOptions = ["All", "generale", "ideathon", "entrie"];
 
-  const getInitialsColor = (initials) => {
-    if (!initials) {
-      initials = "CH"
-    }
-    const colors = [
-      "bg-blue-500",
-      "bg-green-500",
-      "bg-purple-500",
-      "bg-orange-500",
-      "bg-pink-500",
-      "bg-indigo-500"
-    ];
-    return colors[initials.charCodeAt(0) % colors.length];
-  };
-
-  const getTypeColor = (type) => {
-    const colors = {
-      "generale": "bg-blue-100 text-blue-800",
-      "ideathon": "bg-green-100 text-green-800",
-      "entrie": "bg-purple-100 text-purple-800"
-    };
-    return colors[type] || "bg-gray-100 text-gray-800";
-  };
-
-  const getIssueColor = (issue) => {
-    const severityColors = {
-      "spam": "bg-yellow-100 text-yellow-800",
-      "harassment": "bg-red-100 text-red-800",
-      "misinformation": "bg-orange-100 text-orange-800",
-      "inappropriate": "bg-red-100 text-red-800",
-      "copyright": "bg-pink-100 text-pink-800",
-      "illegal": "bg-red-100 text-red-800",
-      "security": "bg-red-100 text-red-800",
-      "bug": "bg-blue-100 text-blue-800",
-      "feature": "bg-green-100 text-green-800",
-      "general": "bg-gray-100 text-gray-800",
-      "other": "bg-gray-100 text-gray-800"
-    };
-    return severityColors[issue] || "bg-gray-100 text-gray-800";
-  };
-
-  const getActionButtons = (type, issue) => {
-    const isCritical = ['harassment', 'illegal', 'inappropriate', 'security'].includes(issue);
-
-    return (
-      <div className="flex space-x-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-blue-700 border-blue-300 hover:bg-blue-50"
-        >
-          <Eye className="h-3 w-3 mr-1" />
-          Review
-        </Button>
-        {isCritical && (
-          <>
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-orange-700 border-orange-300 hover:bg-orange-50"
-            >
-              <Ban className="h-3 w-3 mr-1" />
-              Ban User
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-red-700 border-red-300 hover:bg-red-50"
-            >
-              <Trash2 className="h-3 w-3 mr-1" />
-              Delete
-            </Button>
-          </>
-        )}
-      </div>
-    );
-  };
 
   return (
     <>
@@ -271,6 +281,7 @@ export default function ReportsManagementDashboard() {
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="py-4 px-6">
                           <Checkbox
+                            onClick={() => toggle_solved_status(report.id)}
                             checked={report.is_solved}
                           />
                         </td>

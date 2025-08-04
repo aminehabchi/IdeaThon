@@ -6,6 +6,12 @@ import (
 	"ideaThon/config"
 )
 
+func Update_solved_status(id int) error {
+	query := `UPDATE report SET is_solved = CASE WHEN is_solved = 1 THEN 0 ELSE 1 END WHERE id = ?`
+	_, err := config.Get_DB().Exec(query, id)
+	return err
+}
+
 func Get_info() (Info, error) {
 	var info Info
 	query := `

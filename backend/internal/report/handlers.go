@@ -4,10 +4,26 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strconv"
 
 	middle "ideaThon/middlewares"
 	"ideaThon/utils"
 )
+
+func Toggle_report_solved(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(r.FormValue("report_id"))
+	if id <= 0 {
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid in report id"))
+		return
+	}
+
+	if err := Update_solved_status(id); err != nil {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, errors.New("invalid in report id"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
 
 func Get_Info(w http.ResponseWriter, r *http.Request) {
 	info, err := Get_info()
