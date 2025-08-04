@@ -127,17 +127,17 @@ func Update_ideathons(w http.ResponseWriter, r *http.Request) {
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
 		return
 	}
-	// fmt.Println("----->",ideathon)
 	if err = ideathon.Check_ideathons_info(); err != nil {
-		// fmt.Println(err)
+		log.Println("Check_ideathons_info", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
 		return
 	}
 
 	if err = Update_ideathon(user_id, ideathon); err != nil {
+		log.Println("Update_ideathon", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
-
+	log.Printf("%s Ideathon updated successfully", ideathon.Price)
 	w.WriteHeader(http.StatusNoContent)
 }

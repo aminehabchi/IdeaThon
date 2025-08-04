@@ -62,7 +62,7 @@ func Prepare_ideathon_query(params I_params, user_id int) (string, []any) {
 		}
 		query += " AND ideathons_categories.category IN (" + strings.Join(placeholders, ",") + ")"
 	}
-
+	query += " GROUP BY ideathons.id"
 	query += " ORDER BY ideathons.id DESC"
 
 	// // Pagination (OFFSET)
