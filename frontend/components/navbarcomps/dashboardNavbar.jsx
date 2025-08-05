@@ -83,13 +83,15 @@ export function DashboardNavbar() {
                 <span className="hidden sm:inline">Create</span>
               </Button>
             </Link>
-
             <NotificationDropdown />
+            <div className="flex items-center space-x-4 mt-3"> 
             <ProfileDropdown
               userImage={"http://localhost:8080/api" + user?.avatar}
               userName={`${user?.first_name} ${user?.last_name}`}
               userEmail={user?.email}
             />
+            </div>
+
           </div>
         </div>
 

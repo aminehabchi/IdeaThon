@@ -116,6 +116,7 @@ func (r *Report) Check_report_info() error {
 	if r.Email == "" || !strings.Contains(r.Email, "@") || !strings.Contains(r.Email, ".") {
 		return errors.New("email is required")
 	}
+	
 	if r.Subject == "" || (len(r.Subject) < 10 && len(r.Subject) > 100) {
 		return errors.New("subject is required")
 	}

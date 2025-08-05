@@ -3,12 +3,12 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+// import { Card, CardContent } from "@/components/ui/card";
 
 export function Categories({ selectedCategory, onCategorySelect }) {
   const [showAll, setShowAll] = useState(false);
   const scrollContainerRef = useRef(null);
-  const [showActiveFilters, setShowActiveFilters] = useState(true);
+  // const [showActiveFilters, setShowActiveFilters] = useState(true);
 
   const categories = [
     "Technology", "Health", "Education", "Environment", "Business", "Finance",
@@ -214,7 +214,7 @@ export function Categories({ selectedCategory, onCategorySelect }) {
           </div>
         </div>
 
-        {/* Selected Categories Summary Toggle */}
+        {/* Selected Categories Summary Toggle
         {selectedCategory.length > 0 && (
           <div className="mt-4 flex justify-end">
             <Button
@@ -236,10 +236,10 @@ export function Categories({ selectedCategory, onCategorySelect }) {
               )}
             </Button>
           </div>
-        )}
+        )} */}
 
         {/* Selected Categories Summary */}
-        {selectedCategory.length > 0 && showActiveFilters && (
+        {/* {selectedCategory.length > 0 && showActiveFilters && (
           <Card className="mt-2 border-none shadow-none">
             <CardContent className="p-2">
               <div className="flex items-center justify-between">
@@ -270,7 +270,7 @@ export function Categories({ selectedCategory, onCategorySelect }) {
               </div>
             </CardContent>
           </Card>
-        )}
+        )} */}
 
       </div>
     </section>

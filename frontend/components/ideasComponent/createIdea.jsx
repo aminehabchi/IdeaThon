@@ -466,7 +466,8 @@ export default function IdeathonForm({ setForm, ideathon }) {
                 }`}>
                 {bannerPreview ? (
                   <>
-                    <img src={`http://localhost:8080/api${bannerPreview}`} alt="Banner" className="max-w-full max-h-48 mx-auto rounded-lg object-cover" />
+                    <img className="max-w-full max-h-48 mx-auto rounded-lg object-cover" src={bannerPreview} alt="image preview" />
+
                     <div className="mt-2 text-sm text-gray-500">Click to change image</div>
                   </>
                 ) : (

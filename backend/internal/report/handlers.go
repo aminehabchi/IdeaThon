@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	middle "ideaThon/middlewares"
 	"ideaThon/utils"
 )
 
@@ -56,7 +55,12 @@ func Add_report(w http.ResponseWriter, r *http.Request) {
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
-	report.User_id = r.Context().Value(middle.UserIDKey).(int)
+
+	token, err := utils.Get_token_from_session(r)
+	if err == nil {
+		report.User_id, _ = utils.Get_id_from_session(token)
+	}
+
 
 	if err = report.Check_report_info(); err != nil {
 		log.Println("Check_report_info ", err)
