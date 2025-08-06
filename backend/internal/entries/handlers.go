@@ -102,6 +102,7 @@ func Get_entries(w http.ResponseWriter, r *http.Request) {
 
 	var params Params
 	if err := utils.Decode(r, &params); err != nil {
+		fmt.Println("Decode", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid Request Body"))
 		return
 	}

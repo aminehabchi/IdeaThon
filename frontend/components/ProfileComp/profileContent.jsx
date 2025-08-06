@@ -6,9 +6,10 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EntriesDisplay } from "../ideasComponent/ideaEntriesList"; // Renamed import
 
 export function ProfileContent({ ideathons, entries }) {
-    const [activeTab, setActiveTab] = useState("ideathons");
+    const [activeTab, setActiveTab] = useState("ideathons")
 
     return (
         <section className="w-full">
@@ -48,7 +49,6 @@ export function ProfileContent({ ideathons, entries }) {
                 </Button>
             </div>
 
-            {/* Tab Content */}
             {activeTab === "ideathons" && (
                 <div className="w-full">
                     {ideathons && ideathons.length > 0 ? (
@@ -81,34 +81,8 @@ export function ProfileContent({ ideathons, entries }) {
             {activeTab === "entries" && (
                 <div className="w-full">
                     {entries && entries.length > 0 ? (
-                        <div className="w-full space-y-3 sm:space-y-4">
-                            {entries.map((entry) => (
-                                <Link key={entry.id} href={`/entries/${entry.id}`}>
-                                    <Card className="w-full transition-all duration-200 hover:shadow-md hover:border-primary/20 active:scale-[0.99]">
-                                        <CardContent className="p-3 sm:p-4">
-                                            <div className="space-y-2">
-                                                <h3 className="text-sm sm:text-base font-semibold text-foreground line-clamp-2">
-                                                    {entry.title || "Untitled Entry"}
-                                                </h3>
-                                                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                                                    {entry.description || "No description available"}
-                                                </p>
-                                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-2">
-                                                    <Badge variant="outline" className="text-xs w-fit">
-                                                        {entry.status || "Submitted"}
-                                                    </Badge>
-                                                    {entry.date && (
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {new Date(entry.date).toLocaleDateString()}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </Link>
-                            ))}
-                        </div>
+                        // Pass all entries to a single component instead of mapping
+                        <EntriesDisplay entries={entries} />
                     ) : (
                         <Card className="w-full">
                             <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12 px-4">

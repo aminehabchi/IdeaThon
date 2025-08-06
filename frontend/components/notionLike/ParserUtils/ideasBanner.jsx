@@ -1,37 +1,38 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-// import { Badge } from "@/components/ui/badge";
-// import { IdeaBody } from "@/components/ideasComponent/ideaBody";
-import { EntriesList } from "@/components/ideasComponent/ideaEntriesList";
+import { EntriesList } from "@/components/ideasComponent/ideaEntriesList"; // Keep the original EntriesList
 import { fetcher } from "@/lib/helpers";
 import { DocumentContent } from "./DocumentContent";
 import { DocumentBanner } from "./DocumentBanner";
 
 export function ProjectHeader({parsedData, id }) {
-  //console.log("id from projectheader",id);
   const [activeTab, setActiveTab] = useState("project");
-  // const [ideathon, setIdeathon] = useState({});
+  const [entriesCount, setEntriesCount] = useState(0);
 
-  // useEffect(() => {
-  //   if (!id) return;
-  //   async function fetchIdeathon() {
-  //     try {
-  //       const data = await fetcher({
-  //         url: " http://localhost:8080/api/ideathons/get",
-  //         method: "POST",
-  //         data: { id: Number(id.id), offset: 0 },
-  //         token: null,
-  //         returned_status: 200,
-  //       });
-  //       setIdeathon(data);
-  //     } catch (err) {
-  //       console.error("Error fetching ideathon:", err);
-  //     }
-  //   }
+  // Optional: Fetch entries count for display in tab
+  useEffect(() => {
+    if (!id) return;
+    async function fetchEntriesCount() {
+      try {
+        const data = await fetcher({
+          url: " http://localhost:8080/api/entries/get",
+          method: "POST",
+          data: { offset: 0, ideathon_id: id },
+          token: null,
+          returned_status: 200,
+        });
+        
+        if (data && Array.isArray(data)) {
+          setEntriesCount(data.length);
+        }
+      } catch (err) {
+        console.error("Error fetching entries count:", err);
+      }
+    }
 
-  //   fetchIdeathon();
-  // }, [id]);
+    fetchEntriesCount();
+  }, [id]);
 
   return (
     <div className="px-6 py-6 bg-white ">
@@ -57,7 +58,7 @@ export function ProjectHeader({parsedData, id }) {
                 : "text-gray-500 hover:text-gray-700"
                 }`}
             >
-              Entries 4
+              Entries {entriesCount > 0 ? entriesCount : ''}
             </button>
           </div>
         </div>

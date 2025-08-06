@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import ProfileComponent from "@/components/ProfileComp/profile";
 import { fetcher } from "@/lib/helpers";
@@ -12,16 +12,17 @@ import { AlertCircle } from "lucide-react";
 
 export default function Profile() {
     const [ideathons, setIdeathons] = useState([]);
+    const [entries, setEntries] = useState([]);
     const [profileData, setProfileData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    
     useEffect(() => {
         async function fetchData() {
             setLoading(true);
             setError(null);
             try {
-                const [ideathonsRes, profileRes] = await Promise.all([
+                const [ideathonsRes, profileRes, entriesRes] = await Promise.all([
                     fetcher({
                         url: `http://localhost:8080/api/ideathons/get`,
                         data: { user_id: -1 },
@@ -33,9 +34,18 @@ export default function Profile() {
                         method: "GET",
                         returned_status: 200,
                     }),
+                    fetcher({
+                        url: `http://localhost:8080/api/entries/get`,
+                        data: { user_id: -1 },
+                        method: "Post",
+                        returned_status: 200,
+                    })
                 ]);
+                setEntries(entriesRes);
                 setIdeathons(ideathonsRes);
                 setProfileData(profileRes);
+                console.log("entries",entriesRes);
+                
             } catch (error) {
                 console.error("Error fetching data:", error.message);
                 setError(error.message);
@@ -118,7 +128,7 @@ export default function Profile() {
                     {/* Content Area - Full width on mobile, 8 columns on desktop */}
                     <div className="lg:col-span-8 xl:col-span-9">
                         <div className="w-full">
-                            <ProfileContent ideathons={ideathons} />
+                            <ProfileContent  ideathons={ideathons} entries={entries} />
                         </div>
                     </div>
                 </div>

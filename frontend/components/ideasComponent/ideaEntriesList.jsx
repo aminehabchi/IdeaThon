@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, MoreVertical, Trophy, Flag,Edit, Trash2, FileX } from 'lucide-react';
+import { X, MoreVertical, Trophy, Flag, Edit, Trash2, FileX } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,7 @@ import { DocumentContent } from "@/components/notionLike/ParserUtils/DocumentCon
 import { Toaster } from 'sonner';
 import Link from "next/link"
 
+// Component for fetching and displaying entries for a specific ideathon
 export function EntriesList({ id }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,26 +58,6 @@ export function EntriesList({ id }) {
     }
   }, [id])
 
-  const [selectedEntry, setSelectedEntry] = useState(null);
-  const [isReportOpen, setIsReportOpen] = useState(false);
-  const [reportTargetEntry, setReportTargetEntry] = useState(null);
-
-  // console.log("entries", entries);
-  
-  const openModal = (entry) => {
-    setSelectedEntry(entry);
-  };
-
-  const closeModal = () => {
-    setSelectedEntry(null);
-  };
-  
-  const openReportPopup = (entry) => {
-    setReportTargetEntry(entry);
-    console.log("entry from popup", entry);
-    setIsReportOpen(true);
-  };
-
   // Loading state
   if (loading || !id) {
     return (
@@ -103,6 +84,37 @@ export function EntriesList({ id }) {
     );
   }
 
+  // Use the shared EntriesGrid component
+  return <EntriesGrid entries={entries} ideathonId={id} />;
+}
+
+// Component for displaying already-fetched entries (used in ProfileContent)
+export function EntriesDisplay({ entries }) {
+  // Use the shared EntriesGrid component
+  return <EntriesGrid entries={entries} />;
+}
+
+// Shared component for rendering the entries grid
+function EntriesGrid({ entries, ideathonId }) {
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [reportTargetEntry, setReportTargetEntry] = useState(null);
+  const router = useRouter();
+
+  const openModal = (entry) => {
+    setSelectedEntry(entry);
+  };
+
+  const closeModal = () => {
+    setSelectedEntry(null);
+  };
+  
+  const openReportPopup = (entry) => {
+    setReportTargetEntry(entry);
+    console.log("entry from popup", entry);
+    setIsReportOpen(true);
+  };
+
   // Empty state
   if (!entries || entries.length === 0) {
     return (
@@ -111,18 +123,21 @@ export function EntriesList({ id }) {
           <FileX className="w-12 h-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Entries Found</h3>
           <p className="text-gray-500 text-sm text-center mb-4">
-            There are no entries for this ideathon yet. Be the first to submit your idea!
+            {ideathonId 
+              ? "There are no entries for this ideathon yet. Be the first to submit your idea!"
+              : "You haven't submitted any entries yet. Participate in ideathons to see your entries here!"
+            }
           </p>
-          <button 
-            onClick={() => {
-              // Add your submit entry logic here
-              router.push(`/ideas/${id}/create`);
-              console.log("Navigate to submit entry");
-            }}
-            className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            Submit an Entry
-          </button>
+          {ideathonId && (
+            <button 
+              onClick={() => {
+                router.push(`/ideas/${ideathonId}/create`);
+              }}
+              className="px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Submit an Entry
+            </button>
+          )}
         </div>
       </div>
     );
@@ -139,103 +154,107 @@ export function EntriesList({ id }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {entries.map((entry) => (
-            <div
-              key={entry.id}
-              className="relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-all duration-200 cursor-pointer"
-              onClick={() => openModal(entry)}
-            >
-              {/* Header with title and more menu */}
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-500">
-                  {entry.description?.document?.title || "Untitled Entry"}
-                </h3>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    asChild
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button className="p-1 hover:bg-gray-200 rounded-full transition-colors cursor-pointer">
-                      <MoreVertical className="w-4 h-4 text-gray-400" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <DropdownMenuItem className="cursor-pointer w-full flex items-center gap-2 whitespace-nowrap">
-                      <Trophy className="w-4 h-4" />
-                      Pick As a winner
-                    </DropdownMenuItem>
+          {entries.map((entry) => {
+            // Parse description if it's a string
+            const description = typeof entry.description === 'string' 
+              ? JSON.parse(entry.description) 
+              : entry.description;
 
-                    <DropdownMenuItem
-                      className="flex items-center gap-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openReportPopup(entry);
-                      }}
+            return (
+              <div
+                key={entry.id}
+                className="relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                onClick={() => openModal({...entry, description})}
+              >
+                {/* Header with title and more menu */}
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-sm font-medium text-gray-500">
+                    {description?.document?.title || "Untitled Entry"}
+                  </h3>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      asChild
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Flag className="w-4 h-4" />
-                      Report an issue
-                    </DropdownMenuItem>
+                      <button className="p-1 hover:bg-gray-200 rounded-full transition-colors cursor-pointer">
+                        <MoreVertical className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenuItem className="cursor-pointer w-full flex items-center gap-2 whitespace-nowrap">
+                        <Trophy className="w-4 h-4" />
+                        Pick As a winner
+                      </DropdownMenuItem>
 
-                    <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                      <Trash2 className="w-4 h-4 text-red-600" />
-                      Delete
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={`/ideas/${id}/entries/${entry.id}/update`}
-                        className="flex items-center gap-2 text-black w-full"
+                      <DropdownMenuItem
+                        className="flex items-center gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openReportPopup({...entry, description});
+                        }}
                       >
-                        <Edit className="w-4 h-4" />
-                        Update
-                      </Link>
-                    </DropdownMenuItem>
+                        <Flag className="w-4 h-4" />
+                        Report an issue
+                      </DropdownMenuItem>
 
+                      <DropdownMenuItem className="flex items-center gap-2 text-red-600">
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                        Delete
+                      </DropdownMenuItem>
 
-
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* Subtitle */}
-              <h4
-                className="text-lg font-semibold text-gray-700 mb-3 leading-tight text-ellipsis overflow-hidden whitespace-nowrap"
-                dangerouslySetInnerHTML={{
-                  __html: entry.description?.blocks?.[0]?.data?.text || "No content available"
-                }}
-              ></h4>
-
-              {/* Description */}
-              <p
-                className="text-sm text-gray-600 mb-4 leading-relaxed"
-                dangerouslySetInnerHTML={{
-                  __html: entry.description?.blocks?.[1]?.data?.text || ""
-                }}
-              ></p>
-
-              {/* Footer with author and time */}
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <div className="flex items-center gap-2">
-                  <img 
-                    src={entry.owner?.avatar ? `http://localhost:8080/api/${entry.owner.avatar}` : "/empty_pfp.jpeg"} 
-                    alt="avatar"
-                    className="rounded-2xl w-6 h-6" 
-                    onError={(e) => {
-                      e.target.src = "/empty_pfp.jpeg";
-                    }}
-                  />
-                  <span>
-                    {entry?.owner?.first_name && entry?.owner?.last_name
-                      ? `${entry.owner.first_name} ${entry.owner.last_name}`
-                      : "Unknown Author"}
-                  </span>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/ideas/${ideathonId || entry.ideathon_id}/entries/${entry.id}/update`}
+                          className="flex items-center gap-2 text-black w-full"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Update
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <span>{entry.created_at ? timeAgo(entry.created_at) : "Unknown date"}</span>
+
+                {/* Subtitle */}
+                <h4
+                  className="text-lg font-semibold text-gray-700 mb-3 leading-tight text-ellipsis overflow-hidden whitespace-nowrap"
+                  dangerouslySetInnerHTML={{
+                    __html: description?.blocks?.[0]?.data?.text || "No content available"
+                  }}
+                ></h4>
+
+                {/* Description */}
+                <p
+                  className="text-sm text-gray-600 mb-4 leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: description?.blocks?.[1]?.data?.text || ""
+                  }}
+                ></p>
+
+                {/* Footer with author and time */}
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={entry.owner?.avatar ? `http://localhost:8080/api/${entry.owner.avatar}` : "/empty_pfp.jpeg"} 
+                      alt="avatar"
+                      className="rounded-2xl w-6 h-6" 
+                      onError={(e) => {
+                        e.target.src = "/empty_pfp.jpeg";
+                      }}
+                    />
+                    <span>
+                      {entry?.owner?.first_name && entry?.owner?.last_name
+                        ? `${entry.owner.first_name} ${entry.owner.last_name}`
+                        : "Unknown Author"}
+                    </span>
+                  </div>
+                  <span>{entry.created_at ? timeAgo(entry.created_at) : "Unknown date"}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

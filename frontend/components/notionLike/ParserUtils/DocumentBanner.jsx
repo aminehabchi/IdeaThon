@@ -3,11 +3,6 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 
 export const DocumentBanner = ({ parsedData: data }) => {
-  // console.log("DocumentBanner data:", data.banner);
-
-  // Handle different data structures
-  // console.log("data", data);
-  
   const getTitle = () => {
     return data?.document?.title || data?.title || "Untitled Document";
   };
@@ -19,17 +14,6 @@ export const DocumentBanner = ({ parsedData: data }) => {
   const getCategories = () => {
     return data?.categories || data?.document?.categories || [];
   };
-
-const getBannerImage = () => {
-      if (data?.banner) {
-        // console.log("http://localhost:8080/api", data?.banner);
-        
-        // return `http://localhost:8080/api${data?.banner}` || "/ideathoonbanner.png";
-        return `http://localhost:8080/api${data?.banner}` || "/ideathoonbanner.png";  
-      }
-      return null;
-};
-
 
   const getBannerAlt = () => {
     return data?.document?.featuredImage?.alt || 
