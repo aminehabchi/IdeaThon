@@ -6,10 +6,26 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EntriesDisplay } from "../ideasComponent/ideaEntriesList"; // Renamed import
+import { EntriesDisplay } from "../ideasComponent/ideaEntriesList";
+import { useAuth } from "@/context/AuthContext";
 
 export function ProfileContent({ ideathons, entries }) {
-    const [activeTab, setActiveTab] = useState("ideathons")
+    const [activeTab, setActiveTab] = useState("ideathons");
+    
+    // Try different patterns based on your AuthContext structure
+    let currentUserId;
+    try {
+        const auth = useAuth();
+        currentUserId = auth?.user?.id || auth?.currentUser?.id || auth?.userId;
+    } catch (error) {
+        console.log("useAuth not available, trying alternative pattern");
+        currentUserId = null;
+    }
+
+    // Filter entries by current user
+    const userEntries = entries && currentUserId ? entries.filter(entry => 
+        entry.owner?.id === currentUserId || entry.owner_id === currentUserId
+    ) : entries || [];
 
     return (
         <section className="w-full">
@@ -41,9 +57,9 @@ export function ProfileContent({ ideathons, entries }) {
                     onClick={() => setActiveTab("entries")}
                 >
                     <span className="whitespace-nowrap">Entries</span>
-                    {entries?.length > 0 && (
+                    {userEntries?.length > 0 && (
                         <Badge variant="secondary" className="ml-2 text-xs">
-                            {entries.length}
+                            {userEntries.length}
                         </Badge>
                     )}
                 </Button>
@@ -80,9 +96,8 @@ export function ProfileContent({ ideathons, entries }) {
 
             {activeTab === "entries" && (
                 <div className="w-full">
-                    {entries && entries.length > 0 ? (
-                        // Pass all entries to a single component instead of mapping
-                        <EntriesDisplay entries={entries} />
+                    {userEntries && userEntries.length > 0 ? (
+                        <EntriesDisplay entries={userEntries} currentUserId={currentUserId} />
                     ) : (
                         <Card className="w-full">
                             <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12 px-4">
