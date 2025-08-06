@@ -16,7 +16,7 @@ export function ProfileContent({ ideathons, entries }) {
     let currentUserId;
     try {
         const auth = useAuth();
-        currentUserId = auth?.user?.id || auth?.currentUser?.id || auth?.userId;
+        currentUserId = auth?.user?.id || null;
     } catch (error) {
         console.log("useAuth not available, trying alternative pattern");
         currentUserId = null;
