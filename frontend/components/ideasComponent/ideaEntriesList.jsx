@@ -13,6 +13,7 @@ import { fetcher, timeAgo } from '@/lib/helpers';
 import {IdeaLoader} from "@/components/ui/cosloader"
 import { DocumentContent } from "@/components/notionLike/ParserUtils/DocumentContent"
 import { Toaster } from 'sonner';
+import Link from "next/link"
 
 export function EntriesList({ id }) {
   const [entries, setEntries] = useState([]);
@@ -178,14 +179,21 @@ export function EntriesList({ id }) {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 text-red-600" />
                       Delete
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem className="flex items-center gap-2 text-black">
-                      <Edit className="w-4 h-4" />
-                      Update
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/ideas/${id}/entries/${entry.id}/update`}
+                        className="flex items-center gap-2 text-black w-full"
+                      >
+                        <Edit className="w-4 h-4" />
+                        Update
+                      </Link>
                     </DropdownMenuItem>
+
+
 
                   </DropdownMenuContent>
                 </DropdownMenu>
