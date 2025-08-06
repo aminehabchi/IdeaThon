@@ -19,13 +19,29 @@ import {
 
 import { Flag } from "lucide-react";
 import { fetcher } from "@/lib/helpers";
+import { useAuth } from "@/context/AuthContext";
 
-export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber }) {
-  //console.log("entryId from report", entryId);
+export default function ReportIdeaPopup({ 
+  isOpen, 
+  onClose, 
+  // Legacy entry props (for backward compatibility)
+  entryId, 
+  entryNumber,
+  // New ideathon props
+  ideathonId,
+  ideathonTitle,
+  reportType = "entrie" // Default to "entrie" for backward compatibility
+}) {
+  const { user } = useAuth();
   
   const [issue, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Determine which data to use based on what's provided
+  const targetId = ideathonId || entryId;
+  const targetTitle = ideathonTitle || (entryNumber ? `Entry #${entryNumber}` : `Entry ${entryId}`);
+  const targetType = reportType;
 
   const handleSubmit = async () => {
     if (!issue) {
@@ -38,42 +54,79 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
       return;
     }
 
+    if (description.trim().length < 20) {
+      toast.error("Description must be at least 20 characters.");
+      return;
+    }
+
+    if (!user || !user.id) {
+      toast.error("You must be logged in to submit a report");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Prepare data according to the backend struct
-      const reportData = {
-        type_id: entryId, // The entry ID being reported
-        issue: issue, // The selected issue type
-        type: "entrie", // Specify that this is an entry report
-        description: description.trim() // The description from textarea
-        // user_id will likely be set by the backend from authentication
-        // created_at will be set by the backend
+      // Generate a subject based on the issue type and target
+      const subjectMap = {
+        spam: "Spam Content Report",
+        harassment: "Harassment Report", 
+        misinformation: "Misinformation Report",
+        copyright: "Copyright Violation Report",
+        inappropriate: "Inappropriate Content Report",
+        illegal: "Illegal Content Report",
+        other: "Other Issue Report"
       };
 
-      //console.log("Submitting report:", reportData);
+      const typeLabel = targetType === "ideathon" ? "Ideathon" : "Entry";
+      const subject = `${subjectMap[issue] || "Content Report"} - ${typeLabel}: ${targetTitle}`;
+
+      // Prepare data according to the backend struct
+      const reportData = {
+        user_id: user.id, // Required: The user submitting the report
+        type_id: targetId, // The ideathon/entry ID being reported
+        email: user.email || "", // Required: User's email (fallback to empty string)
+        subject: subject, // Required: Generated subject
+        type: targetType, // Required: "ideathon" or "entrie"
+        issue: issue, // Required: The selected issue type
+        description: description.trim(), // Required: The description from textarea
+        is_solved: false // Boolean: Not solved yet (false instead of 0)
+        // created_at will be set by the backend automatically
+      };
+
+      console.log("Submitting report:", reportData);
 
       const response = await fetcher({
         url: "http://localhost:8080/api/report/add",
         method: "POST",
-        data: reportData, // Use 'data' instead of 'body' to match your fetcher function
-        token: null, // Add actual token if you have user authentication
+        data: reportData,
+        token: null, // Add actual token if your API requires authentication
         returned_status: 201
       });
 
-      //console.log("Report submitted successfully:", response);
+      console.log("Report submitted successfully:", response);
       
       // Reset form and close
       setIssueType("");
       setDescription("");
       onClose();
       
-      // Optional: Show success message
-      toast.success("Report submitted successfully");
+      // Show success message
+      toast.success("Report submitted successfully. We'll review it shortly.");
       
     } catch (error) {
       console.error("Error submitting report:", error);
-      toast.error("Failed to submit report.desctiption must be at least 20 characters.");
+      
+      // More specific error handling
+      if (error.message && error.message.includes("20 characters")) {
+        toast.error("Description must be at least 20 characters.");
+      } else if (error.status === 400) {
+        toast.error("Invalid report data. Please check all fields.");
+      } else if (error.status === 401) {
+        toast.error("You must be logged in to submit a report.");
+      } else {
+        toast.error("Failed to submit report. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -85,13 +138,18 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
     onClose();
   };
 
+  // Don't render if user is not logged in
+  if (!user) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="pb-4">
           <DialogTitle className="flex items-center gap-2 text-base font-medium text-gray-900">
             <Flag className="w-4 h-4" />
-            Report Entry {entryNumber && `#${entryNumber}`} (ID: {entryId})
+            Report {targetType === "ideathon" ? "Ideathon" : "Entry"}: {targetTitle}
           </DialogTitle>
         </DialogHeader>
         
@@ -124,14 +182,14 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
             </Label>
             <Textarea
               id="description"
-              placeholder="Please provide details about the issue you're reporting..."
+              placeholder="Please provide details about the issue you're reporting (minimum 20 characters)..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="min-h-[120px] resize-none"
               maxLength={1000}
             />
             <div className="text-xs text-gray-500 text-right">
-              {description.length}/1000 characters
+              {description.length}/1000 characters (minimum 20)
             </div>
           </div>
 
@@ -148,7 +206,7 @@ export default function ReportIdeaPopup({ isOpen, onClose, entryId, entryNumber 
             <Button
               onClick={handleSubmit}
               className="px-6 bg-gray-900 hover:bg-gray-800"
-              disabled={isSubmitting || !issue || !description.trim()}
+              disabled={isSubmitting || !issue || !description.trim() || description.trim().length < 20}
             >
               {isSubmitting ? "Submitting..." : "Submit Report"}
             </Button>

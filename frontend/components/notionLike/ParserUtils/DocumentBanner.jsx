@@ -90,7 +90,7 @@ const getBannerImage = () => {
                 <div className="flex items-center gap-3">
                   {author.avatar && (
                     <img 
-                      src={author.avatar} 
+                      src={author.avatar ? `http://localhost:8080/api/${author.avatar}` : "/empty_pfp.jpeg"} 
                       alt={author.name} 
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -144,12 +144,11 @@ const getBannerImage = () => {
           {/* {bannerImage && ( */}
             <div className="flex justify-center">
               <img 
-                src={bannerImage} 
+                src={bannerImage ? `http://localhost:8080/api${bannerImage}` : "/ideathoonbanner.png"} 
                 alt={bannerAlt}
                 className="w-full max-w-xs lg:max-w-sm rounded-lg shadow-lg object-cover"
                 onError={(e) => {
-                  e.target.style.display = 'none';
-                  console.error('Failed to load banner image:', bannerImage);
+                  e.target.src = "/ideathoonbanner.png";
                 }}
               />
             </div>

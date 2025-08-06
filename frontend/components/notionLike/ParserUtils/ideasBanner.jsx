@@ -11,27 +11,27 @@ import { DocumentBanner } from "./DocumentBanner";
 export function ProjectHeader({parsedData, id }) {
   //console.log("id from projectheader",id);
   const [activeTab, setActiveTab] = useState("project");
-  const [ideathon, setIdeathon] = useState({});
+  // const [ideathon, setIdeathon] = useState({});
 
-  useEffect(() => {
-    if (!id) return;
-    async function fetchIdeathon() {
-      try {
-        const data = await fetcher({
-          url: " http://localhost:8080/api/ideathons/get",
-          method: "POST",
-          data: { id: Number(id.id), offset: 0 },
-          token: null,
-          returned_status: 200,
-        });
-        setIdeathon(data);
-      } catch (err) {
-        console.error("Error fetching ideathon:", err);
-      }
-    }
+  // useEffect(() => {
+  //   if (!id) return;
+  //   async function fetchIdeathon() {
+  //     try {
+  //       const data = await fetcher({
+  //         url: " http://localhost:8080/api/ideathons/get",
+  //         method: "POST",
+  //         data: { id: Number(id.id), offset: 0 },
+  //         token: null,
+  //         returned_status: 200,
+  //       });
+  //       setIdeathon(data);
+  //     } catch (err) {
+  //       console.error("Error fetching ideathon:", err);
+  //     }
+  //   }
 
-    fetchIdeathon();
-  }, [id]);
+  //   fetchIdeathon();
+  // }, [id]);
 
   return (
     <div className="px-6 py-6 bg-white ">

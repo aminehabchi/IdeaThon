@@ -22,11 +22,16 @@ export default function Ideathon(idea) {
         <div className="w-[320px] sm:w-[480px] md:w-[600px] lg:w-[800px] flex flex-col md:flex-row justify-between items-start p-4 rounded-xl shadow-md bg-white gap-4 cursor-pointer">
           {/* Left Section */}
           <div className="flex gap-4 flex-1 min-w-0">
-            <img
-              src={`${"http://localhost:8080/api" + banner}`}
-              alt="cover"
-              className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover flex-shrink-0"
-            />
+          <img
+            src={`http://localhost:8080/api${banner}`}
+            alt="cover"
+            onError={(e) => {
+              e.target.onerror = null
+              e.target.src = "/ideathoonbanner.png";
+            }}
+            className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-fill flex-shrink-0"
+          />
+
 
             <div className="min-w-0 flex-1">
               <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold line-clamp-2 break-all overflow-hidden hyphens-auto">
@@ -38,7 +43,16 @@ export default function Ideathon(idea) {
               
               <div className="flex flex-wrap items-center text-xs sm:text-sm text-gray-500 mt-2 gap-1 md:gap-2 min-w-0">
                 <span className="flex items-center gap-1 flex-shrink-0">
-                  <span className="text-pink-500">●</span>
+                  {/* <span className="text-pink-500">●</span> */}
+                 <img
+                  src={`http://localhost:8080/api/${owner?.avatar}`}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/empty_pfp.jpeg";
+                  }}
+                  className="w-4 h-4 rounded-2xl"
+                  alt="avatar"
+                />
                   <span className="font-semibold text-black truncate max-w-[80px] sm:max-w-[120px] md:max-w-[150px]">
                     By {owner?.first_name ?? ""} {owner?.last_name ?? ""}
                   </span>

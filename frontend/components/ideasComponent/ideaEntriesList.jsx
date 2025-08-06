@@ -211,11 +211,11 @@ export function EntriesList({ id }) {
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center gap-2">
                   <img 
-                    src={entry.owner?.avatar ? `http://localhost:8080/api/${entry.owner.avatar}` : "/default-avatar.png"} 
+                    src={entry.owner?.avatar ? `http://localhost:8080/api/${entry.owner.avatar}` : "/empty_pfp.jpeg"} 
                     alt="avatar"
                     className="rounded-2xl w-6 h-6" 
                     onError={(e) => {
-                      e.target.src = "/default-avatar.png";
+                      e.target.src = "/empty_pfp.jpeg";
                     }}
                   />
                   <span>
