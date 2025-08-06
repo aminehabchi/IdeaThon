@@ -17,11 +17,11 @@ export function middleware(request) {
   // Define protected routes
   // uncomment the routes you want to protect
   const protectedRoutes = [
-    // '/create',
-    // '/ideas',
-    // '/profile',
-    // '/report',
-    // '/checkout',
+    '/create',
+    '/ideas',
+    '/profile',
+    '/report',
+    '/checkout',
   ]
 
   // Check if current path matches any protected route

@@ -10,12 +10,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { fetcher } from "@/lib/helpers";
 
 export default function ProfileDropdown({
-  userImage = "/belmaayo_avatar.png",
-  userName = "Yassine Jouichate",
-  userEmail = "YassineJ210@workel.com"
+  userImage = "/empty_pfp.jpeg",
+  userName = "user name",
+  userEmail = "user@example.com"
 }) {
+
+  const handleLogout = async () => {
+    try {
+      await fetcher({
+        url: "http://localhost:8080/api/auth/logout",
+        method: "POST",
+        token: null,
+        returned_status: 200,
+      });
+
+      // Clear cookies
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+      // Redirect after logout
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -33,13 +54,12 @@ export default function ProfileDropdown({
       >
         {/* User Info Header */}
         <div className="flex items-center gap-3 p-4 border-b border-gray-100">
-          <img
+         <img
             src={userImage}
             alt="Profile"
-            width={40}
-            height={40}
-            className="rounded-full"
+            className="w-10 h-10 rounded-full object-cover"
           />
+
           <div className="flex-1 min-w-0">
             <p className="font-medium text-gray-900 truncate">
               {userName}
@@ -91,7 +111,7 @@ export default function ProfileDropdown({
             className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 cursor-pointer focus:bg-red-50 focus:text-red-600"
             onClick={() => {
               // Add your logout logic here
-              console.log("Logout clicked");
+              handleLogout();
             }}
           >
             <LogOut className="w-4 h-4" />

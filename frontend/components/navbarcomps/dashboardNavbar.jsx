@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Bell, User, PenLine } from "lucide-react";
@@ -8,28 +8,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import ProfileDropdown from "./profileDropdown";
 import NotificationDropdown from "@/components/navbarcomps/notiofications";
 import { SearchBar } from "./NavSearchBar";
-import { fetcher } from "@/lib/helpers";
-
+import { useAuth } from "@/context/AuthContext";
 
 export function DashboardNavbar() {
-  const [user, setUser] = useState({});
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const u = await fetcher({
-          url: `http://localhost:8080/api/auth/me`,
-          method: "GET",
-          returned_status: 200,
-        });
-        setUser(u);
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    }
-
-    fetchUser();
-  }, []);
+  const auth = useAuth();
+  const user = auth?.user;
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -68,14 +51,12 @@ export function DashboardNavbar() {
             </button>
           </div>
 
-          {/* Center: Search Bar (Hidden on small screens) */}
+          {/* Center: Search Bar */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <SearchBar />
           </div>
 
-
-
-          {/* Right: Create Button + Notifications + Profile */}
+          {/* Right: Create + Notifications + Profile */}
           <div className="hidden md:flex items-center space-x-4">
             <Link href="/create">
               <Button className="bg-transparent text-black hover:bg-gray-100 flex items-center space-x-2 cursor-pointer">
@@ -83,15 +64,20 @@ export function DashboardNavbar() {
                 <span className="hidden sm:inline">Create</span>
               </Button>
             </Link>
-            <NotificationDropdown />
-            <div className="flex items-center space-x-4 mt-3"> 
-            <ProfileDropdown
-              userImage={"http://localhost:8080/api" + user?.avatar}
-              userName={`${user?.first_name} ${user?.last_name}`}
-              userEmail={user?.email}
-            />
-            </div>
 
+            <NotificationDropdown />
+
+            <div className="flex items-center space-x-4 mt-3">
+              <ProfileDropdown
+                userImage={
+                  user?.avatar
+                    ? `http://localhost:8080/api${user.avatar}`
+                    : "/empty_pfp.png"
+                }
+                userName={`${user?.first_name ?? ""} ${user?.last_name ?? ""}`}
+                userEmail={user?.email ?? ""}
+              />
+            </div>
           </div>
         </div>
 
@@ -106,12 +92,10 @@ export function DashboardNavbar() {
               className="md:hidden overflow-hidden border-t border-gray-200"
             >
               <div className="flex flex-col py-4 space-y-4">
-                {/* Mobile Search Bar */}
                 <div className="px-2">
                   <SearchBar isMobile={true} />
                 </div>
 
-                {/* Mobile Actions */}
                 <div className="flex flex-col space-y-3 px-2">
                   <Link href="/create">
                     <Button className="w-full bg-transparent text-black hover:bg-gray-100 flex items-center justify-center space-x-2">
