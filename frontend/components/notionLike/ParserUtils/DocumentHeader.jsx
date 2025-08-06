@@ -110,9 +110,13 @@ export const DocumentHeader = ({ data }) => {
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <img
-                src={`http://localhost:8080/api${owner.avatar}`}
-                alt={`${owner.first_name} avatar`}
+                src={owner?.avatar ? `http://localhost:8080/api${owner.avatar}` : "/empty_pfp.jpeg"}
+                alt={`${owner?.first_name || "User"} avatar`}
                 className="w-6 h-6 rounded-2xl"
+                onError={(e) => {
+                  e.currentTarget.onerror = null; // prevent infinite loop
+                  e.currentTarget.src = "/empty_pfp.jpeg";
+                }}
               />
               <span className="font-medium text-gray-900">
                 By {owner.first_name} {owner.last_name}

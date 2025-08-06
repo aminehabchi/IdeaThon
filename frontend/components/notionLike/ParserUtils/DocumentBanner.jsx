@@ -6,6 +6,8 @@ export const DocumentBanner = ({ parsedData: data }) => {
   // console.log("DocumentBanner data:", data.banner);
 
   // Handle different data structures
+  // console.log("data", data);
+  
   const getTitle = () => {
     return data?.document?.title || data?.title || "Untitled Document";
   };
@@ -20,7 +22,10 @@ export const DocumentBanner = ({ parsedData: data }) => {
 
 const getBannerImage = () => {
       if (data?.banner) {
-        return `http://localhost:8080/api${data?.banner}` || "./belmaayo_avatar.png";
+        // console.log("http://localhost:8080/api", data?.banner);
+        
+        // return `http://localhost:8080/api${data?.banner}` || "/ideathoonbanner.png";
+        return `http://localhost:8080/api${data?.banner}` || "/ideathoonbanner.png";  
       }
       return null;
 };
@@ -61,7 +66,7 @@ const getBannerImage = () => {
   const title = getTitle();
   const subtitle = getSubtitle();
   const categories = getCategories();
-  const bannerImage = getBannerImage();
+  // const bannerImage = getBannerImage();
   const bannerAlt = getBannerAlt();
   const author = getAuthor();
   const meta = getMeta();
@@ -144,7 +149,7 @@ const getBannerImage = () => {
           {/* {bannerImage && ( */}
             <div className="flex justify-center">
               <img 
-                src={bannerImage ? `http://localhost:8080/api${bannerImage}` : "/ideathoonbanner.png"} 
+                src={data?.banner ? `http://localhost:8080/api${data?.banner}` : "/ideathoonbanner.png"} 
                 alt={bannerAlt}
                 className="w-full max-w-xs lg:max-w-sm rounded-lg shadow-lg object-cover"
                 onError={(e) => {

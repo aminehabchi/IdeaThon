@@ -2,7 +2,8 @@ import { getDaysLeft } from "@/lib/utils";
 
 export default function Ideathon(idea) {
   const { banner, owner, entries, privacy, category, price, end_date } = idea;
-
+  console.log("banner", banner);
+  
   let data = idea.description;
   
   if (!data) {
