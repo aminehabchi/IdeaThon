@@ -4,13 +4,11 @@ import { imageToBase64 } from "@/lib/helpers.js";
 import { useRouter } from "next/navigation";
 
 import { toast, Toaster } from "sonner";
-import { AlertTriangle } from "lucide-react";
 
 export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon }) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
-  const [wordCount, setWordCount] = useState(0);
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
@@ -18,136 +16,49 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
   const hasRenderedRef = useRef(false);
   const editorInitializedRef = useRef(false);
   const isLoadingContentRef = useRef(false);
-  const wordCountTimeoutRef = useRef(null);
+  const autoSaveTimeoutRef = useRef(null);
 
-  // Validation states
-  const [titleError, setTitleError] = useState("");
-  const [subtitleError, setSubtitleError] = useState("");
-  const [contentError, setContentError] = useState("");
-  const [isValidating, setIsValidating] = useState(false);
-
-  // Validation rules
-  const validationRules = {
-    title: {
-      minLength: 16,
-      maxLength: 100,
-      required: true,
-      pattern: /^[a-zA-Z0-9\s\-_.,!?()&'"]+$/,
-      blockedWords: ['spam', 'clickbait', 'fake']
-    },
-    subtitle: {
-      minLength: 16,
-      maxLength: 100,
-      required: false,
-      pattern: /^[a-zA-Z0-9\s\-_.,!?()&'"]*$/
-    },
-    content: {
-      minWordCount: 10,
-      maxWordCount: 10000,
-      required: true,
-      maxBlocks: 100
-    }
-  };
-
-  // Separate word count calculation function - optimized
-  const calculateWordCount = useCallback(async (editorData = null) => {
-    if (!editorRef.current) return 0;
+  // Auto-save function
+  const autoSave = useCallback(async () => {
+    if (!editorRef.current || !isReady) return;
 
     try {
-      const data = editorData || await editorRef.current.save();
+      const editorData = await editorRef.current.save();
       
-      let totalWords = 0;
+      // Create the data structure for auto-save
+      const saveData = {
+        document: {
+          title: title.trim() || "",
+          subtitle: subtitle.trim() || "",
+        },
+        blocks: editorData.blocks,
+        savedAt: new Date().toISOString(),
+      };
 
-      data.blocks.forEach((block) => {
-        let text = "";
-
-        switch (block.type) {
-          case "paragraph":
-          case "header":
-            text = block.data.text || "";
-            break;
-          case "list":
-            text = block.data.items ? block.data.items.join(" ") : "";
-            break;
-          case "checklist":
-            text = block.data.items ? block.data.items.map(item => item.text || item.content || "").join(" ") : "";
-            break;
-          case "quote":
-            text = `${block.data.text || ""} ${block.data.caption || ""}`;
-            break;
-          case "code":
-            text = block.data.code || "";
-            break;
-          case "warning":
-            text = `${block.data.title || ""} ${block.data.message || ""}`;
-            break;
-          case "table":
-            if (block.data.content) {
-              text = block.data.content.flat().join(" ");
-            }
-            break;
-          default:
-            if (block.data.text) {
-              text = block.data.text;
-            }
-        }
-
-        if (text) {
-          const cleanText = text.replace(/<[^>]*>/g, ""); // Remove HTML tags
-          const words = cleanText.trim().split(/\s+/).filter((word) => word.length > 0);
-          totalWords += words.length;
-        }
-      });
-
-      return totalWords;
+      // Here you can add your auto-save logic (e.g., save to localStorage, send to API)
+      // For now, we'll just update the last saved timestamp
+      setLastSaved(new Date());
+      
+      // Optional: Save to localStorage as backup
+      localStorage.setItem('editor_autosave', JSON.stringify(saveData));
+      
     } catch (error) {
-      console.error("Error counting words:", error);
-      return 0;
+      console.error("Auto-save failed:", error);
     }
-  }, []);
+  }, [title, subtitle, isReady]);
 
-  // Debounced word count update with immediate execution option
-  const updateWordCount = useCallback(async (immediate = false) => {
-    if (!editorRef.current) return;
-
-    // Clear existing timeout
-    if (wordCountTimeoutRef.current) {
-      clearTimeout(wordCountTimeoutRef.current);
+  // Debounced auto-save
+  const triggerAutoSave = useCallback(() => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
     }
+    
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSave();
+    }, 2000); // Auto-save after 2 seconds of inactivity
+  }, [autoSave]);
 
-    const performUpdate = async () => {
-      try {
-        const currentWordCount = await calculateWordCount();
-        setWordCount(currentWordCount);
-
-        // Update content validation with the current word count
-        const rules = validationRules.content;
-        let error = "";
-
-        if (rules.required && currentWordCount === 0) {
-          error = "Content is required";
-        } else if (currentWordCount < rules.minWordCount) {
-          error = `Content must have at least ${rules.minWordCount} words (current: ${currentWordCount})`;
-        } else if (currentWordCount > rules.maxWordCount) {
-          error = `Content cannot exceed ${rules.maxWordCount} words (current: ${currentWordCount})`;
-        }
-
-        setContentError(error);
-      } catch (error) {
-        console.error("Error updating word count:", error);
-      }
-    };
-
-    if (immediate) {
-      // Execute immediately for first render
-      await performUpdate();
-    } else {
-      // Debounce for subsequent updates
-      wordCountTimeoutRef.current = setTimeout(performUpdate, 150);
-    }
-  }, [calculateWordCount, validationRules.content]);
-
-  // Initialize Editor - Fixed to prevent re-initialization
+  // Initialize Editor
   useEffect(() => {
     if (editorInitializedRef.current) return;
 
@@ -178,11 +89,10 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
           minHeight: 300,
           minWidth: 300,
           tools: {
-            // Text formatting tools - Fixed paragraph placeholder issue
             paragraph: {
               class: Paragraph,
               config: {
-                placeholder: "", // Remove duplicate placeholder
+                placeholder: "",
                 preserveBlank: true,
               },
             },
@@ -196,8 +106,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
               },
               shortcut: "CMD+SHIFT+H",
             },
-
-            // List tools
             list: {
               class: List,
               inlineToolbar: true,
@@ -211,8 +119,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
               inlineToolbar: true,
               shortcut: "CMD+SHIFT+K",
             },
-
-            // Media tools
             image: {
               class: Image,
               config: {
@@ -259,7 +165,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
                 stretched: false,
               },
             },
-
             embed: {
               class: Embed,
               config: {
@@ -275,8 +180,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
                 },
               },
             },
-
-            // Content tools
             quote: {
               class: Quote,
               inlineToolbar: true,
@@ -295,8 +198,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
               },
               shortcut: "CMD+SHIFT+W",
             },
-
-            // Code tools
             code: {
               class: Code,
               config: {
@@ -311,8 +212,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
               },
               shortcut: "CMD+SHIFT+R",
             },
-
-            // Structure tools
             delimiter: {
               class: Delimiter,
               shortcut: "CMD+SHIFT+D",
@@ -333,8 +232,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
                 endpoint: "/api/fetchUrl",
               },
             },
-
-            // Inline tools
             Marker: {
               class: Marker,
               shortcut: "CMD+SHIFT+M",
@@ -344,24 +241,15 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
               shortcut: "CMD+SHIFT+X",
             },
           },
-          // Fixed onChange handler - immediate word count update
           onChange: async () => {
             if (editorInitializedRef.current) {
-              // Always update word count immediately for real-time feedback
-              await updateWordCount(true);
-              // Auto-save after word count update
-              setLastSaved(new Date());
+              triggerAutoSave();
             }
           },
           onReady: () => {
             console.log("Enhanced Editor is ready!");
             setIsReady(true);
             editorInitializedRef.current = true;
-            
-            // Force immediate initial word count calculation
-            setTimeout(async () => {
-              await updateWordCount(true);
-            }, 100);
           },
         });
 
@@ -374,15 +262,8 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
     loadEditor();
 
     return () => {
-      // Cleanup timeouts
-      if (wordCountTimeoutRef.current) {
-        clearTimeout(wordCountTimeoutRef.current);
-      }
-      if (window.titleValidationTimeout) {
-        clearTimeout(window.titleValidationTimeout);
-      }
-      if (window.subtitleValidationTimeout) {
-        clearTimeout(window.subtitleValidationTimeout);
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
       }
 
       if (editorRef.current?.destroy) {
@@ -394,9 +275,9 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         hasRenderedRef.current = false;
       }
     };
-  }, []); // Empty dependency array to prevent re-initialization
+  }, [triggerAutoSave]);
 
-  // Load content when ideathon data is available and editor is ready - Fixed timing
+  // Load content when ideathon data is available and editor is ready
   useEffect(() => {
     if (
       !ideathon?.description ||
@@ -423,35 +304,20 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         if (obj.blocks && obj.blocks.length > 0) {
           console.log("Rendering blocks:", obj.blocks);
 
-          // Wait for editor to be fully ready
           await new Promise((resolve) => setTimeout(resolve, 200));
 
-          // Clear editor first to ensure clean state
           if (editorRef.current?.clear) {
             await editorRef.current.clear();
           }
 
-          // Render content
           if (editorRef.current?.render) {
             await editorRef.current.render({ blocks: obj.blocks });
             console.log("Content rendered successfully");
-
-            // Force immediate word count calculation after render
-            setTimeout(async () => {
-              await updateWordCount(true);
-              setContentLoaded(true);
-              isLoadingContentRef.current = false;
-            }, 50);
-          } else {
-            setContentLoaded(true);
-            isLoadingContentRef.current = false;
           }
-        } else {
-          // No blocks to render, just update word count
-          await updateWordCount(true);
-          setContentLoaded(true);
-          isLoadingContentRef.current = false;
         }
+
+        setContentLoaded(true);
+        isLoadingContentRef.current = false;
       } catch (error) {
         console.error("Error parsing or rendering content:", error);
         setContentLoaded(true);
@@ -460,185 +326,23 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
     };
 
     loadContent();
-  }, [ideathon?.description, isReady, updateWordCount]);
+  }, [ideathon?.description, isReady]);
 
-  // Real-time word count monitoring for empty editor
-  useEffect(() => {
-    if (!isReady || !editorRef.current) return;
-
-    // Set up interval to check for content changes when editor is empty
-    const interval = setInterval(async () => {
-      try {
-        const data = await editorRef.current.save();
-        const currentWordCount = await calculateWordCount(data);
-        
-        // Only update if word count changed
-        if (currentWordCount !== wordCount) {
-          setWordCount(currentWordCount);
-          
-          // Update content validation
-          const rules = validationRules.content;
-          let error = "";
-          if (rules.required && currentWordCount === 0) {
-            error = "Content is required";
-          } else if (currentWordCount < rules.minWordCount) {
-            error = `Content must have at least ${rules.minWordCount} words (current: ${currentWordCount})`;
-          } else if (currentWordCount > rules.maxWordCount) {
-            error = `Content cannot exceed ${rules.maxWordCount} words (current: ${currentWordCount})`;
-          }
-          setContentError(error);
-        }
-      } catch (error) {
-        // Silently handle errors during monitoring
-      }
-    }, 500); // Check every 500ms
-
-    return () => clearInterval(interval);
-  }, [isReady, wordCount, calculateWordCount, validationRules.content]);
-
-  // Title validation - optimized
-  const validateTitle = useCallback((value) => {
-    const rules = validationRules.title;
-
-    if (rules.required && !value.trim()) {
-      return "Title is required";
-    }
-
-    if (value.length < rules.minLength) {
-      return `Title must be at least ${rules.minLength} characters`;
-    }
-
-    if (value.length > rules.maxLength) {
-      return `Title must be no more than ${rules.maxLength} characters`;
-    }
-
-    if (!rules.pattern.test(value)) {
-      return "Title contains invalid characters";
-    }
-
-    const lowerValue = value.toLowerCase();
-    const blockedWord = rules.blockedWords.find(word => lowerValue.includes(word));
-    if (blockedWord) {
-      return `Title cannot contain the word "${blockedWord}"`;
-    }
-
-    return "";
-  }, [validationRules.title]);
-
-  // Subtitle validation - optimized
-  const validateSubtitle = useCallback((value) => {
-    const rules = validationRules.subtitle;
-
-    if (value.length > rules.maxLength) {
-      return `Subtitle must be no more than ${rules.maxLength} characters`;
-    }
-
-    if (value && !rules.pattern.test(value)) {
-      return "Subtitle contains invalid characters";
-    }
-
-    return "";
-  }, [validationRules.subtitle]);
-
-  // Content validation - simplified
-  const validateContent = useCallback(async (currentWordCount = null) => {
-    if (!editorRef.current) return "Editor not ready";
-
-    try {
-      const data = await editorRef.current.save();
-      const rules = validationRules.content;
-
-      if (rules.required && data.blocks.length === 0) {
-        return "Content is required";
-      }
-
-      if (data.blocks.length > rules.maxBlocks) {
-        return `Content cannot have more than ${rules.maxBlocks} blocks`;
-      }
-
-      // Use provided word count or calculate
-      let wordsToCheck = currentWordCount;
-      if (wordsToCheck === null) {
-        wordsToCheck = await calculateWordCount(data);
-      }
-
-      if (wordsToCheck < rules.minWordCount) {
-        return `Content must have at least ${rules.minWordCount} words (current: ${wordsToCheck})`;
-      }
-
-      if (wordsToCheck > rules.maxWordCount) {
-        return `Content cannot exceed ${rules.maxWordCount} words (current: ${wordsToCheck})`;
-      }
-
-      return "";
-    } catch (error) {
-      console.error("Content validation error:", error);
-      return "Failed to validate content";
-    }
-  }, [calculateWordCount, validationRules.content]);
-
-  // Real-time validation handlers - optimized
+  // Title change handler with auto-save trigger
   const handleTitleChange = useCallback((e) => {
-    const value = e.target.value;
-    setTitle(value);
+    setTitle(e.target.value);
+    triggerAutoSave();
+  }, [triggerAutoSave]);
 
-    // Debounced validation
-    clearTimeout(window.titleValidationTimeout);
-    window.titleValidationTimeout = setTimeout(() => {
-      const error = validateTitle(value);
-      setTitleError(error);
-    }, 300);
-  }, [validateTitle]);
-
+  // Subtitle change handler with auto-save trigger
   const handleSubtitleChange = useCallback((e) => {
-    const value = e.target.value;
-    setSubtitle(value);
+    setSubtitle(e.target.value);
+    triggerAutoSave();
+  }, [triggerAutoSave]);
 
-    // Debounced validation
-    clearTimeout(window.subtitleValidationTimeout);
-    window.subtitleValidationTimeout = setTimeout(() => {
-      const error = validateSubtitle(value);
-      setSubtitleError(error);
-    }, 300);
-  }, [validateSubtitle]);
-
-  // Comprehensive validation before publishing
-  const performFullValidation = useCallback(async () => {
-    setIsValidating(true);
-
-    try {
-      const titleErr = validateTitle(title);
-      const subtitleErr = validateSubtitle(subtitle);
-
-      // Get current word count and validate content with it
-      const currentWordCount = await calculateWordCount();
-      const contentErr = await validateContent(currentWordCount);
-
-      setTitleError(titleErr);
-      setSubtitleError(subtitleErr);
-      setContentError(contentErr);
-
-      setIsValidating(false);
-
-      return !titleErr && !subtitleErr && !contentErr;
-    } catch (error) {
-      console.error("Validation error:", error);
-      setIsValidating(false);
-      return false;
-    }
-  }, [title, subtitle, validateTitle, validateSubtitle, validateContent, calculateWordCount]);
-
-  // Enhanced publish function - simplified
+  // Publish function
   const handlePublish = useCallback(async () => {
     if (!editorRef.current) return;
-
-    // Perform full validation before publishing
-    const isValid = await performFullValidation();
-
-    if (!isValid) {
-      toast.error("Please fix validation errors before publishing");
-      return;
-    }
 
     setIsPublishing(true);
     try {
@@ -677,7 +381,7 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
               ...baseData,
               items: baseData.items ? baseData.items.map(item => ({
                 content: typeof item === 'string' ? item : item.content || item,
-                items: [] // Support for nested items
+                items: []
               })) : []
             };
 
@@ -707,7 +411,7 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
           case 'warning':
             return {
               ...baseData,
-              level: baseData.level || 'warning' // info, warning, error, success
+              level: baseData.level || 'warning'
             };
 
           case 'table':
@@ -727,9 +431,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
             return baseData;
         }
       }
-
-      // Calculate reading time based on word count
-      const readingTime = Math.ceil(wordCount / 250);
 
       // Generate table of contents from headers
       const tableOfContents = editorData.blocks
@@ -763,17 +464,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
 
-        // Content metadata
-        meta: {
-          wordCount: wordCount,
-          readingTime: readingTime,
-          characterCount: JSON.stringify(editorData).length,
-          estimatedReadingSpeed: 250
-        },
-
-        // Categories and tags
-        tags: [],
-
         // Settings
         settings: {
           password: null,
@@ -801,73 +491,45 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
 
       setEditorContent(enhancedData);
       setIsPublish(true);
+      toast.success("Content published successfully!");
 
     } catch (error) {
       toast.error(error.message || "Publishing failed");
     } finally {
       setIsPublishing(false);
     }
-  }, [title, subtitle, wordCount, performFullValidation]);
+  }, [title, subtitle]);
 
-  // Clear content - optimized
+  // Clear content
   const clearContent = useCallback(() => {
-    // Clear title and subtitle state
     setTitle("");
     setSubtitle("");
-    setTitleError("");
-    setSubtitleError("");
-    setContentError("");
-    setWordCount(0);
     setContentLoaded(false);
     hasRenderedRef.current = false;
     isLoadingContentRef.current = false;
 
-    // Clear editor content
     if (editorRef.current?.clear) {
-      editorRef.current.clear().then(async () => {
+      editorRef.current.clear().then(() => {
         setContentLoaded(true);
-        // Immediate word count update after clearing
-        await updateWordCount(true);
       });
     }
 
+    // Clear auto-save data
+    localStorage.removeItem('editor_autosave');
     toast.success("Content cleared");
-  }, [updateWordCount]);
-
-  // Compute validation state
-  const hasErrors = titleError || subtitleError || contentError;
-  const isFormValid = !hasErrors && title.trim() && wordCount >= validationRules.content.minWordCount;
+  }, []);
 
   return (
     <div className="w-full max-w-7xl mx-auto bg-white">
-      {/* Enhanced Header */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-6 py-4 border-b border-gray-200 gap-4 sm:gap-0">
-        {/* Left section with info items */}
+        {/* Left section */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-4 lg:gap-6 w-full sm:w-auto">
           <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">Auto-save enabled</span>
-          <div className="flex items-center gap-1">
-            <span className={`text-xs sm:text-sm whitespace-nowrap ${wordCount < validationRules.content.minWordCount ? 'text-red-500' :
-              wordCount > validationRules.content.maxWordCount ? 'text-red-500' : 'text-gray-500'
-              }`}>
-              {wordCount} words
-            </span>
-            {wordCount < validationRules.content.minWordCount && (
-              <span className="text-xs text-red-400 whitespace-nowrap">
-                (min: {validationRules.content.minWordCount})
-              </span>
-            )}
-          </div>
-          <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">{Math.ceil(wordCount / 250)} min read</span>
           {lastSaved && (
-            <span className="text-xs text-gray-400 whitespace-nowrap hidden sm:inline">
+            <span className="text-xs text-gray-400 whitespace-nowrap">
               Last saved: {lastSaved.toLocaleTimeString()}
             </span>
-          )}
-          {hasErrors && (
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-red-500 whitespace-nowrap">Validation errors</span>
-            </div>
           )}
         </div>
 
@@ -875,13 +537,14 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={handlePublish}
-            disabled={isPublishing || !isReady || !isFormValid || isValidating}
-            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm flex-1 sm:flex-none whitespace-nowrap transition-colors ${isFormValid && !isPublishing && !isValidating
-              ? 'bg-gray-900 text-white hover:bg-gray-800'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+            disabled={isPublishing || !isReady}
+            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm flex-1 sm:flex-none whitespace-nowrap transition-colors ${
+              !isPublishing && isReady
+                ? 'bg-gray-900 text-white hover:bg-gray-800'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
           >
-            {isPublishing ? "Publishing..." : isValidating ? "Validating..." : "Publish"}
+            {isPublishing ? "Publishing..." : "Publish"}
           </button>
           <button
             onClick={clearContent}
@@ -893,51 +556,23 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         </div>
       </div>
 
-      {/* Validation Summary */}
-      {hasErrors && (
-        <div className="px-3 sm:px-6 py-3 bg-red-50 border-b border-red-100">
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-red-800 mb-1">Please fix the following errors:</p>
-              <ul className="text-xs text-red-600 space-y-0.5">
-                {titleError && <li>• Title: {titleError}</li>}
-                {subtitleError && <li>• Subtitle: {subtitleError}</li>}
-                {contentError && <li>• Content: {contentError}</li>}
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Editor Container */}
       <div className="px-3 sm:px-6 py-6 sm:py-8">
         {/* Title Input */}
         <div className="mb-4 sm:mb-6">
           <div className="flex items-start">
-            <div className={`w-1 h-4 sm:h-6 mr-2 sm:mr-4 mt-1 flex-shrink-0 ${titleError ? 'bg-red-500' : 'bg-gray-800'
-              }`}></div>
+            <div className="w-1 h-4 sm:h-6 mr-2 sm:mr-4 mt-1 flex-shrink-0 bg-gray-800"></div>
             <div className="flex-1">
               <input
                 type="text"
                 value={title}
                 onChange={handleTitleChange}
                 placeholder="Your compelling title goes here..."
-                className={`text-lg sm:text-2xl font-bold placeholder-gray-400 border-none outline-none w-full bg-transparent ${titleError ? 'text-red-600' : 'text-gray-800'
-                  }`}
+                className="text-lg sm:text-2xl font-bold placeholder-gray-400 border-none outline-none w-full bg-transparent text-gray-800"
                 style={{
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 }}
-                maxLength={validationRules.title.maxLength}
               />
-              <div className="flex items-center justify-between mt-1">
-                {titleError && (
-                  <p className="text-xs text-red-500">{titleError}</p>
-                )}
-                <div className="ml-auto text-xs text-gray-400">
-                  {title.length}/{validationRules.title.maxLength}
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -950,21 +585,11 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
               value={subtitle}
               onChange={handleSubtitleChange}
               placeholder="Add a subtitle to provide more context..."
-              className={`text-base sm:text-lg placeholder-gray-400 border-none outline-none w-full bg-transparent ${subtitleError ? 'text-red-600' : 'text-gray-600'
-                }`}
+              className="text-base sm:text-lg placeholder-gray-400 border-none outline-none w-full bg-transparent text-gray-600"
               style={{
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               }}
-              maxLength={validationRules.subtitle.maxLength}
             />
-            <div className="flex items-center justify-between mt-1">
-              {subtitleError && (
-                <p className="text-xs text-red-500">{subtitleError}</p>
-              )}
-              <div className="ml-auto text-xs text-gray-400">
-                {subtitle.length}/{validationRules.subtitle.maxLength}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -985,8 +610,9 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         <div className="border-2 border-transparent rounded-lg transition-colors">
           <div
             id="professional-editor"
-            className={`min-h-[300px] sm:min-h-[400px] transition-opacity p-4 ${isReady ? "opacity-100" : "opacity-50"
-              }`}
+            className={`min-h-[300px] sm:min-h-[400px] transition-opacity p-4 ${
+              isReady ? "opacity-100" : "opacity-50"
+            }`}
             style={{
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               fontSize: "14px",
@@ -998,27 +624,6 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
       </div>
 
       <Toaster position="bottom-right" />
-    </div>
-  );
-}
-
-// Enhanced shortcuts component
-export function EnhancedShortcuts() {
-  return (
-    <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-80 p-4 z-10 rounded-lg bg-gray-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg">
-      <div className="grid grid-cols-1 gap-1">
-        <p><kbd className="font-mono">Cmd+Shift+H</kbd>: Heading</p>
-        <p><kbd className="font-mono">Cmd+Shift+L</kbd>: List</p>
-        <p><kbd className="font-mono">Cmd+Shift+K</kbd>: Checklist</p>
-        <p><kbd className="font-mono">Cmd+Shift+O</kbd>: Quote</p>
-        <p><kbd className="font-mono">Cmd+Shift+C</kbd>: Code Block</p>
-        <p><kbd className="font-mono">Cmd+Shift+W</kbd>: Warning/Info</p>
-        <p><kbd className="font-mono">Cmd+Shift+D</kbd>: Divider</p>
-        <p><kbd className="font-mono">Cmd+Alt+T</kbd>: Table</p>
-        <p><kbd className="font-mono">Cmd+Shift+R</kbd>: Raw HTML</p>
-        <p><kbd className="font-mono">Cmd+Shift+M</kbd>: Highlight</p>
-        <p><kbd className="font-mono">Cmd+Shift+X</kbd>: Inline Code</p>
-      </div>
     </div>
   );
 }

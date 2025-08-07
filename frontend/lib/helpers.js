@@ -83,7 +83,8 @@ export async function fetcher({
 
     return null;
   } catch (err) {
-    toast.error(err.message);
+    // toast.error(err.message);
+    console.log(err.message);
     throw err;
   }
 }
