@@ -8,11 +8,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import ReportIdeaPopup from './ideaReport';
 import { fetcher, timeAgo } from '@/lib/helpers';
 import {IdeaLoader} from "@/components/ui/cosloader"
 import { DocumentContent } from "@/components/notionLike/ParserUtils/DocumentContent"
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import Link from "next/link"
 
 // Component for fetching and displaying entries for a specific ideathon
@@ -20,7 +31,7 @@ export function EntriesList({ id }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
+  // const router = useRouter();
 
   useEffect(() => {
     async function fetch_entry() {
@@ -85,20 +96,25 @@ export function EntriesList({ id }) {
   }
 
   // Use the shared EntriesGrid component
-  return <EntriesGrid entries={entries} ideathonId={id} />;
+  return <EntriesGrid entries={entries} setEntries={setEntries} ideathonId={id} />;
 }
 
 // Component for displaying already-fetched entries (used in ProfileContent)
 export function EntriesDisplay({ entries }) {
+  const [entriesState, setEntriesState] = useState(entries);
+  
   // Use the shared EntriesGrid component
-  return <EntriesGrid entries={entries} />;
+  return <EntriesGrid entries={entriesState} setEntries={setEntriesState} />;
 }
 
 // Shared component for rendering the entries grid
-function EntriesGrid({ entries, ideathonId }) {
+function EntriesGrid({ entries, setEntries, ideathonId }) {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTargetEntry, setReportTargetEntry] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState(null);
   const router = useRouter();
 
   const openModal = (entry) => {
@@ -113,6 +129,55 @@ function EntriesGrid({ entries, ideathonId }) {
     setReportTargetEntry(entry);
     console.log("entry from popup", entry);
     setIsReportOpen(true);
+  };
+
+  const openDeleteDialog = (entry, e) => {
+    e.stopPropagation();
+    setEntryToDelete(entry);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteEntry = async () => {
+    if (!entryToDelete) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      console.log("Deleting entry...", entryToDelete.id);
+      
+      // Using query parameter since that matches the original code pattern
+      await fetcher({
+        url: `http://localhost:8080/api/entries/delete?entries_id=${entryToDelete.id}`,
+        method: "DELETE",
+        token: null,
+        returned_status: 204
+      });
+
+      // Success - remove entry from local state
+      if (setEntries) {
+        setEntries(prevEntries => prevEntries.filter(entry => entry.id !== entryToDelete.id));
+      }
+      
+      setShowDeleteDialog(false);
+      setEntryToDelete(null);
+      toast.success("Entry deleted successfully");
+      
+    } catch (error) {
+      console.error("Error deleting entry:", error);
+      
+      // Show error message based on status
+      if (error.status === 404) {
+        toast.error("Entry not found");
+      } else if (error.status === 403) {
+        toast.error("You don't have permission to delete this entry");
+      } else if (error.status === 401) {
+        toast.error("You must be logged in to delete this entry");
+      } else {
+        toast.error("Failed to delete entry. Please try again.");
+      }
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Empty state
@@ -199,7 +264,10 @@ function EntriesGrid({ entries, ideathonId }) {
                         Report an issue
                       </DropdownMenuItem>
 
-                      <DropdownMenuItem className="flex items-center gap-2 text-red-600">
+                      <DropdownMenuItem 
+                        className="flex items-center gap-2 text-red-600 hover:text-red-600 focus:text-red-600"
+                        onClick={(e) => openDeleteDialog({...entry, description}, e)}
+                      >
                         <Trash2 className="w-4 h-4 text-red-600" />
                         Delete
                       </DropdownMenuItem>
@@ -258,6 +326,37 @@ function EntriesGrid({ entries, ideathonId }) {
         </div>
       </div>
 
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Entry</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{entryToDelete?.description?.document?.title || 'this entry'}"? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setEntryToDelete(null);
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteEntry}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Modal Popup */}
       {selectedEntry && (
         <EntryPopUp 
@@ -296,7 +395,7 @@ function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry }) {
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-1">
               <img
-                src={selectedEntry.owner?.avatar ? `http://localhost:8080/api/${selectedEntry.owner.avatar}` : "/default-avatar.png"}
+                src={selectedEntry.owner?.avatar ? `http://localhost:8080/api/${selectedEntry.owner.avatar}` : "/empty_pfp.jpeg"}
                 alt="avatar"
                 className="rounded-2xl w-6 h-6"
                 onError={(e) => {

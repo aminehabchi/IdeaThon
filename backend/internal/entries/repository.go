@@ -93,7 +93,8 @@ func boolToInt(b bool) int {
 }
 
 func Delete_entrie_DB(entries_id, user_id int) error {
-	query := "DELETE FROM  WHERE entries id=? AND user_id=?"
+	// fmt.Println("info", entries_id, user_id)
+	query := "DELETE FROM entries WHERE id=? AND user_id=?"
 	_, err := database.Get_DB().Exec(query, entries_id, user_id)
 	return err
 }
