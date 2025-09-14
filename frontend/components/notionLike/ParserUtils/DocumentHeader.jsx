@@ -56,7 +56,7 @@ export const DocumentHeader = ({ data }) => {
       console.log("Deleting idea...");
       
       await fetcher({
-        url: `http://localhost:8080/api/ideathons/delete?ideathon_id=${item.id}`,
+        url: `/api/ideathons/delete?ideathon_id=${item.id}`,
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +110,7 @@ export const DocumentHeader = ({ data }) => {
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <img
-                src={owner?.avatar ? `http://localhost:8080/api${owner.avatar}` : "/empty_pfp.jpeg"}
+                src={owner?.avatar ? `/api${owner.avatar}` : "/empty_pfp.jpeg"}
                 alt={`${owner?.first_name || "User"} avatar`}
                 className="w-6 h-6 rounded-2xl"
                 onError={(e) => {

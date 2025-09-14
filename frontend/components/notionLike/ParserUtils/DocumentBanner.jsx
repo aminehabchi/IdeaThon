@@ -79,7 +79,7 @@ export const DocumentBanner = ({ parsedData: data }) => {
                 <div className="flex items-center gap-3">
                   {author.avatar && (
                     <img 
-                      src={author.avatar ? `http://localhost:8080/api/${author.avatar}` : "/empty_pfp.jpeg"} 
+                      src={author.avatar ? `/api/${author.avatar}` : "/empty_pfp.jpeg"} 
                       alt={author.name} 
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -133,7 +133,7 @@ export const DocumentBanner = ({ parsedData: data }) => {
           {/* {bannerImage && ( */}
             <div className="flex justify-center">
               <img 
-                src={data?.banner ? `http://localhost:8080/api${data?.banner}` : "/ideathoonbanner.png"} 
+                src={data?.banner ? `/api${data?.banner}` : "/ideathoonbanner.png"} 
                 alt={bannerAlt}
                 className="w-full max-w-xs lg:max-w-sm rounded-lg shadow-lg object-cover"
                 onError={(e) => {

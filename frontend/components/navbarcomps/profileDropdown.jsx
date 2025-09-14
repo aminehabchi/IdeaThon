@@ -21,7 +21,7 @@ export default function ProfileDropdown({
   const handleLogout = async () => {
     try {
       await fetcher({
-        url: "http://localhost:8080/api/auth/logout",
+        url: "/api/auth/logout",
         method: "POST",
         token: null,
         returned_status: 200,

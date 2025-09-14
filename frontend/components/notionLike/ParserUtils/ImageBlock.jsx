@@ -20,7 +20,7 @@ export const ImageBlock = ({ block }) => {
     if (url.startsWith("blob:") || url.startsWith("http")) return url;
 
     // Otherwise, assume it's a relative path from backend
-    return `http://localhost:8080/api${url}`;
+    return `/api${url}`;
   };
 
   const rawUrl = data?.file?.url || data?.url || data?.src;

@@ -24,18 +24,18 @@ export default function Profile() {
             try {
                 const [ideathonsRes, profileRes, entriesRes] = await Promise.all([
                     fetcher({
-                        url: `http://localhost:8080/api/ideathons/get`,
+                        url: `/api/ideathons/get`,
                         data: { user_id: -1 },
                         method: "POST",
                         returned_status: 200,
                     }),
                     fetcher({
-                        url: `http://localhost:8080/api/profile/get`,
+                        url: `/api/profile/get`,
                         method: "GET",
                         returned_status: 200,
                     }),
                     fetcher({
-                        url: `http://localhost:8080/api/entries/get`,
+                        url: `/api/entries/get`,
                         data: { user_id: -1 },
                         method: "Post",
                         returned_status: 200,

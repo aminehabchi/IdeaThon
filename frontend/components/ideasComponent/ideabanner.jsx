@@ -16,7 +16,7 @@ export function ProjectHeader({ id }) {
     async function fetchIdeathon() {
       try {
         const data = await fetcher({
-          url: " http://localhost:8080/api/ideathons/get",
+          url: " /api/ideathons/get",
           method: "POST",
           data: { id: Number(id.id), offset: 0 },
           token: null,

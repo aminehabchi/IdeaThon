@@ -126,7 +126,7 @@ const getActionButtons = (type, issue) => {
 
 async function toggle_solved_status(id) {
   await fetcher({
-    url: `http://localhost:8080/api/report/solve?report_id=${id}`,
+    url: `/api/report/solve?report_id=${id}`,
     method: "GET",
     returned_status: 200,
   });
@@ -143,7 +143,7 @@ export default function ReportsManagementDashboard() {
           s = ""
         }
         const data = await fetcher({
-          url: `http://localhost:8080/api/report/info`,
+          url: `/api/report/info`,
           method: "POST",
           token: null,
           returned_status: 200,
@@ -169,7 +169,7 @@ export default function ReportsManagementDashboard() {
           s = ""
         }
         const data = await fetcher({
-          url: `http://localhost:8080/api/report/get`,
+          url: `/api/report/get`,
           method: "POST",
           token: null,
           data: { type: s },  // send the entire filter

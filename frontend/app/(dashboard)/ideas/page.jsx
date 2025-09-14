@@ -16,7 +16,7 @@ const Page = () => {
     async function fetchIdeathon() {
       try {
         const data = await fetcher({
-          url: "http://localhost:8080/api/ideathons/get",
+          url: "/api/ideathons/get",
           method: "POST",
           data: { offset: scroll, category: selectedCategory },
           token: null,

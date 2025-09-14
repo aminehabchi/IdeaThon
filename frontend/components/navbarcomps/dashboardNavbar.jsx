@@ -71,7 +71,7 @@ export function DashboardNavbar() {
               <ProfileDropdown
                 userImage={
                   user?.avatar
-                    ? `http://localhost:8080/api${user.avatar}`
+                    ? `/api${user.avatar}`
                     : "/empty_pfp.png"
                 }
                 userName={`${user?.first_name ?? ""} ${user?.last_name ?? ""}`}

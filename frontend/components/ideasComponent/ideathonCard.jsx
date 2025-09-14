@@ -24,7 +24,7 @@ export default function Ideathon(idea) {
           {/* Left Section */}
           <div className="flex gap-4 flex-1 min-w-0">
           <img
-            src={`http://localhost:8080/api${banner}`}
+            src={`/api${banner}`}
             alt="cover"
             onError={(e) => {
               e.target.onerror = null
@@ -46,7 +46,7 @@ export default function Ideathon(idea) {
                 <span className="flex items-center gap-1 flex-shrink-0">
                   {/* <span className="text-pink-500">●</span> */}
                  <img
-                  src={`http://localhost:8080/api/${owner?.avatar}`}
+                  src={`/api/${owner?.avatar}`}
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = "/empty_pfp.jpeg";

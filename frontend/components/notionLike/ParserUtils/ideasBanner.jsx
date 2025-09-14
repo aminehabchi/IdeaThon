@@ -16,7 +16,7 @@ export function ProjectHeader({parsedData, id }) {
     async function fetchEntriesCount() {
       try {
         const data = await fetcher({
-          url: " http://localhost:8080/api/entries/get",
+          url: " /api/entries/get",
           method: "POST",
           data: { offset: 0, ideathon_id: id },
           token: null,

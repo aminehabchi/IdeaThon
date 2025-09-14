@@ -97,7 +97,7 @@ export default function ReportIdeaPopup({
       console.log("Submitting report:", reportData);
 
       const response = await fetcher({
-        url: "http://localhost:8080/api/report/add",
+        url: "/api/report/add",
         method: "POST",
         data: reportData,
         token: null, // Add actual token if your API requires authentication

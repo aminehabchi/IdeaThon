@@ -115,7 +115,7 @@ async function publishContent({ editorRef, title, wordCount, form, ideathon_id, 
         console.log(obj);
 
         await fetcher({
-            url: "http://localhost:8080/api/entries/add",
+            url: "/api/entries/add",
             method: "POST",
             data: obj,
             token: null,

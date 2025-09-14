@@ -49,7 +49,7 @@ export default function EditProfile() {
       try {
         const token = getToken();
         const data = await fetcher({
-          url: `http://localhost:8080/api/profile/get?profile_id=${0}`,
+          url: `/api/profile/get?profile_id=${0}`,
           data: { user_id: -1 },
           method: "GET",
           token: token,
@@ -66,7 +66,7 @@ export default function EditProfile() {
           country: data.country || "",
           password: "", // optional
         });
-        setAvatarPreview(`http://localhost:8080/api${data.avatar}` || "/belmaayo_avatar.png");
+        setAvatarPreview(`/api${data.avatar}` || "/belmaayo_avatar.png");
       } catch (err) {
         console.error("Failed to fetch profile", err);
         toast.error("Failed to load profile data");
@@ -157,7 +157,7 @@ export default function EditProfile() {
 
       // Send the update request
       await fetcher({
-        url: "http://localhost:8080/api/updateprofile",
+        url: "/api/updateprofile",
         method: "PATCH",
         data: payload,
         returned_status: 200,

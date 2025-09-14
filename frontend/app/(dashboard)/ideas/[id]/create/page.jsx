@@ -30,7 +30,7 @@ export default function Create_entry() {
 
             try {
                 await fetcher({
-                    url: `http://localhost:8080/api/entries/add`,
+                    url: `/api/entries/add`,
                     method: "POST",
                     data: backendPayload,
                     token: null,

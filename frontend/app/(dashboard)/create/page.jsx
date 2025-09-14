@@ -46,7 +46,7 @@ function Create() {
 
       try {
         await fetcher({
-          url: `http://localhost:8080/api/ideathons/add`,
+          url: `/api/ideathons/add`,
           method: "POST",
           data: backendPayload,
           token: null,

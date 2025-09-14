@@ -54,7 +54,7 @@ export function LoginForm({ className, ...props }) {
 
     try {
       await fetcher({
-        url: "http://localhost:8080/api/auth/login",
+        url: "/api/auth/login",
         method: "POST",
         data: formData,
         token: null,

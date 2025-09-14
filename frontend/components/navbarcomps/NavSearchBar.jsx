@@ -63,13 +63,13 @@ export function SearchBar({ className = "", isMobile = false }) {
 
           const [ideathons, users] = await Promise.all([
             fetcher({
-              url: "http://localhost:8080/api/ideathons/get",
+              url: "/api/ideathons/get",
               method: "POST",
               data: { search: searchQuery },
               returned_status: 200,
             }),
             fetcher({
-              url: `http://localhost:8080/api/profile/searsh?searsh=${encodeURIComponent(searchQuery)}`,
+              url: `/api/profile/searsh?searsh=${encodeURIComponent(searchQuery)}`,
               method: "GET",
               returned_status: 200,
             }),
@@ -151,7 +151,7 @@ export function SearchBar({ className = "", isMobile = false }) {
                           className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
                         >
                           <img
-                            src={`http://localhost:8080/api${user.avatar}` || "/default_avatar.png"}
+                            src={`/api${user.avatar}` || "/default_avatar.png"}
                             alt={`${user.first_name} ${user.last_name}`}
                             className="w-8 h-8 rounded-full object-cover"
                           />

@@ -49,7 +49,7 @@ function Update() {
 
             try {
                 await fetcher({
-                    url: `http://localhost:8080/api/ideathons/update`,
+                    url: `/api/ideathons/update`,
                     method: "PUT",
                     data: backendPayload,
                     token: null,
@@ -82,7 +82,7 @@ function Update() {
             try {
                 // Fetch data using the fetcher
                 const response = await fetcher({
-                    url: `http://localhost:8080/api/ideathons/get`,
+                    url: `/api/ideathons/get`,
                     method: "POST",
                     token: null, // Add token if authentication is required
                     data: { id: ideathon_id },

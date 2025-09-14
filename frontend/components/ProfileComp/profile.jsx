@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Pen, MapPin, Phone, Trophy, Target, Award, Users } from "lucide-react";
 
 export default function ProfileComponent({ profile }) {
-    let avatar = "http://localhost:8080/api" + profile?.avatar;
+    let avatar = "/api" + profile?.avatar;
 
     return (
         <div className="max-w-7xl mx-auto flex px-4 pt-8">

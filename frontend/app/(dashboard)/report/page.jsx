@@ -90,7 +90,7 @@ export default function ReportPage() {
       };
 
       await fetcher({
-        url: "http://localhost:8080/api/report/add",
+        url: "/api/report/add",
         method: "POST",
         data: reportData,
         token: null,

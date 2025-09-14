@@ -34,7 +34,7 @@ export default function Page() {
               
               // Fetch data using the fetcher
               const response = await fetcher({
-                  url: `http://localhost:8080/api/ideathons/get`,
+                  url: `/api/ideathons/get`,
                   method: "POST",
                   token: null, // Add token if authentication is required
                   data:{id:ideathon_id},

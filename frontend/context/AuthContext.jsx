@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       try {
         const data = await fetcher({
-          url: "http://localhost:8080/api/auth/me",
+          url: "/api/auth/me",
           method: "GET",
           returned_status: 200,
         });

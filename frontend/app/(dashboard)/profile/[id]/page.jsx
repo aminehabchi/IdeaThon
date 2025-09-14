@@ -27,13 +27,13 @@ export default function Profile() {
       try {
         const [ideathonsRes, profileRes] = await Promise.all([
           fetcher({
-            url: `http://localhost:8080/api/ideathons/get`,
+            url: `/api/ideathons/get`,
             data: { user_id: Number(id) },
             method: "POST",
             returned_status: 200,
           }),
           fetcher({
-            url: `http://localhost:8080/api/profile/get?profile_id=${id}`,
+            url: `/api/profile/get?profile_id=${id}`,
             method: "GET",
             returned_status: 200,
           }),

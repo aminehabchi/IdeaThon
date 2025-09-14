@@ -40,7 +40,7 @@ export function EntriesList({ id }) {
         setError(null);
 
         const data = await fetcher({
-          url: " http://localhost:8080/api/entries/get",
+          url: " /api/entries/get",
           method: "POST",
           data: { offset: 0, ideathon_id: id },
           token: null,
@@ -147,7 +147,7 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
       
       // Using query parameter since that matches the original code pattern
       await fetcher({
-        url: `http://localhost:8080/api/entries/delete?entries_id=${entryToDelete.id}`,
+        url: `/api/entries/delete?entries_id=${entryToDelete.id}`,
         method: "DELETE",
         token: null,
         returned_status: 204
@@ -305,7 +305,7 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <div className="flex items-center gap-2">
                     <img 
-                      src={entry.owner?.avatar ? `http://localhost:8080/api/${entry.owner.avatar}` : "/empty_pfp.jpeg"} 
+                      src={entry.owner?.avatar ? `/api/${entry.owner.avatar}` : "/empty_pfp.jpeg"} 
                       alt="avatar"
                       className="rounded-2xl w-6 h-6" 
                       onError={(e) => {
@@ -395,7 +395,7 @@ function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry }) {
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-1">
               <img
-                src={selectedEntry.owner?.avatar ? `http://localhost:8080/api/${selectedEntry.owner.avatar}` : "/empty_pfp.jpeg"}
+                src={selectedEntry.owner?.avatar ? `/api/${selectedEntry.owner.avatar}` : "/empty_pfp.jpeg"}
                 alt="avatar"
                 className="rounded-2xl w-6 h-6"
                 onError={(e) => {

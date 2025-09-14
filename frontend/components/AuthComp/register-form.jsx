@@ -238,7 +238,7 @@ export function SignUpForm({ className, ...props }) {
       toast.loading("Creating your account...");
       
       await fetcher({
-        url: "http://localhost:8080/api/auth/register",
+        url: "/api/auth/register",
         method: "POST",
         data: formData,
         token: null,
