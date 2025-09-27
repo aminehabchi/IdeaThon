@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { IdeathonStepper, DynamicImage } from "./helpers";
 import Benefits from "./Benefits";
 import Link from "next/link";
-
+import CommunityHero from './join';
 // // Animation variants
 // const fadeInUp = {
 //   initial: { opacity: 0, y: 30 },
@@ -253,7 +253,7 @@ export default function IdeaThonsLanding() {
         </div>
       </motion.section>
       <Benefits/>
-
+      <CommunityHero />
       {/* Footer */}
       <motion.footer
         className="border-t border-gray-200 py-12"
@@ -283,7 +283,7 @@ export default function IdeaThonsLanding() {
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
             >
               <motion.a
-                href="#"
+                href="/privacy"
                 className="hover:text-black transition-colors"
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.2 }}
@@ -291,15 +291,15 @@ export default function IdeaThonsLanding() {
                 Privacy
               </motion.a>
               <motion.a
-                href="#"
+                href="terms"
                 className="hover:text-black transition-colors"
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.2 }}
               >
-                Terms
+                Terms of use
               </motion.a>
               <motion.a
-                href="#"
+                href="/contact"
                 className="hover:text-black transition-colors"
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.2 }}

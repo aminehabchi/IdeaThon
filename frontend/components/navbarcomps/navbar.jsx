@@ -11,7 +11,7 @@ export function Navbar() {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  const navItems = ["Home", "Blog", "Updates", "Contact"];
+  const navItems = ["Articles", "About", "Contact"];
 
   return (
     <header className="border-b border-gray-200 bg-white z-50 relative">
@@ -19,13 +19,13 @@ export function Navbar() {
         {/* Top Bar */}
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo + Nav */}
-          <div className="flex items-center space-x-8">
             {/* <h1 className="text-xl font-bold text-black">IdeaThons</h1> */}
              <Link href="/" className="flex items-center">
                 <img src="/Logo.svg" alt="logo" />
              </Link>
 
             {/* Desktop Nav */}
+          <div className="flex items-center space-x-8">
             <nav className="hidden md:flex space-x-8">
               {navItems.map((item) => (
                <Link
