@@ -10,56 +10,55 @@ export  default function NotificationDropdown() {
   const dropdownRef = useRef(null);
 
   // Sample notifications data
-  const notifications = [
-    {
-      id: 1,
-      avatar: "/belmaayo_avatar.png", // You can replace with actual avatar URLs
-      name: "Congrats!",
-      message: "you won Ideathon reimagining the future of robotics",
-      time: "15min ago",
-      isRead: false
-    },
-    {
-      id: 2,
-      avatar: "/belmaayo_avatar.png",
-      name: "Yahya",
-      message: "gave an idea on reimagining the idea of things in the future",
-      time: "15min ago",
-      isRead: false
-    },
-       {
-      id: 3,
-      avatar: "/belmaayo_avatar.png",
-      name: "Yahya",
-      message: "gave an idea on reimagining the idea of things in the future",
-      time: "15min ago",
-      isRead: false
-    },
-       {
-      id: 4,
-      avatar: "/belmaayo_avatar.png",
-      name: "Yahya",
-      message: "gave an idea on reimagining the idea of things in the future",
-      time: "15min ago",
-      isRead: false
-    },
-        {
-      id: 5,
-      avatar: "/belmaayo_avatar.png",
-      name: "Yahya",
-      message: "gave an idea on reimagining the idea of things in the future",
-      time: "15min ago",
-      isRead: false
-    },    {
-      id: 6,
-      avatar: "/belmaayo_avatar.png",
-      name: "Yahya",
-      message: "gave an idea on reimagining the idea of things in the future",
-      time: "15min ago",
-      isRead: false
-    }
-  ];
-
+  const notifications =[]
+  //   {
+  //     id: 1,
+  //     avatar: "/belmaayo_avatar.png", // You can replace with actual avatar URLs
+  //     name: "Congrats!",
+  //     message: "you won Ideathon reimagining the future of robotics",
+  //     time: "15min ago",
+  //     isRead: false
+  //   },
+  //   {
+  //     id: 2,
+  //     avatar: "/belmaayo_avatar.png",
+  //     name: "Yahya",
+  //     message: "gave an idea on reimagining the idea of things in the future",
+  //     time: "15min ago",
+  //     isRead: false
+  //   },
+  //      {
+  //     id: 3,
+  //     avatar: "/belmaayo_avatar.png",
+  //     name: "Yahya",
+  //     message: "gave an idea on reimagining the idea of things in the future",
+  //     time: "15min ago",
+  //     isRead: false
+  //   },
+  //      {
+  //     id: 4,
+  //     avatar: "/belmaayo_avatar.png",
+  //     name: "Yahya",
+  //     message: "gave an idea on reimagining the idea of things in the future",
+  //     time: "15min ago",
+  //     isRead: false
+  //   },
+  //       {
+  //     id: 5,
+  //     avatar: "/belmaayo_avatar.png",
+  //     name: "Yahya",
+  //     message: "gave an idea on reimagining the idea of things in the future",
+  //     time: "15min ago",
+  //     isRead: false
+  //   },    {
+  //     id: 6,
+  //     avatar: "/belmaayo_avatar.png",
+  //     name: "Yahya",
+  //     message: "gave an idea on reimagining the idea of things in the future",
+  //     time: "15min ago",
+  //     isRead: false
+  //   }
+  // ];
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -85,7 +84,7 @@ export  default function NotificationDropdown() {
       >
         <Bell className="w-5 h-5" />
         {/* Notification badge */}
-        {notifications.filter(n => !n.isRead).length > 0 && (
+        {notifications && notifications.filter(n => !n.isRead).length > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
             {notifications.filter(n => !n.isRead).length}
           </span>

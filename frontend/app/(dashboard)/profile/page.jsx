@@ -16,7 +16,7 @@ export default function Profile() {
     const [profileData, setProfileData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     useEffect(() => {
         async function fetchData() {
             setLoading(true);
@@ -44,8 +44,8 @@ export default function Profile() {
                 setEntries(entriesRes);
                 setIdeathons(ideathonsRes);
                 setProfileData(profileRes);
-                console.log("entries",entriesRes);
-                
+                console.log("entries", entriesRes);
+
             } catch (error) {
                 console.error("Error fetching data:", error.message);
                 setError(error.message);
@@ -111,27 +111,26 @@ export default function Profile() {
     return (
         <div className="min-h-screen bg-background">
             <DashboardNavbar />
-            
+
             {/* Main Content Container */}
-            <div className="container mx-auto px-4 py-6 lg:py-8">
-                <h1 className="text-xl font-bold mb-4">Profile</h1>
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-                    
-                    {/* Profile Sidebar - Full width on mobile, 4 columns on desktop */}
-                    <div className="lg:col-span-4 xl:col-span-3 flex justify-center min-h-screen">
-                    <div className="sticky top-6">
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 mt-[32px]">
+
+                {/* Profile Sidebar - Full width on mobile, 4 columns on desktop */}
+                <div className="lg:col-span-4 xl:col-span-3 flex justify-center min-h-screen">
+                    <div className="sticky ">
                         <ProfileComponent profile={profileData} />
                     </div>
-                    </div>
+                </div>
 
 
-                    {/* Content Area - Full width on mobile, 8 columns on desktop */}
-                    <div className="lg:col-span-8 xl:col-span-9">
-                        <div className="w-full">
-                            <ProfileContent  ideathons={ideathons} entries={entries} />
-                        </div>
+                {/* Content Area - Full width on mobile, 8 columns on desktop */}
+                <div className="lg:col-span-8 xl:col-span-9">
+                    <div className="w-full">
+                        <ProfileContent ideathons={ideathons} entries={entries} />
                     </div>
                 </div>
+
             </div>
         </div>
     );

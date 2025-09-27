@@ -59,7 +59,11 @@ export function DashboardNavbar() {
           {/* Right: Create + Notifications + Profile */}
           <div className="hidden md:flex items-center space-x-4">
             <Link href="/create">
-              <Button className="bg-transparent text-black hover:bg-gray-100 flex items-center space-x-2 cursor-pointer">
+            <Button className="bg-transparent shadow-none border border-transparent
+                   text-black flex items-center space-x-2 cursor-pointer
+                   hover:bg-gray-100 hover:border-gray-300
+                   transition-all duration-200">
+
                 <PenLine className="w-4 h-4" />
                 <span className="hidden sm:inline">Create</span>
               </Button>

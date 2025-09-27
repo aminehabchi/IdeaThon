@@ -21,6 +21,6 @@ func main() {
 		Handler: middle.CORS(mux.Routes()),
 	}
 
-	fmt.Println("Server started on ")
+	fmt.Println("Server started on https://localhost:8080 ")
 	log.Println(config.ListenAndServe())
 }
