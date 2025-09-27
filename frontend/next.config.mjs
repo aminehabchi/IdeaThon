@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://ideathon-kjfd.onrender.com/api/:path*", 
+        destination: "http://localhost:8080/api/:path*", 
       },
     ];
   },

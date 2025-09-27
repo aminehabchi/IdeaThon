@@ -78,7 +78,6 @@ export function LoginForm({ className, ...props }) {
                 <Image src="/Logo.svg" alt="logo" width={120} height={40} priority />
               </div>
             </a>
-            <h1 className="text-xl font-bold">Welcome to IdeaThon.</h1>
             <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
               <a href="/register" className="underline underline-offset-4">
@@ -116,23 +115,6 @@ export function LoginForm({ className, ...props }) {
 
             <Button type="submit" className="w-full">
               Login
-            </Button>
-          </div>
-
-          <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-            <span className="bg-background text-muted-foreground relative z-10 px-2">
-              Or
-            </span>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Button variant="outline" type="button" className="w-full">
-              {/* Apple Icon */}
-              Continue with Apple
-            </Button>
-            <Button variant="outline" type="button" className="w-full">
-              {/* Google Icon */}
-              Continue with Google
             </Button>
           </div>
         </div>
