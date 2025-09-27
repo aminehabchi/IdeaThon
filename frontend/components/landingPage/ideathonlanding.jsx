@@ -92,7 +92,7 @@ export default function IdeaThonsLanding() {
                 transition: { duration: 0.3, ease: "easeOut" }
               }}
             >
-              <Lottie animationData={animationData} loop={true} />
+              <img src="/think.png" />
             </motion.div>
           </motion.div>
         </div>
