@@ -4,18 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, ChevronDown, Upload, X, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { CalendarShad } from '@/components/ui/calendar';
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Predefined allowed categories
 const allowedCategories = [
-  "Technology", "Health", "Education", "Environment", "Business", "Finance",
-  "Productivity", "Design", "Marketing", "Sustainability", "Innovation", "AI",
-  "Startups", "Social Impact", "Remote Work", "Mental Health", "Mobility",
-  "Entertainment", "E-commerce", "Food", "Fashion", "Gaming",
-  "Civic Tech", "Youth", "Equality", "Freelancing", "Future of Work"
-];
-
+    "Technology", "Social", "Business", "Creative", "open"
+  ];
 // Popover Components
 const Popover = ({ children, open, onOpenChange }) => (
   <div className="relative">
@@ -50,7 +43,7 @@ const ErrorMessage = ({ message }) => {
   );
 };
 
-export default function IdeathonForm({ setForm, ideathon }) {
+export default function IdeathonForm({ setForm, ideathon ,  setisThereError }) {
   const [endDate, setEndDate] = useState(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [privacy, setPrivacy] = useState('Select Privacy');
@@ -58,27 +51,28 @@ export default function IdeathonForm({ setForm, ideathon }) {
   const [categories, setCategories] = useState([]);
   const [categoryInput, setCategoryInput] = useState('');
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
-  const [priceType, setPriceType] = useState('Paid');
-  const [price, setPrice] = useState(0);
   const [bannerImage, setBannerImage] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
-
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  useEffect(()=>{
+    console.log(errors);
+    
+    if (!errors.length) {
+      console.log("changed");
+      setisThereError(false) ;
+    }
+  } , [errors]) ;
   useEffect(() => {
     if (!ideathon) return;
 
     setEndDate(ideathon.end_date ? new Date(ideathon.end_date) : undefined);
     setPrivacy(ideathon.privacy || 'Select Privacy');
     setCategories(ideathon.category || []);
-    setPrice(ideathon.price || 0);
     setBannerPreview(ideathon.banner || null);
-
-    // Optionally:
-    setPriceType(ideathon.price > 0 ? 'Paid' : 'Free');
   }, [ideathon]);
 
   // Validation states
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
 
   // Validation functions
   const validateEndDate = (date) => {
@@ -98,28 +92,16 @@ export default function IdeathonForm({ setForm, ideathon }) {
     return null;
   };
 
-  const validatePrice = (priceValue, type) => {
-    if (type === 'Paid') {
-      if (priceValue < 0) return "Price cannot be negative";
-      if (priceValue > 10000) return "Price cannot exceed $10,000";
-      if (priceValue === 0) return "Paid events must have a price greater than $0";
-    }
-    return null;
-  };
-
   const validatePrivacy = (privacyValue) => {
     if (privacyValue === 'Select Privacy') return "Please select a privacy option";
     return null;
   };
 
   const validateBanner = (image) => {
-    // Banner is now optional, so only validate if an image is provided
-    if (!image) return null;
+    if (!image) return null; // optional
 
-    // Check file size (max 5MB)
     if (image.size > 5 * 1024 * 1024) return "Banner image must be less than 5MB";
 
-    // Check file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(image.type)) {
       return "Banner must be a valid image file (JPEG, PNG, GIF, or WebP)";
@@ -138,9 +120,6 @@ export default function IdeathonForm({ setForm, ideathon }) {
     const categoryError = validateCategories(categories);
     if (categoryError) newErrors.categories = categoryError;
 
-    const priceError = validatePrice(price, priceType);
-    if (priceError) newErrors.price = priceError;
-
     const privacyError = validatePrivacy(privacy);
     if (privacyError) newErrors.privacy = privacyError;
 
@@ -151,7 +130,6 @@ export default function IdeathonForm({ setForm, ideathon }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Mark field as touched
   const markAsTouched = (field) => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
@@ -164,12 +142,12 @@ export default function IdeathonForm({ setForm, ideathon }) {
     setForm({
       endDate,
       categories,
-      price: priceType === 'Free' ? 0 : price,
+      price: 0, // always free for MVP
       privacy,
       banner: bannerImage,
       isValid: runValidation()
     });
-  }, [endDate, categories, price, privacy, bannerImage, priceType, touched]);
+  }, [endDate, categories, privacy, bannerImage, touched]);
 
   const handleCategoryKeyPress = (e) => {
     if (e.key === 'Enter' && categoryInput.trim()) {
@@ -237,21 +215,6 @@ export default function IdeathonForm({ setForm, ideathon }) {
     markAsTouched('privacy');
   };
 
-  const handlePriceChange = (e) => {
-    const value = Number(e.target.value);
-    setPrice(value);
-    markAsTouched('price');
-  };
-
-  const handlePriceTypeChange = (e) => {
-    const newType = e.target.value;
-    setPriceType(newType);
-    if (newType === 'Free') {
-      setPrice(0);
-    }
-    markAsTouched('price');
-  };
-
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white border-b-2">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -265,8 +228,7 @@ export default function IdeathonForm({ setForm, ideathon }) {
               <PopoverTrigger>
                 <Button
                   variant="outline"
-                  className={`w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 ${errors.endDate && touched.endDate ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''
-                    }`}
+                  className={`w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50 ${errors.endDate && touched.endDate ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''}`}
                 >
                   <Calendar className="mr-2 h-4 w-4 text-gray-400" />
                   {endDate ? endDate.toLocaleDateString() : "Pick End Date"}
@@ -318,10 +280,7 @@ export default function IdeathonForm({ setForm, ideathon }) {
                     markAsTouched('categories');
                   }}
                   onBlur={() => setTimeout(() => setShowCategorySuggestions(false), 200)}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:border-transparent ${errors.categories && touched.categories
-                    ? 'border-red-300 focus:ring-red-200'
-                    : 'border-gray-200 focus:ring-blue-200'
-                    }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:border-transparent ${errors.categories && touched.categories ? 'border-red-300 focus:ring-red-200' : 'border-gray-200 focus:ring-blue-200'}`}
                   disabled={categories.length >= 5}
                 />
                 {showCategorySuggestions && categories.length < 5 && (
@@ -354,50 +313,11 @@ export default function IdeathonForm({ setForm, ideathon }) {
             <ErrorMessage message={touched.categories ? errors.categories : null} />
           </div>
 
-          {/* Price Section */}
           <div>
-            <Label className="block text-sm font-medium text-gray-900 mb-3">
-              Price <span className="text-red-500">*</span>
+            <Label className="block text-sm font-medium text-gray-900 mb-2">
+              Price
             </Label>
-            <div className="flex items-center space-x-4">
-              <Label className="flex items-center">
-                <input
-                  type="radio"
-                  value="Paid"
-                  checked={priceType === 'Paid'}
-                  onChange={handlePriceTypeChange}
-                  className="h-4 w-4"
-                />
-                <span className="ml-2 text-sm">Paid</span>
-              </Label>
-              <Label className="flex items-center">
-                <input
-                  type="radio"
-                  value="Free"
-                  checked={priceType === 'Free'}
-                  onChange={handlePriceTypeChange}
-                  className="h-4 w-4"
-                />
-                <span className="ml-2 text-sm">Free</span>
-              </Label>
-              {priceType === 'Paid' && (
-                <Input
-                  id="price"
-                  type="number"
-                  min={0}
-                  max={10000}
-                  step="0.01"
-                  value={price}
-                  onChange={handlePriceChange}
-                  className={`w-32 ${errors.price && touched.price
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                    : ''
-                    }`}
-                  placeholder="0.00"
-                />
-              )}
-            </div>
-            <ErrorMessage message={touched.price ? errors.price : null} />
+            <p className="text-sm text-gray-600">Free - <span className="text-gray-400">(Payments coming soon)</span></p>
           </div>
         </div>
 
@@ -415,10 +335,7 @@ export default function IdeathonForm({ setForm, ideathon }) {
                   setPrivacyOpen(!privacyOpen);
                   markAsTouched('privacy');
                 }}
-                className={`w-full justify-between font-normal ${errors.privacy && touched.privacy
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                  : ''
-                  }`}
+                className={`w-full justify-between font-normal ${errors.privacy && touched.privacy ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''}`}
               >
                 <span className={privacy === 'Select Privacy' ? 'text-gray-500' : 'text-gray-900'}>
                   {privacy}

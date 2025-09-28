@@ -23,11 +23,16 @@ export function DashboardNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo */}
-          <div className="flex items-center">
-            <Link href="/ideas" className="flex items-center">
-              <img src="/Logo.svg" alt="logo" />
-            </Link>
-          </div>
+          <Link href="/ideas" className="flex items-center justify-center space-x-2">
+            <img
+              src="/Logo.svg"
+              alt="logo"
+              className="h-5 w-auto flex-shrink-0"
+            />
+            <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full uppercase">
+              Beta
+            </span>
+          </Link>
 
           {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center">
@@ -59,7 +64,7 @@ export function DashboardNavbar() {
           {/* Right: Create + Notifications + Profile */}
           <div className="hidden md:flex items-center space-x-4">
             <Link href="/create">
-            <Button className="bg-transparent shadow-none border border-transparent
+              <Button className="bg-transparent shadow-none border border-transparent
                    text-black flex items-center space-x-2 cursor-pointer
                    hover:bg-gray-100 hover:border-gray-300
                    transition-all duration-200">
@@ -71,7 +76,7 @@ export function DashboardNavbar() {
 
             <NotificationDropdown />
 
-            <div className="flex items-center space-x-4 mt-3">
+            <div className="flex items-center space-x-4 mt-3 hover: cursor-pointer">
               <ProfileDropdown
                 userImage={
                   user?.avatar

@@ -490,6 +490,8 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
       };
 
       setEditorContent(enhancedData);
+      console.log(setEditorContent);
+      
       setIsPublish(true);
       toast.success("Content published successfully!");
 
@@ -578,7 +580,7 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
         </div>
 
         {/* Subtitle Input */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-6 ">
           <div className="ml-3 sm:ml-5">
             <input
               type="text"
@@ -606,6 +608,19 @@ export function ProfessionalEditor({ setIsPublish, setEditorContent, ideathon })
             <span className="text-sm">Loading content...</span>
           </div>
         )}
+
+  <style>{`
+    #professional-editor .ce-block,
+    #professional-editor .ce-block__content,
+    #professional-editor .ce-paragraph {
+      margin: 0 !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+    #professional-editor .ce-toolbar__content {
+      max-width: 100% !important;
+    }
+  `}</style>
 
         <div className="border-2 border-transparent rounded-lg transition-colors">
           <div

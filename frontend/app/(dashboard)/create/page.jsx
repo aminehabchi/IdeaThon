@@ -10,14 +10,30 @@ import { fetcher, imageToBase64 } from "@/lib/helpers";
 
 function Create() {
   const [form, setForm] = useState({});
+  const [isThereError, setisThereError] = useState(true);
   const [editorContent, setEditorContent] = useState("");
   const [isPublish, setIsPublish] = useState(false);
   const router = useRouter();
-
+  useEffect(() => { console.log(editorContent );
+   }, [editorContent]);
   useEffect(() => {
+    console.log("Editor content:", editorContent);
+    console.log(isThereError);
+
     if (!isPublish) return;
 
     const publishData = async () => {
+      if (
+        !editorContent ||
+        // editorContent.title === "" || 
+        editorContent.document.title.toLowerCase() == "untitled" ||
+        isThereError
+      ) {
+        toast.error("Please fill all required fields.");
+        setIsPublish(false);
+        return;
+      }
+
       let base64Banner = "";
 
       if (form.banner) {
@@ -54,7 +70,7 @@ function Create() {
         });
 
         toast.success("Ideathon published successfully!");
-        router.push("/create/publish");
+        router.push("/create/published");
       } catch (error) {
         toast.error("Failed to publish ideathon.");
         console.error("Publishing error:", error);
@@ -74,7 +90,7 @@ function Create() {
           <h1 className="text-xl font-bold text-black mb-[-10px]">
             Create a New Ideathon
           </h1>
-          <IdeathonForm setForm={setForm} />
+          <IdeathonForm setForm={setForm} setisThereError={setisThereError} />
           <ProfessionalEditor
             setIsPublish={setIsPublish}
             setEditorContent={setEditorContent}
