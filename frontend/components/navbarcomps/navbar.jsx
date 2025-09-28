@@ -11,7 +11,7 @@ export function Navbar() {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  const navItems = ["Articles", "About", "Contact"];
+  const navItems = ["Articles", "Contact"];
 
   return (
     <header className="border-b border-gray-200 bg-white z-50 relative">
@@ -19,22 +19,29 @@ export function Navbar() {
         {/* Top Bar */}
         <div className="flex justify-between items-center h-16">
           {/* Left: Logo + Nav */}
-            {/* <h1 className="text-xl font-bold text-black">IdeaThons</h1> */}
-             <Link href="/" className="flex items-center">
-                <img src="/Logo.svg" alt="logo" />
-             </Link>
+          {/* <h1 className="text-xl font-bold text-black">IdeaThons</h1> */}
+          <Link href="/" className="flex items-center justify-center space-x-2">
+            <img
+              src="/Logo.svg"
+              alt="logo"
+              className="h-5 w-auto flex-shrink-0"
+            />
+            <span className="bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full uppercase">
+              Beta
+            </span>
+          </Link>
 
-            {/* Desktop Nav */}
+          {/* Desktop Nav */}
           <div className="flex items-center space-x-8">
             <nav className="hidden md:flex space-x-8">
               {navItems.map((item) => (
-               <Link
-               key={item}
-               href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
-               className="text-gray-600 hover:text-black transition-colors"
-             >
-               {item}
-             </Link>             
+                <Link
+                  key={item}
+                  href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
+                  className="text-gray-600 hover:text-black transition-colors"
+                >
+                  {item}
+                </Link>
               ))}
             </nav>
           </div>
@@ -42,12 +49,12 @@ export function Navbar() {
           {/* Right: Auth Buttons (Desktop) */}
           <div className="hidden md:flex items-center space-x-3">
             <Link href="/login">
-              <Button variant="ghost" className="text-gray-600 hover:text-black">
+              <Button variant="ghost" className="text-gray-600 hover:text-black cursor-pointer">
                 Login
               </Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-black text-white hover:bg-gray-800">
+              <Button className="bg-black text-white hover:bg-gray-800 cursor-pointer">
                 Sign Up
               </Button>
             </Link>
@@ -78,11 +85,11 @@ export function Navbar() {
                 <nav className="flex flex-col space-y-2">
                   {navItems.map((item) => (
                     <Link
-                        key={item}
-                        href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
-                        className="text-gray-600 hover:text-black transition-colors"
-                      >
-                        {item}
+                      key={item}
+                      href={`/${item.toLowerCase() === "home" ? "" : item.toLowerCase()}`}
+                      className="text-gray-600 hover:text-black transition-colors"
+                    >
+                      {item}
                     </Link>
 
                   ))}

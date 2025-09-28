@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 export default function ContactPage() {
   return (
     <div>
-      <Navbar />
+      {/* <Navbar /> */}
       <main className="mt-[-60px] min-h-screen flex items-center justify-center bg-white px-4">
         <div className="w-full max-w-md space-y-6">
           <h1 className="text-2xl font-bold text-black">Contact us</h1>

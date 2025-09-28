@@ -121,8 +121,8 @@ export function LoginForm({ className, ...props }) {
       </form>
 
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
-        <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="/terms" target="_blank">Terms of Service</a> and{" "}
+        <a href="privacy" target="_blank">Privacy Policy</a>.
       </div>
 
       <Toaster position="bottom-center" />

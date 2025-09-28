@@ -45,8 +45,6 @@ const scaleIn = {
 export default function IdeaThonsLanding() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Use the separated Navbar component */}
-      <Navbar />
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
