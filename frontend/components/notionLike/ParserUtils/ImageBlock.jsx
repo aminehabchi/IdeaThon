@@ -7,22 +7,26 @@ import Image from "next/image";
 
 export const ImageBlock = ({ block }) => {
   const { data } = block;
-  // console.log("image data",data);
-  
+  // Debug: log the image block data to help diagnose issues
+  if (typeof window !== "undefined") {
+    // Only log on client
+    // eslint-disable-next-line no-console
+    console.log("[ImageBlock] data:", data);
+  }
+
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Helper to get the correct image URL
+  // Helper to get the correct image URL (supports base64, blob, http, or relative)
   const resolveImageUrl = (url) => {
     if (!url) return null;
-
-    // If it's a blob or full URL, use as is
-    if (url.startsWith("blob:") || url.startsWith("http")) return url;
-
+    // If it's a base64 data URL, blob, or full URL, use as is
+    if (url.startsWith("data:image/") || url.startsWith("blob:") || url.startsWith("http")) return url;
     // Otherwise, assume it's a relative path from backend
     return `/api${url}`;
   };
 
+  // Try all possible fields for image URL (base64 or backend)
   const rawUrl = data?.file?.url || data?.url || data?.src;
   const imageUrl = resolveImageUrl(rawUrl);
   const caption = data.caption || data.alt || "";
@@ -32,13 +36,13 @@ export const ImageBlock = ({ block }) => {
 
   const getAlignmentClass = () => {
     switch (data.alignment) {
-      case "left":
-        return "text-left";
+      case "center":
+        return "text-center";
       case "right":
         return "text-right";
-      case "center":
+      case "left":
       default:
-        return "text-center";
+        return "text-left";
     }
   };
 

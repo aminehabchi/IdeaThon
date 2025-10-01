@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import IdeathonForm from "@/components/ideasComponent/createIdea";
 import { DashboardNavbar } from "@/components/navbarcomps/dashboardNavbar";
 import { ProfessionalEditor } from "@/components/notionLike/notion_like";
@@ -10,39 +10,31 @@ import { fetcher, imageToBase64 } from "@/lib/helpers";
 
 function Create() {
   const [form, setForm] = useState({});
-  const [isThereError, setisThereError] = useState(true);
-  const [editorContent, setEditorContent] = useState("");
-  const [isPublish, setIsPublish] = useState(false);
+  const [isThereError, setIsThereError] = useState(true);
+  const [editorContent, setEditorContent] = useState(null);
   const router = useRouter();
-  useEffect(() => { console.log(editorContent );
-   }, [editorContent]);
-  useEffect(() => {
-    console.log("Editor content:", editorContent);
-    console.log(isThereError);
 
-    if (!isPublish) return;
+  // When editorContent changes, submit to backend
+  useEffect(() => {
+    if (!editorContent) return;
 
     const publishData = async () => {
       if (
-        !editorContent ||
-        // editorContent.title === "" || 
-        editorContent.document.title.toLowerCase() == "untitled" ||
+        !editorContent.blocks?.length ||
+        editorContent.document.title.toLowerCase() === "untitled" ||
         isThereError
       ) {
         toast.error("Please fill all required fields.");
-        setIsPublish(false);
         return;
       }
 
       let base64Banner = "";
-
       if (form.banner) {
         try {
           base64Banner = await imageToBase64(form.banner);
         } catch (err) {
           console.error("Banner conversion failed:", err);
           toast.error("Failed to convert banner image to base64.");
-          setIsPublish(false);
           return;
         }
       }
@@ -57,7 +49,7 @@ function Create() {
         end_date: form.endDate || "",
         category: Array.isArray(form.categories) ? form.categories : [],
         winner_id: null,
-        privacy: form.privacy || "public"
+        privacy: form.privacy || "public",
       };
 
       try {
@@ -74,29 +66,25 @@ function Create() {
       } catch (error) {
         toast.error("Failed to publish ideathon.");
         console.error("Publishing error:", error);
-      } finally {
-        setIsPublish(false);
       }
     };
 
     publishData();
-  }, [isPublish]);
+  }, [editorContent, form, isThereError, router]);
 
   return (
     <>
       <DashboardNavbar />
       <main className="mt-6 min-h-screen flex items-center justify-center bg-white px-4">
-        <div className="w-full max-w-4xl space-y-6 ">
+        <div className="w-full max-w-4xl space-y-6">
           <h1 className="text-xl font-bold text-black mb-[-10px]">
             Create a New Ideathon
           </h1>
-          <IdeathonForm setForm={setForm} setisThereError={setisThereError} />
-          <ProfessionalEditor
-            setIsPublish={setIsPublish}
-            setEditorContent={setEditorContent}
-          />
+          <IdeathonForm setForm={setForm} setisThereError={setIsThereError} />
+          <ProfessionalEditor setEditorContent={setEditorContent} />
         </div>
       </main>
+      <Toaster position="bottom-right" />
     </>
   );
 }
