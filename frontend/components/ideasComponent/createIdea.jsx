@@ -7,8 +7,8 @@ import { CalendarShad } from '@/components/ui/calendar';
 import { Label } from "@/components/ui/label";
 
 const allowedCategories = [
-    "Technology", "Social", "Business", "Creative", "open"
-  ];
+  "Technology", "Social", "Business", "Creative", "open"
+];
 // Popover Components
 const Popover = ({ children, open, onOpenChange }) => (
   <div className="relative">
@@ -43,7 +43,7 @@ const ErrorMessage = ({ message }) => {
   );
 };
 
-export default function IdeathonForm({ setForm, ideathon ,  setisThereError }) {
+export default function IdeathonForm({ setForm, ideathon, setisThereError }) {
   const [endDate, setEndDate] = useState(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [privacy, setPrivacy] = useState('Select Privacy');
@@ -55,14 +55,10 @@ export default function IdeathonForm({ setForm, ideathon ,  setisThereError }) {
   const [bannerPreview, setBannerPreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  useEffect(()=>{
-    console.log(errors);
-    
-    if (!errors.length) {
-      console.log("changed");
-      setisThereError(false) ;
-    }
-  } , [errors]) ;
+  useEffect(() => {
+    const isValid = runValidation();
+    setisThereError(!isValid);
+  }, [endDate, categories, privacy, bannerImage]);
   useEffect(() => {
     if (!ideathon) return;
 

@@ -1,6 +1,6 @@
 export default function Benefits() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className=" bg-gray-100">
       {/* Benefits Section */}
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
