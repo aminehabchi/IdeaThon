@@ -179,18 +179,30 @@ export const DocumentHeader = ({ data }) => {
 
           {/* Right: price and Participate button */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            <span className="text-xl sm:text-2xl font-bold text-gray-900">
-              {price} {currency}
-            </span>
+            {price === 0 ? (
+              <span className="text-base sm:text-sm font-semibold text-gray-600  px-3 py-1 rounded">
+                Free
+              </span>
+            ) : (
+              <span className="text-xl sm:text-2xl font-bold text-gray-900">
+                {price} {currency}
+              </span>
+            )}
 
-            {/* Show Participate only if user is not the owner */}
+            {/* Show Participate only if user is not the owner and not ended */}
             {!isOwner && (
-              <Link
-                href={`/ideas/${item.id}/create`}
-                className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-md w-full sm:w-auto transition-colors"
-              >
-                Participate
-              </Link>
+              daysLeft === 0 || daysLeft === "0" || daysLeft === "Ended" || daysLeft === null ? (
+                <span className="text-gray-400 text-base font-medium px-6 py-2 rounded-md w-full sm:w-auto bg-gray-100 cursor-not-allowed select-none">
+                  Ended
+                </span>
+              ) : (
+                <Link
+                  href={`/ideas/${item.id}/create`}
+                  className="bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-md w-full sm:w-auto transition-colors"
+                >
+                  Participate
+                </Link>
+              )
             )}
           </div>
         </div>

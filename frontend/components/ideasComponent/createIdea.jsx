@@ -57,6 +57,9 @@ export default function IdeathonForm({ setForm, ideathon, setisThereError }) {
   const [touched, setTouched] = useState({});
   useEffect(() => {
     const isValid = runValidation();
+    if (!setisThereError) {
+      return
+    }
     setisThereError(!isValid);
   }, [endDate, categories, privacy, bannerImage]);
   useEffect(() => {

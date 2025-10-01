@@ -4,11 +4,12 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { imageToBase64 } from "@/lib/helpers.js";
 import { toast } from "sonner";
 
-export function ProfessionalEditor({ setEditorContent }) {
+export function ProfessionalEditor({ setEditorContent, initialTitle = "", initialSubtitle = "", initialBlocks = [] }) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
+  const [title, setTitle] = useState(initialTitle);
+  const [subtitle, setSubtitle] = useState(initialSubtitle);
+  const [hasLoadedBlocks, setHasLoadedBlocks] = useState(false);
 
   // Initialize EditorJS
   useEffect(() => {
@@ -58,9 +59,18 @@ export function ProfessionalEditor({ setEditorContent }) {
               },
             },
           },
-          onReady: () => {
+          onReady: async () => {
             if (isMounted) {
               setIsReady(true);
+              // Load initial blocks if provided and not already loaded
+              if (initialBlocks && initialBlocks.length > 0 && !hasLoadedBlocks) {
+                try {
+                  await editor.render({ blocks: initialBlocks });
+                  setHasLoadedBlocks(true);
+                } catch (err) {
+                  console.error("Failed to load initial blocks", err);
+                }
+              }
             }
           },
         });
@@ -84,7 +94,16 @@ export function ProfessionalEditor({ setEditorContent }) {
         setIsReady(false);
       }
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialBlocks]);
+
+  // Update title/subtitle if props change (for hot reload or prop update)
+  useEffect(() => {
+    setTitle(initialTitle);
+  }, [initialTitle]);
+  useEffect(() => {
+    setSubtitle(initialSubtitle);
+  }, [initialSubtitle]);
 
   // Handle publish: save content and send to parent
   const handlePublish = useCallback(async () => {

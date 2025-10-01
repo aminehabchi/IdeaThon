@@ -112,11 +112,13 @@ function Update() {
                     <h1 className="text-xl font-bold text-black mb-[-10px]">
                         Update Ideathon
                     </h1>
-                    <IdeathonForm setForm={setForm}  ideathon={ideathon}/>
+                    <IdeathonForm setForm={setForm} ideathon={ideathon} />
                     <ProfessionalEditor
                         setIsPublish={setIsPublish}
                         setEditorContent={setEditorContent}
-                        ideathon={ideathon}
+                        initialTitle={ideathon?.description ? (() => { try { return JSON.parse(ideathon.description)?.document?.title || ""; } catch { return ""; } })() : ""}
+                        initialSubtitle={ideathon?.description ? (() => { try { return JSON.parse(ideathon.description)?.document?.subtitle || ""; } catch { return ""; } })() : ""}
+                        initialBlocks={ideathon?.description ? (() => { try { return JSON.parse(ideathon.description)?.blocks || []; } catch { return []; } })() : []}
                     />
                 </div>
             </main>

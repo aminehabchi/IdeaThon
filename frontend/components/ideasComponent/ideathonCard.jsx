@@ -80,10 +80,22 @@ export default function Ideathon(idea) {
       {/* Right Section */}
       <div className="flex flex-col items-end justify-between min-w-[70px] sm:min-w-[80px] h-full self-stretch flex-shrink-0">
         <div className="text-base sm:text-lg md:text-xl font-bold text-black truncate max-w-[70px] sm:max-w-[80px]">
-          {price ?? 0}$
+          {(!price || price === 0) ? (
+            <span className="text-sm text-gray-600 font-semibold">Free</span>
+          ) : (
+            `${price}$`
+          )}
         </div>
         <div className="text-xs sm:text-sm text-gray-500 truncate max-w-[70px] sm:max-w-[80px] text-right">
-          {getDaysLeft(end_date)}
+          {(() => {
+            const targetDate = new Date(end_date);
+            const now = new Date();
+            if (!end_date || targetDate - now <= 0) {
+              return "Ended";
+            }
+            const daysLeft = Math.ceil((targetDate - now) / (1000 * 60 * 60 * 24));
+            return `${daysLeft} Day${daysLeft > 1 ? "s" : ""} left`;
+          })()}
         </div>
       </div>
     </div>
