@@ -1,3 +1,6 @@
+<div align="center">
+  <img src="./Banner.png" alt="Ideathon Banner" width="600"/>
+</div>
 # Ideathon
 
 **Ideathon is a platform where ideas grow stronger together.** It's a space where individuals, startups, and organizations can launch short idea challenges—called *ideathons*—to gather fresh perspectives, test assumptions, and spark innovation.
