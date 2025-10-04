@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./Banner.png" alt="Ideathon Banner" width="600"/>
+  <img src="./Banner.png" alt="Ideathon Banner" width="100%"/>
 </div>
 # Ideathon
 
