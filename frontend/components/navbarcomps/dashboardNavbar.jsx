@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Bell, User, PenLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProfileDropdown from "./profileDropdown";
-import NotificationDropdown from "@/components/navbarcomps/notiofications";
+import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 import { SearchBar } from "./NavSearchBar";
 import { useAuth } from "@/context/AuthContext";
 
@@ -81,7 +81,7 @@ export function DashboardNavbar() {
                 userImage={
                   user?.avatar
                     ? `/api${user.avatar}`
-                    : "/empty_pfp.png"
+                    : "/empty_pfp.jpeg"
                 }
                 userName={`${user?.first_name ?? ""} ${user?.last_name ?? ""}`}
                 userEmail={user?.email ?? ""}
@@ -113,15 +113,19 @@ export function DashboardNavbar() {
                     </Button>
                   </Link>
 
-                  <button className="w-full p-3 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center space-x-2">
-                    <Bell className="w-5 h-5" />
-                    <span>Notifications</span>
-                  </button>
+                  <div className="flex justify-center">
+                    <NotificationDropdown />
+                  </div>
 
-                  <button className="w-full p-3 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center space-x-2">
-                    <User className="w-5 h-5" />
-                    <span>Profile</span>
-                  </button>
+                  <ProfileDropdown
+                    userImage={
+                      user?.avatar
+                        ? `/api${user.avatar}`
+                        : "/empty_pfp.jpeg"
+                    }
+                    userName={`${user?.first_name ?? ""} ${user?.last_name ?? ""}`}
+                    userEmail={user?.email ?? ""}
+                  />
                 </div>
               </div>
             </motion.div>

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { imageToBase64 } from "@/lib/helpers.js";
 import { toast } from "sonner";
 
-export function ProfessionalEditor({ setEditorContent, initialTitle = "", initialSubtitle = "", initialBlocks = [] }) {
+export function ProfessionalEditor({ setEditorContent, setIsPublish, initialTitle = "", initialSubtitle = "", initialBlocks = [] }) {
   const editorRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
   const [title, setTitle] = useState(initialTitle);
@@ -197,15 +197,21 @@ export function ProfessionalEditor({ setEditorContent, initialTitle = "", initia
       };
 
       setEditorContent(data);
-      toast.success("Content ready for publishing!");
+
+      // If setIsPublish is provided, trigger the publish action
+      if (setIsPublish) {
+        setIsPublish(true);
+      } else {
+        toast.success("Content ready for publishing!");
+      }
     } catch (error) {
       toast.error("Publishing failed");
     }
-  }, [title, subtitle, setEditorContent]);
+  }, [title, subtitle, setEditorContent, setIsPublish]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto bg-white flex flex-col">
-      <div className="flex justify-between items-start w-full mb-2">
+    <div className="w-full max-w-7xl mx-auto bg-white flex flex-col p-4">
+      <div className="flex justify-between items-start w-full mb-4">
         <div className="flex flex-col flex-1 mr-4">
           <input
             type="text"
@@ -226,11 +232,18 @@ export function ProfessionalEditor({ setEditorContent, initialTitle = "", initia
         <button
           onClick={handlePublish}
           disabled={!isReady}
-          className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
         >
           Publish
         </button>
       </div>
+
+      {!isReady && (
+        <div className="flex items-center space-x-2 text-gray-400 mb-4">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400" />
+          <span className="text-sm">Loading editor...</span>
+        </div>
+      )}
 
       <div className="w-full">
         <div

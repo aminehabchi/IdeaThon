@@ -1,12 +1,14 @@
 package ideathons
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
 	"strconv"
 
 	middle "ideaThon/middlewares"
+	"ideaThon/internal/notifications"
 	"ideaThon/utils"
 )
 
@@ -92,6 +94,24 @@ func Add_ideathons(w http.ResponseWriter, r *http.Request) {
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	// Send notifications to all users about the new ideathon
+	// Extract title from description if available
+	ideathonTitle := "a new ideathon"
+	if ideathon.Description != "" {
+		// Try to parse description JSON to get title
+		var descData map[string]interface{}
+		if err := json.Unmarshal([]byte(ideathon.Description), &descData); err == nil {
+			if doc, ok := descData["document"].(map[string]interface{}); ok {
+				if title, ok := doc["title"].(string); ok && title != "" {
+					ideathonTitle = title
+				}
+			}
+		}
+	}
+
+	// Send notifications asynchronously to avoid delaying the response
+	go notifications.NotifyNewIdeathon(int(ideathons_id), ideathonTitle, userID)
 
 	utils.Respond_with_id(w, http.StatusCreated, ideathons_id)
 }

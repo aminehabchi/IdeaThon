@@ -1,12 +1,16 @@
 package entries
 
 import (
+	"database/sql"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
 	"strconv"
 
+	"ideaThon/config"
 	middle "ideaThon/middlewares"
+	"ideaThon/internal/notifications"
 	"ideaThon/utils"
 )
 
@@ -43,6 +47,65 @@ func Add_entries(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to insert entry: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
+	}
+
+	// Get ideathon owner and description for notification
+	log.Printf("[ENTRIES] Attempting to send notification for entry submission. IdeathonID: %d, SubmitterID: %d", entrie.Ideathon_id, userID)
+
+	var ownerID int
+	var ideathonDescription string
+	err = config.DATABASE.QueryRow(
+		"SELECT user_id, description FROM ideathons WHERE id = ?",
+		entrie.Ideathon_id,
+	).Scan(&ownerID, &ideathonDescription)
+
+	if err != nil {
+		log.Printf("[ENTRIES] Failed to get ideathon owner: %v", err)
+	} else {
+		log.Printf("[ENTRIES] Found ideathon owner: %d (submitter: %d)", ownerID, userID)
+	}
+
+	if err == nil && ownerID != userID {
+		log.Printf("[ENTRIES] Owner is different from submitter, proceeding with notification")
+
+		// Get submitter name
+		var firstName, lastName sql.NullString
+		err = config.DATABASE.QueryRow(
+			"SELECT first_name, last_name FROM users WHERE id = ?",
+			userID,
+		).Scan(&firstName, &lastName)
+
+		submitterName := "Someone"
+		if err == nil {
+			if firstName.Valid && lastName.Valid {
+				submitterName = firstName.String + " " + lastName.String
+			} else if firstName.Valid {
+				submitterName = firstName.String
+			}
+		}
+
+		log.Printf("[ENTRIES] Submitter name: %s", submitterName)
+
+		// Extract title from ideathon description JSON
+		ideathonTitle := "your ideathon"
+		if ideathonDescription != "" {
+			var descData map[string]interface{}
+			if err := json.Unmarshal([]byte(ideathonDescription), &descData); err == nil {
+				if doc, ok := descData["document"].(map[string]interface{}); ok {
+					if title, ok := doc["title"].(string); ok && title != "" {
+						ideathonTitle = title
+					}
+				}
+			}
+		}
+
+		log.Printf("[ENTRIES] Ideathon title: %s", ideathonTitle)
+		log.Printf("[ENTRIES] Calling NotifyNewEntry goroutine")
+
+		// Send notification asynchronously
+		go notifications.NotifyNewEntry(entrie.Ideathon_id, ideathonTitle, submitterName, ownerID)
+	} else if err == nil && ownerID == userID {
+		log.Printf("[ENTRIES] Skipping notification: submitter is the owner")
 	}
 
 	utils.Respond_with_id(w, http.StatusCreated, entrie_id)

@@ -29,7 +29,7 @@ export const DocumentViewer = ({ data, id }) => {
     <div className="bg-white">
       <DocumentHeader data={data} />
       {/* <DocumentBanner data={parsedData} /> */}
-      <ProjectHeader parsedData={extractedData} id={id} />
+      <ProjectHeader parsedData={extractedData} id={id} ideathonData={data} />
       {/* <DocumentContent blocks={parsedData.blocks} /> */}
     </div>
   );

@@ -6,7 +6,7 @@ import { fetcher } from "@/lib/helpers";
 import { DocumentContent } from "./DocumentContent";
 import { DocumentBanner } from "./DocumentBanner";
 
-export function ProjectHeader({parsedData, id }) {
+export function ProjectHeader({parsedData, id, ideathonData }) {
   const [activeTab, setActiveTab] = useState("project");
   const [entriesCount, setEntriesCount] = useState(0);
 
@@ -70,7 +70,7 @@ export function ProjectHeader({parsedData, id }) {
             <DocumentContent data={parsedData} />
           </>
         )}
-        {activeTab === "entries" && <EntriesList id={id} />}
+        {activeTab === "entries" && <EntriesList id={id} ideathonData={ideathonData} />}
       </div>
     </div>
   );

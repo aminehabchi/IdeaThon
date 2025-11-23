@@ -25,9 +25,10 @@ import {IdeaLoader} from "@/components/ui/cosloader"
 import { DocumentContent } from "@/components/notionLike/ParserUtils/DocumentContent"
 import { Toaster, toast } from 'sonner';
 import Link from "next/link"
+import { useAuth } from '@/context/AuthContext';
 
 // Component for fetching and displaying entries for a specific ideathon
-export function EntriesList({ id }) {
+export function EntriesList({ id, ideathonData }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -95,7 +96,7 @@ export function EntriesList({ id }) {
   }
 
   // Use the shared EntriesGrid component
-  return <EntriesGrid entries={entries} setEntries={setEntries} ideathonId={id} />;
+  return <EntriesGrid entries={entries} setEntries={setEntries} ideathonId={id} ideathonData={ideathonData} />;
 }
 
 // Component for displaying already-fetched entries (used in ProfileContent)
@@ -107,14 +108,37 @@ export function EntriesDisplay({ entries }) {
 }
 
 // Shared component for rendering the entries grid
-function EntriesGrid({ entries, setEntries, ideathonId }) {
+function EntriesGrid({ entries, setEntries, ideathonId, ideathonData }) {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [reportTargetEntry, setReportTargetEntry] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState(null);
+  const [isPickingWinner, setIsPickingWinner] = useState(false);
   const router = useRouter();
+  const auth = useAuth();
+  const currentUser = auth?.user;
+
+  // Check if current user is the ideathon owner
+  const isIdeathonOwner = React.useMemo(() => {
+    if (!ideathonData || !ideathonData[0] || !currentUser) {
+      return false;
+    }
+
+    const ideathon = ideathonData[0];
+    const currentUserId = currentUser.id;
+    const ownerUserId = ideathon.owner?.id;
+
+    // Debug logging (can be removed later)
+    console.log('Ownership check:', {
+      currentUserId,
+      ownerUserId,
+      isOwner: currentUserId === ownerUserId
+    });
+
+    return currentUserId && ownerUserId && currentUserId === ownerUserId;
+  }, [ideathonData, currentUser]);
 
   const openModal = (entry) => {
     setSelectedEntry(entry);
@@ -137,7 +161,7 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
 
   const handleDeleteEntry = async () => {
     if (!entryToDelete) return;
-    
+
     setIsDeleting(true);
 
     try {
@@ -153,7 +177,7 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
       if (setEntries) {
         setEntries(prevEntries => prevEntries.filter(entry => entry.id !== entryToDelete.id));
       }
-      
+
       setShowDeleteDialog(false);
       setEntryToDelete(null);
       toast.success("Entry deleted successfully");
@@ -171,6 +195,76 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
       }
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handlePickWinner = async (entry, e) => {
+    if (e) e.stopPropagation();
+
+    // Check if ideathon data is available
+    if (!ideathonData || !ideathonData[0]) {
+      toast.error("Ideathon information not available");
+      return;
+    }
+
+    const ideathon = ideathonData[0];
+
+    // Check if a winner has already been selected
+    if (ideathon.winner_id && ideathon.winner_id !== 0) {
+      toast.error("A winner has already been selected for this ideathon");
+      return;
+    }
+
+    setIsPickingWinner(true);
+
+    try {
+      await fetcher({
+        url: "/api/ideathons/pick-winner",
+        method: "POST",
+        data: {
+          ideathon_id: ideathonId,
+          winner_id: entry.user_id
+        },
+        token: null,
+        returned_status: 200
+      });
+
+      // Update local state to mark this entry as winner
+      if (setEntries) {
+        setEntries(prevEntries =>
+          prevEntries.map(e => ({
+            ...e,
+            is_win: e.id === entry.id
+          }))
+        );
+      }
+
+      toast.success("Winner selected successfully!");
+
+      // Close modal if open
+      if (selectedEntry && selectedEntry.id === entry.id) {
+        setSelectedEntry(null);
+      }
+
+      // Reload the page to update ideathon data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+
+    } catch (error) {
+      if (error.status === 403) {
+        toast.error("Only the ideathon creator can pick a winner");
+      } else if (error.status === 400) {
+        toast.error(error.message || "Invalid request");
+      } else if (error.status === 404) {
+        toast.error("Ideathon or entry not found");
+      } else if (error.status === 401) {
+        toast.error("You must be logged in to pick a winner");
+      } else {
+        toast.error("Failed to pick winner. Please try again.");
+      }
+    } finally {
+      setIsPickingWinner(false);
     }
   };
 
@@ -222,9 +316,19 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
             return (
               <div
                 key={entry.id}
-                className="relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                className={`relative bg-white border rounded-xl p-4 hover:shadow-sm transition-all duration-200 cursor-pointer ${
+                  entry.is_win ? 'border-yellow-400 border-2' : 'border-gray-200'
+                }`}
                 onClick={() => openModal({...entry, description})}
               >
+                {/* Winner Badge */}
+                {entry.is_win && (
+                  <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                    <Trophy className="w-3 h-3" />
+                    WINNER
+                  </div>
+                )}
+
                 {/* Header with title and more menu */}
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-500">
@@ -242,10 +346,16 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
                     <DropdownMenuContent align="end" className="w-48"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <DropdownMenuItem className="cursor-pointer w-full flex items-center gap-2 whitespace-nowrap">
-                        <Trophy className="w-4 h-4" />
-                        Pick As a winner
-                      </DropdownMenuItem>
+                      {isIdeathonOwner && ideathonData && ideathonData[0] && !ideathonData[0].winner_id && (
+                        <DropdownMenuItem
+                          className="cursor-pointer w-full flex items-center gap-2 whitespace-nowrap"
+                          onClick={(e) => handlePickWinner({...entry, description}, e)}
+                          disabled={isPickingWinner}
+                        >
+                          <Trophy className="w-4 h-4" />
+                          {isPickingWinner ? 'Picking...' : 'Pick As a winner'}
+                        </DropdownMenuItem>
+                      )}
 
                       <DropdownMenuItem
                         className="flex items-center gap-2"
@@ -353,10 +463,14 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
 
       {/* Modal Popup */}
       {selectedEntry && (
-        <EntryPopUp 
-          setSelectedEntry={setSelectedEntry} 
-          selectedEntry={selectedEntry} 
-          openReportPopup={openReportPopup} 
+        <EntryPopUp
+          setSelectedEntry={setSelectedEntry}
+          selectedEntry={selectedEntry}
+          openReportPopup={openReportPopup}
+          handlePickWinner={handlePickWinner}
+          isPickingWinner={isPickingWinner}
+          ideathonData={ideathonData}
+          isIdeathonOwner={isIdeathonOwner}
         />
       )}
 
@@ -376,10 +490,12 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
   );
 }
 
-function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry }) {
+function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry, handlePickWinner, isPickingWinner, ideathonData, isIdeathonOwner }) {
   const handleCloseModal = () => {
     setSelectedEntry(null);
   };
+
+  const hasWinner = ideathonData && ideathonData[0] && ideathonData[0].winner_id && ideathonData[0].winner_id !== 0;
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
@@ -387,6 +503,13 @@ function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry }) {
         {/* Modal Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 border-b border-gray-200">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {/* Winner Badge in Modal */}
+            {selectedEntry.is_win && (
+              <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                <Trophy className="w-3 h-3" />
+                WINNER
+              </div>
+            )}
             <div className="flex items-center gap-1">
               <img
                 src={selectedEntry.owner?.avatar ? `/api/${selectedEntry.owner.avatar}` : "/empty_pfp.jpeg"}
@@ -411,7 +534,7 @@ function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry }) {
               {selectedEntry?.description?.document?.title || "Untitled"}
             </span>
             <span className="text-sm text-gray-400">•</span>
-            <button 
+            <button
               className="cursor-pointer text-gray-400 hover:text-gray-600 text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
@@ -424,10 +547,16 @@ function EntryPopUp({ openReportPopup, setSelectedEntry, selectedEntry }) {
           </div>
 
           <div className="flex items-center justify-between sm:justify-end gap-3">
-            <button className="cursor-pointer bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
-              <Trophy className="w-4 h-4" />
-              <span className="sm:inline">Pick as a winner</span>
-            </button>
+            {isIdeathonOwner && !hasWinner && (
+              <button
+                className="cursor-pointer bg-gray-900 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={(e) => handlePickWinner(selectedEntry, e)}
+                disabled={isPickingWinner}
+              >
+                <Trophy className="w-4 h-4" />
+                <span className="sm:inline">{isPickingWinner ? 'Picking...' : 'Pick as a winner'}</span>
+              </button>
+            )}
             <button
               onClick={handleCloseModal}
               className="text-gray-400 hover:text-gray-600 transition-colors"

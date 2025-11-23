@@ -46,10 +46,53 @@ export const ImageBlock = ({ block }) => {
     }
   };
 
+  const handleOpenInNewTab = () => {
+    try {
+      // For base64 images, create a blob URL to avoid 431 error
+      if (imageUrl.startsWith("data:image/")) {
+        const arr = imageUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = window.URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+        // Note: blob URL will be valid for this session
+      } else {
+        // For regular URLs, open directly
+        window.open(imageUrl, "_blank");
+      }
+    } catch (error) {
+      console.error("Failed to open image:", error);
+    }
+  };
+
   const handleDownload = async () => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
+      let blob;
+
+      // Handle base64 data URLs differently to avoid 431 error
+      if (imageUrl.startsWith("data:image/")) {
+        // Convert base64 to blob directly without HTTP request
+        const arr = imageUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        blob = new Blob([u8arr], { type: mime });
+      } else {
+        // For regular URLs, fetch normally
+        const response = await fetch(imageUrl);
+        blob = await response.blob();
+      }
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -121,7 +164,7 @@ export const ImageBlock = ({ block }) => {
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <div className="flex gap-1">
                   <button
-                    onClick={() => window.open(imageUrl, "_blank")}
+                    onClick={handleOpenInNewTab}
                     className="p-1.5 bg-black/50 text-white rounded-md hover:bg-black/70 transition-colors"
                     title="Open in new tab"
                   >

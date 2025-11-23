@@ -22,8 +22,37 @@ export default function Create_entry() {
         const publishData = async () => {
             let ideathon_id = pathname.split("/")[2];
 
+            // Validate ideathon ID
+            const ideathonIdNumber = Number(ideathon_id);
+            if (!ideathon_id || isNaN(ideathonIdNumber)) {
+                toast.error("Invalid ideathon ID");
+                setIsPublish(false);
+                return;
+            }
+
+            // Validate content exists
+            if (!editorContent) {
+                toast.error("Please add content before publishing");
+                setIsPublish(false);
+                return;
+            }
+
+            // Validate content has title
+            if (!editorContent?.document?.title || editorContent.document.title.trim() === "") {
+                toast.error("Please add a title to your entry");
+                setIsPublish(false);
+                return;
+            }
+
+            // Validate content has blocks
+            if (!editorContent?.blocks || editorContent.blocks.length === 0) {
+                toast.error("Please add content to your entry");
+                setIsPublish(false);
+                return;
+            }
+
             const backendPayload = {
-                ideathon_id: Number(ideathon_id),
+                ideathon_id: ideathonIdNumber,
                 description: JSON.stringify(editorContent),
             };
 
@@ -37,28 +66,33 @@ export default function Create_entry() {
                 });
 
                 toast.success("Entry published successfully!");
-                let redirect_path = pathname.replace("/create", "")
+                let redirect_path = pathname.replace("/create", "");
                 router.push(redirect_path);
             } catch (error) {
-                toast.error("Failed to publish entry. Please try again.");
+                const errorMessage = error?.message || "Failed to publish entry. Please try again.";
+                toast.error(errorMessage);
+                console.error("Publishing error:", error);
             } finally {
                 setIsPublish(false);
             }
         };
 
         publishData();
-    }, [isPublish]);
+    }, [isPublish, pathname, editorContent, router]);
 
     return (
         <>
+            <Toaster position="top-center" richColors />
             <DashboardNavbar />
-            <main className="mt-4 min-h-screen flex justify-center px-4">
-                <div className="w-full max-w-7xl">
-                    <h1 className="text-xl font-bold text-black mb-[-20px] ml-[20px]">
+            <main className="mt-6 min-h-screen flex justify-center px-4 bg-white">
+                <div className="w-full max-w-7xl py-4">
+                    <h1 className="text-2xl font-bold text-black mb-6 px-4">
                         Create a New Entry
                     </h1>
-                    <ProfessionalEditor setIsPublish={setIsPublish}
-                        setEditorContent={setEditorContent} />
+                    <ProfessionalEditor
+                        setIsPublish={setIsPublish}
+                        setEditorContent={setEditorContent}
+                    />
                 </div>
             </main>
         </>)
