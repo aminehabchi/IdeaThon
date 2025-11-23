@@ -6,8 +6,6 @@ import { Unlock, Lock, Clock } from "lucide-react";
 
 import Link from "next/link";
 export function ProjectNavbar(ideathon_id) {
-  console.log("bbbb",ideathon_id.id);
-  
   return (
     <nav className="border-b bg-gray-100 py-4 px-4  sm:px-8 ">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 max-w-full">

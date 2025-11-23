@@ -2,7 +2,7 @@ package entries
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -12,28 +12,35 @@ import (
 
 func Add_entries(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("Method Not Allowed"))
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method not allowed"))
 		return
 	}
 
 	var err error
 	var entrie Entries
 
-	entrie.User_id = r.Context().Value(middle.UserIDKey).(int)
+	userID, ok := r.Context().Value(middle.UserIDKey).(int)
+	if !ok {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, errors.New("authentication error"))
+		return
+	}
+	entrie.User_id = userID
 
 	if err = utils.Decode(r, &entrie); err != nil {
+		log.Printf("Failed to decode request body: %v", err)
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
+		return
+	}
+
+	if err = entrie.Check_entries_info(); err != nil {
+		log.Printf("Entry validation failed: %v", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
 	}
 
-	// if err = entrie.Check_entries_info(); err != nil {
-	// 	utils.SendResponseStatus(w, http.StatusBadRequest, err)
-	// 	return
-	// }
-
 	entrie_id, err := Insert_entries(entrie)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Failed to insert entry: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -47,18 +54,20 @@ func Delete_entrie(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user_id := r.Context().Value(middle.UserIDKey).(int)
+	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
+	if !ok {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, errors.New("authentication error"))
+		return
+	}
 
 	entries_id, err := strconv.Atoi(r.FormValue("entries_id"))
-	fmt.Println("idddd",entries_id)
 	if err != nil || entries_id <= 0 {
-		// fmt.Println("here",err)
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid entries iD"))
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid entries id"))
 		return
 	}
 
 	if err = Delete_entrie_DB(user_id, entries_id); err != nil {
-		// fmt.Println("entrie here",err)
+		log.Printf("Failed to delete entry %d: %v", entries_id, err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -68,26 +77,33 @@ func Delete_entrie(w http.ResponseWriter, r *http.Request) {
 
 func Update_entrie(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
-		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method Not Allowed"))
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method not allowed"))
 		return
 	}
 
-	user_id := r.Context().Value(middle.UserIDKey).(int)
+	user_id, ok := r.Context().Value(middle.UserIDKey).(int)
+	if !ok {
+		utils.SendResponseStatus(w, http.StatusInternalServerError, errors.New("authentication error"))
+		return
+	}
 
 	var err error
 	var entrie Entries
 	entrie.User_id = user_id
 	if err = utils.Decode(r, &entrie); err != nil {
+		log.Printf("Failed to decode request body: %v", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
 
 	if err = entrie.Check_entries_info(); err != nil {
+		log.Printf("Entry validation failed: %v", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
 	}
 
 	if err = Update_entrie_DB(user_id, entrie); err != nil {
+		log.Printf("Failed to update entry: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -97,16 +113,14 @@ func Update_entrie(w http.ResponseWriter, r *http.Request) {
 
 func Get_entries(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method Not Allowed"))
+		utils.SendResponseStatus(w, http.StatusMethodNotAllowed, errors.New("method not allowed"))
 		return
 	}
 
-	// user_id := r.Context().Value(middle.UserIDKey).(int)
-
 	var params Params
 	if err := utils.Decode(r, &params); err != nil {
-		// fmt.Println("Decode", err)
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid Request Body"))
+		log.Printf("Failed to decode request body: %v", err)
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
 
@@ -114,16 +128,14 @@ func Get_entries(w http.ResponseWriter, r *http.Request) {
 
 	entries, err := Get_entries_Db(query, args)
 	if err != nil {
-		// fmt.Println("Get_entries_Db", err)
+		log.Printf("Failed to get entries: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 	err = utils.Encode(w, entries)
 	if err != nil {
-		// fmt.Println("Encode", err)
+		log.Printf("Failed to encode response: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	// w.WriteHeader(http.StatusCreated)
 }

@@ -15,7 +15,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (pathname === "/login" || pathname === "/register") return
+    if (pathname === "/login" || pathname === "/register") return;
+
     const loadUser = async () => {
       try {
         const data = await fetcher({
@@ -25,13 +26,11 @@ export const AuthProvider = ({ children }) => {
         });
         setUser(data);
       } catch (err) {
-        // fetcher handles toast and redirection already
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
-    console.log("user", user);
 
     loadUser();
   }, [pathname]);

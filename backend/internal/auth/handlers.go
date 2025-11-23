@@ -3,7 +3,6 @@ package auth
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -58,26 +57,26 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	var user User
 	var err error
 	if err = utils.Decode(r, &user); err != nil {
-		log.Println("Decode", err)
-		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("Invalid request body"))
+		log.Printf("Failed to decode request body: %v", err)
+		utils.SendResponseStatus(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
 
 	if err = user.Check_register_info(); err != nil {
-		fmt.Println("Check_register_info", err)
+		log.Printf("Registration validation failed: %v", err)
 		utils.SendResponseStatus(w, http.StatusBadRequest, err)
 		return
 	}
 
 	user.Password, err = utils.Hash_password(user.Password)
 	if err != nil {
-		log.Println("Hash_password ", err)
+		log.Printf("Failed to hash password: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	if err = Insert_user_info(user); err != nil {
-		log.Println("Insert_user_info ", err)
+		log.Printf("Failed to insert user: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -86,18 +85,23 @@ func Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func Me(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value(middle.UserIDKey).(int)
+	userID, ok := r.Context().Value(middle.UserIDKey).(int)
+	if !ok {
+		log.Printf("Failed to get user ID from context")
+		utils.SendResponseStatus(w, http.StatusInternalServerError, errors.New("authentication error"))
+		return
+	}
 
 	info, err := Get_my_Info(userID)
 	if err != nil {
-		log.Println("Get_my_Info ", err)
+		log.Printf("Failed to get user info for user %d: %v", userID, err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	err = utils.Encode(w, info)
 	if err != nil {
-		log.Println("Encode ", err)
+		log.Printf("Failed to encode response: %v", err)
 		utils.SendResponseStatus(w, http.StatusInternalServerError, err)
 		return
 	}

@@ -33,8 +33,7 @@ function Create() {
         try {
           base64Banner = await imageToBase64(form.banner);
         } catch (err) {
-          console.error("Banner conversion failed:", err);
-          toast.error("Failed to convert banner image to base64.");
+          toast.error("Failed to convert banner image.");
           return;
         }
       }
@@ -62,10 +61,9 @@ function Create() {
         });
 
         toast.success("Ideathon published successfully!");
-        router.push("/create/published");
+        router.push("/ideas");
       } catch (error) {
-        toast.error("Failed to publish ideathon.");
-        console.error("Publishing error:", error);
+        toast.error("Failed to publish ideathon. Please try again.");
       }
     };
 

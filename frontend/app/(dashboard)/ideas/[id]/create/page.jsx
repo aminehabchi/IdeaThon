@@ -21,7 +21,6 @@ export default function Create_entry() {
 
         const publishData = async () => {
             let ideathon_id = pathname.split("/")[2];
-            console.log("-->", ideathon_id);
 
             const backendPayload = {
                 ideathon_id: Number(ideathon_id),
@@ -37,12 +36,11 @@ export default function Create_entry() {
                     returned_status: 201,
                 });
 
-                toast.success("entry published successfully!");
+                toast.success("Entry published successfully!");
                 let redirect_path = pathname.replace("/create", "")
                 router.push(redirect_path);
             } catch (error) {
-                toast.error("Failed to publish ideathon.");
-                console.error("Publishing error:", error);
+                toast.error("Failed to publish entry. Please try again.");
             } finally {
                 setIsPublish(false);
             }

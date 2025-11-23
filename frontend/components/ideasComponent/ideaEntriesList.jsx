@@ -56,7 +56,6 @@ export function EntriesList({ id }) {
           setEntries([]);
         }
       } catch (err) {
-        console.error("Error fetching entries:", err);
         setError("Failed to load entries. Please try again.");
         setEntries([]);
       } finally {
@@ -127,7 +126,6 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
   
   const openReportPopup = (entry) => {
     setReportTargetEntry(entry);
-    console.log("entry from popup", entry);
     setIsReportOpen(true);
   };
 
@@ -141,10 +139,8 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
     if (!entryToDelete) return;
     
     setIsDeleting(true);
-    
+
     try {
-      console.log("Deleting entry...", entryToDelete.id);
-      
       // Using query parameter since that matches the original code pattern
       await fetcher({
         url: `/api/entries/delete?entries_id=${entryToDelete.id}`,
@@ -161,10 +157,8 @@ function EntriesGrid({ entries, setEntries, ideathonId }) {
       setShowDeleteDialog(false);
       setEntryToDelete(null);
       toast.success("Entry deleted successfully");
-      
+
     } catch (error) {
-      console.error("Error deleting entry:", error);
-      
       // Show error message based on status
       if (error.status === 404) {
         toast.error("Entry not found");

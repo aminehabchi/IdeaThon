@@ -11,8 +11,7 @@ export function ProjectHeader({ id }) {
   const [ideathon, setIdeathon] = useState({});
   useEffect(() => {
     if (!id) return;
-    console.log("-->", id);
-    console.log("--->", Number(id));
+
     async function fetchIdeathon() {
       try {
         const data = await fetcher({
@@ -23,9 +22,8 @@ export function ProjectHeader({ id }) {
           returned_status: 200,
         });
         setIdeathon(data);
-        console.log(data);
       } catch (err) {
-        console.error("Error fetching ideathon:", err);
+        // Error already handled by fetcher
       }
     }
 

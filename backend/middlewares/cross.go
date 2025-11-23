@@ -4,8 +4,8 @@ import "net/http"
 
 func CORS(next http.Handler) http.Handler {
 	allowedOrigins := map[string]bool{
-		"http://localhost:3000":     true,
-		"https://your-frontend.com": true,
+		"http://localhost:3000":         true,
+		"https://idea-thon.vercel.app": true,
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +16,7 @@ func CORS(next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		if r.Method == http.MethodOptions {

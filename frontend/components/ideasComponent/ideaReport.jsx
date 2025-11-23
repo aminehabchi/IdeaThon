@@ -94,8 +94,6 @@ export default function ReportIdeaPopup({
         // created_at will be set by the backend automatically
       };
 
-      console.log("Submitting report:", reportData);
-
       const response = await fetcher({
         url: "/api/report/add",
         method: "POST",
@@ -104,8 +102,6 @@ export default function ReportIdeaPopup({
         returned_status: 201
       });
 
-      console.log("Report submitted successfully:", response);
-      
       // Reset form and close
       setIssueType("");
       setDescription("");
@@ -113,10 +109,8 @@ export default function ReportIdeaPopup({
       
       // Show success message
       toast.success("Report submitted successfully. We'll review it shortly.");
-      
+
     } catch (error) {
-      console.error("Error submitting report:", error);
-      
       // More specific error handling
       if (error.message && error.message.includes("20 characters")) {
         toast.error("Description must be at least 20 characters.");

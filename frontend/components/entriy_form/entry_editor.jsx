@@ -39,11 +39,19 @@ async function initializeEditor(editorRef, setIsReady, updateWordCount) {
                     config: {
                         uploader: {
                             async uploadByFile(file) {
-                                await new Promise((resolve) => setTimeout(resolve, 1000));
-                                return { success: 1, file: { url: URL.createObjectURL(file) } };
+                                const base64 = await imageToBase64(file);
+                                return { success: 1, file: { url: base64 } };
                             },
                             async uploadByUrl(url) {
-                                return { success: 1, file: { url } };
+                                try {
+                                    const res = await fetch(url);
+                                    const blob = await res.blob();
+                                    const base64 = await imageToBase64(blob);
+                                    return { success: 1, file: { url: base64 } };
+                                } catch (err) {
+                                    toast.error("Failed to load image from URL");
+                                    return { success: 0 };
+                                }
                             },
                         },
                         placeholder: "Paste image URL or upload file",
@@ -57,7 +65,6 @@ async function initializeEditor(editorRef, setIsReady, updateWordCount) {
             },
             onReady: () => {
                 setIsReady(true);
-                console.log("Editor is ready!");
             },
         });
 
@@ -79,7 +86,7 @@ async function calculateWordCount(editorRef, setWordCount) {
         });
         setWordCount(totalWords);
     } catch (error) {
-        console.error("Error counting words:", error);
+        // Silent fail for word count
     }
 }
 
@@ -105,14 +112,12 @@ async function publishContent({ editorRef, title, wordCount, form, ideathon_id, 
         };
 
         const banner = await imageToBase64(form.banner);
-        console.log("ideathon_id", Number(ideathon_id));
 
         const obj = {
             ideathon_id: Number(ideathon_id),
             banner,
             description: JSON.stringify(payload),
         };
-        console.log(obj);
 
         await fetcher({
             url: "/api/entries/add",

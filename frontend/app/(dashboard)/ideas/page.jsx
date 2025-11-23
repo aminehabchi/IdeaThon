@@ -25,7 +25,7 @@ const Page = () => {
 
         setIdeathons(data);
       } catch (err) {
-        console.error("Error fetching ideathons:", err);
+        // Error is already handled by fetcher
       }
     }
 
@@ -39,7 +39,7 @@ const Page = () => {
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
       />
-      <div className="flex flex-col items-center justify-center gap-8 mt-8 p-6 mt-[-20px]">
+      <div className="flex flex-col items-center justify-center gap-8 p-6">
         {ideathons?.map((idea) => (
           <Link key={idea.id} href={`/ideas/${idea.id}`}>
             <Ideathon {...idea} />

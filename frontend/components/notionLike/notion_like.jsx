@@ -14,7 +14,7 @@ export function ProfessionalEditor({ setEditorContent, initialTitle = "", initia
   // Initialize EditorJS
   useEffect(() => {
     let editor;
-    let isMounted = true; // Cancellation flag
+    let isMounted = true;
 
     const loadEditor = async () => {
       try {
@@ -23,53 +23,105 @@ export function ProfessionalEditor({ setEditorContent, initialTitle = "", initia
         const Paragraph = (await import("@editorjs/paragraph")).default;
         const List = (await import("@editorjs/list")).default;
         const Image = (await import("@editorjs/image")).default;
+        const Quote = (await import("@editorjs/quote")).default;
+        const Code = (await import("@editorjs/code")).default;
+        const Delimiter = (await import("@editorjs/delimiter")).default;
+        const Table = (await import("@editorjs/table")).default;
 
-        // Check if component is still mounted before creating editor
         if (!isMounted) return;
-
-        // Check if editor already exists
-        if (editorRef.current) {
-          console.warn("Editor already exists, skipping creation");
-          return;
-        }
+        if (editorRef.current) return;
 
         editor = new EditorJS({
           holder: "professional-editor",
-          placeholder: "Start writing...",
+          placeholder: "Start writing your content...",
           minHeight: 300,
           tools: {
-            paragraph: { class: Paragraph },
-            header: { class: Header, shortcut: "CMD+SHIFT+H" },
-            list: { class: List, inlineToolbar: true, shortcut: "CMD+SHIFT+L" },
+            paragraph: {
+              class: Paragraph,
+              inlineToolbar: true
+            },
+            header: {
+              class: Header,
+              config: {
+                levels: [1, 2, 3, 4],
+                defaultLevel: 2
+              },
+              shortcut: "CMD+SHIFT+H"
+            },
+            list: {
+              class: List,
+              inlineToolbar: true,
+              config: {
+                defaultStyle: "unordered"
+              },
+              shortcut: "CMD+SHIFT+L"
+            },
+            quote: {
+              class: Quote,
+              inlineToolbar: true,
+              config: {
+                quotePlaceholder: "Enter a quote",
+                captionPlaceholder: "Quote's author"
+              },
+              shortcut: "CMD+SHIFT+O"
+            },
+            code: {
+              class: Code,
+              shortcut: "CMD+SHIFT+C"
+            },
+            delimiter: {
+              class: Delimiter,
+              shortcut: "CMD+SHIFT+D"
+            },
+            table: {
+              class: Table,
+              inlineToolbar: true,
+              config: {
+                rows: 2,
+                cols: 3
+              }
+            },
             image: {
               class: Image,
               config: {
                 uploader: {
                   async uploadByFile(file) {
-                    const base64 = await imageToBase64(file);
-                    return { success: 1, file: { url: base64 } };
+                    try {
+                      const base64 = await imageToBase64(file);
+                      return { success: 1, file: { url: base64 } };
+                    } catch (err) {
+                      toast.error("Failed to upload image");
+                      return { success: 0 };
+                    }
                   },
                   async uploadByUrl(url) {
-                    const res = await fetch(url);
-                    const blob = await res.blob();
-                    const base64 = await imageToBase64(blob);
-                    return { success: 1, file: { url: base64 } };
+                    try {
+                      const res = await fetch(url);
+                      const blob = await res.blob();
+                      const base64 = await imageToBase64(blob);
+                      return { success: 1, file: { url: base64 } };
+                    } catch (err) {
+                      toast.error("Failed to load image from URL");
+                      return { success: 0 };
+                    }
                   },
                 },
+                placeholder: "Paste image URL or upload file"
               },
             },
           },
           onReady: async () => {
-            if (isMounted) {
-              setIsReady(true);
-              // Load initial blocks if provided and not already loaded
-              if (initialBlocks && initialBlocks.length > 0 && !hasLoadedBlocks) {
-                try {
-                  await editor.render({ blocks: initialBlocks });
-                  setHasLoadedBlocks(true);
-                } catch (err) {
-                  console.error("Failed to load initial blocks", err);
-                }
+            if (!isMounted) return;
+
+            setIsReady(true);
+
+            // Load initial blocks if provided
+            if (initialBlocks && initialBlocks.length > 0 && !hasLoadedBlocks) {
+              try {
+                await editor.render({ blocks: initialBlocks });
+                setHasLoadedBlocks(true);
+              } catch (err) {
+                toast.error("Failed to load initial content");
               }
             }
           },
@@ -77,7 +129,6 @@ export function ProfessionalEditor({ setEditorContent, initialTitle = "", initia
 
         editorRef.current = editor;
       } catch (error) {
-        console.error("Error loading editor:", error);
         if (isMounted) {
           toast.error("Editor failed to load");
         }
@@ -87,23 +138,43 @@ export function ProfessionalEditor({ setEditorContent, initialTitle = "", initia
     loadEditor();
 
     return () => {
-      isMounted = false; // Mark as unmounted
+      isMounted = false;
       if (editorRef.current?.destroy) {
         editorRef.current.destroy();
         editorRef.current = null;
         setIsReady(false);
       }
     };
+    // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialBlocks]);
+  }, []);
 
-  // Update title/subtitle if props change (for hot reload or prop update)
+  // Update title/subtitle if props change
   useEffect(() => {
     setTitle(initialTitle);
   }, [initialTitle]);
+
   useEffect(() => {
     setSubtitle(initialSubtitle);
   }, [initialSubtitle]);
+
+  // Load initial blocks when they change (for edit mode)
+  useEffect(() => {
+    if (!editorRef.current || !isReady) return;
+    if (!initialBlocks || initialBlocks.length === 0) return;
+    if (hasLoadedBlocks) return;
+
+    const loadBlocks = async () => {
+      try {
+        await editorRef.current.render({ blocks: initialBlocks });
+        setHasLoadedBlocks(true);
+      } catch (err) {
+        toast.error("Failed to load content");
+      }
+    };
+
+    loadBlocks();
+  }, [initialBlocks, isReady, hasLoadedBlocks]);
 
   // Handle publish: save content and send to parent
   const handlePublish = useCallback(async () => {
@@ -128,7 +199,6 @@ export function ProfessionalEditor({ setEditorContent, initialTitle = "", initia
       setEditorContent(data);
       toast.success("Content ready for publishing!");
     } catch (error) {
-      console.error(error);
       toast.error("Publishing failed");
     }
   }, [title, subtitle, setEditorContent]);

@@ -2,7 +2,6 @@ import { getDaysLeft } from "@/lib/utils";
 
 export default function Ideathon(idea) {
   const { banner, owner, entries, privacy, category, price, end_date } = idea;
-  console.log("banner", banner);
 
   let data = idea.description;
 
@@ -15,7 +14,6 @@ export default function Ideathon(idea) {
   try {
     body = JSON.parse(data);
   } catch (err) {
-    console.error("Failed to parse JSON:", err);
     body = {};
   }
 

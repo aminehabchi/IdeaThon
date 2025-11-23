@@ -41,7 +41,7 @@ func (u *User) Check_register_info() error {
 	}
 
 	u.Password = strings.TrimSpace(u.Password)
-	if strings.TrimSpace(u.Password) == "" {
+	if u.Password == "" {
 		return errors.New("password is required")
 	}
 
@@ -64,7 +64,7 @@ func (u *User) Check_login_info() error {
 	}
 
 	u.Password = strings.TrimSpace(u.Password)
-	if strings.TrimSpace(u.Password) == "" {
+	if u.Password == "" {
 		return errors.New("password is required")
 	}
 

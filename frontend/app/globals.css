@@ -165,11 +165,10 @@
   color: #4b5563; /* gray-600 */
 }
 
-/* loading fase */
+/* loading phase */
 .loader {
   width: fit-content;
   font-size: 40px;
-  /* font-family: monospace; */
   font-weight: bold;
   text-transform: uppercase;
   color: #0000;
@@ -193,7 +192,7 @@
 }
 
 .loader:before {
-  content: "IdeaThoon";
+  content: "IdeaThon";
 }
 
 @keyframes l17-0 {
